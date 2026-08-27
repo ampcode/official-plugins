@@ -79,7 +79,7 @@ export default function (amp: PluginAPI) {
 
 	const agent = amp.experimental.createAgent({
 		name: 'deepseek-v4-pro',
-		model: 'baseten/deepseek-ai/DeepSeek-V4-Pro',
+		model: 'deepseek/deepseek-v4-pro',
 		instructions: DEEPSEEK_V4_AGENT_PROMPT,
 		tools: SMART_TOOL_NAMES,
 		reasoningEffort: 'high',
@@ -89,7 +89,7 @@ export default function (amp: PluginAPI) {
 	amp.experimental.registerAgentMode({
 		key: 'deepseek-v4-pro',
 		label: 'DeepSeek V4 Pro',
-		description: 'DeepSeek V4 Pro on Baseten',
+		description: 'DeepSeek V4 Pro (0813) on Baseten',
 		color: '#2563eb',
 		agent: agent.definition,
 	})
