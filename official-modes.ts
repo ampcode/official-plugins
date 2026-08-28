@@ -1,13 +1,13 @@
-// @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5"}
-// @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro"}
-// @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)"}
-// @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash"}
-// @amp-agent-mode {"key":"gpt56s-pro","label":"GPT-5.6 Sol Pro","features":["pro"]}
-// @amp-agent-mode {"key":"grok45","label":"Grok 4.5"}
-// @amp-agent-mode {"key":"grok46","label":"Grok 4.6"}
-// @amp-agent-mode {"key":"kimi-k3","label":"Kimi K3"}
-// @amp-agent-mode {"key":"minimax-m3","label":"MiniMax M3"}
-// @amp-agent-mode {"key":"qwen3.8-max","label":"Qwen3.8 Max"}
+// @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
+// @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
+// @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
+// @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
+// @amp-agent-mode {"key":"gpt56s-pro","label":"GPT-5.6 Sol Pro","color":"#14b8a6","features":["pro"]}
+// @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
+// @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
+// @amp-agent-mode {"key":"kimi-k3","label":"Kimi K3","color":"#3b82f6"}
+// @amp-agent-mode {"key":"minimax-m3","label":"MiniMax M3","color":"#f97316"}
+// @amp-agent-mode {"key":"qwen3.8-max","label":"Qwen3.8 Max","color":"#a855f7"}
 
 /**
  * Official Amp agent modes, served to every user.
