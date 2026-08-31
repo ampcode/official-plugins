@@ -1,4 +1,5 @@
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
+// @amp-agent-mode {"key":"deepseek-v4-flash","label":"DeepSeek V4 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
 // @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
 // @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
@@ -288,8 +289,34 @@ function registerDeepSeekV4Pro(amp: PluginAPI) {
 	amp.experimental.registerAgentMode({
 		key: 'deepseek-v4-pro',
 		label: 'DeepSeek V4 Pro',
-		description: 'DeepSeek V4 Pro (0813) on Baseten',
+		description: 'DeepSeek V4 Pro (0813) on Fireworks',
 		color: '#2563eb',
+		agent: agent.definition,
+	})
+}
+
+// ───── DeepSeek V4 Flash (deepseek-v4-flash) ─────
+
+function registerDeepSeekV4Flash(amp: PluginAPI) {
+	if (!amp.experimental) {
+		amp.logger.log('Experimental plugin API is not available.')
+		return
+	}
+
+	const agent = amp.experimental.createAgent({
+		name: 'deepseek-v4-flash',
+		model: 'deepseek/deepseek-v4-flash',
+		instructions: DEEPSEEK_V4_AGENT_PROMPT,
+		tools: DEEPSEEK_V4_TOOL_NAMES,
+		reasoningEffort: 'max',
+		display: { label: 'DeepSeek V4 Flash', color: '#60a5fa' },
+	})
+
+	amp.experimental.registerAgentMode({
+		key: 'deepseek-v4-flash',
+		label: 'DeepSeek V4 Flash',
+		description: 'DeepSeek V4 Flash (0731) on Fireworks',
+		color: '#60a5fa',
 		agent: agent.definition,
 	})
 }
@@ -541,7 +568,7 @@ function registerGLM53Flash(amp: PluginAPI) {
 	amp.registerAgentMode({
 		key: 'glm-5.3-flash',
 		label: 'GLM 5.3 Flash',
-		description: 'GLM 5.3 Flash on Baseten: fast, multimodal, for small well-defined tasks',
+		description: 'GLM 5.3 Flash on Fireworks: fast, multimodal, for small well-defined tasks',
 		color: '#84cc16',
 		agent: agent.definition,
 	})
@@ -1214,6 +1241,7 @@ function registerQwen38Max(amp: PluginAPI) {
 
 const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'claude-opus-5': registerClaudeOpus5,
+	'deepseek-v4-flash': registerDeepSeekV4Flash,
 	'deepseek-v4-pro': registerDeepSeekV4Pro,
 	'glm-5.2': registerGLM52,
 	'glm-5.3-flash': registerGLM53Flash,
