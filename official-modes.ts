@@ -174,6 +174,7 @@ const OPUS_TOOL_NAMES = [
 	'archive_current_thread',
 	'send_message_to_puck',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerClaudeOpus5(amp: PluginAPI) {
@@ -269,6 +270,7 @@ const DEEPSEEK_V4_TOOL_NAMES = [
 	'librarian',
 	'view_media',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerDeepSeekV4Pro(amp: PluginAPI) {
@@ -459,6 +461,7 @@ const GLM_52_TOOL_NAMES = [
 	'painter',
 	'read_mcp_resource',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerGLM52(amp: PluginAPI) {
@@ -553,6 +556,7 @@ const GLM_53_FLASH_TOOL_NAMES = [
 	'librarian',
 	'view_media',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerGLM53Flash(amp: PluginAPI) {
@@ -658,6 +662,7 @@ const GPT_56_TOOL_NAMES = [
 	'painter',
 	'archive_current_thread',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerGPT56SolPro(amp: PluginAPI) {
@@ -709,6 +714,7 @@ const DEEP_TOOL_NAMES = [
 	'view_media',
 	'web_search',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerGrok45(amp: PluginAPI) {
@@ -931,6 +937,7 @@ const ULTRA_TOOL_NAMES = [
 	'x_read',
 	'x_reply',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerGrok46(amp: PluginAPI) {
@@ -1015,7 +1022,8 @@ const KIMI_K3_TOOL_NAMES = [
 	'Task',
 	'librarian',
 	'view_media',
-	'mcp__*'
+	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerKimiK3(amp: PluginAPI) {
@@ -1116,6 +1124,7 @@ const MINIMAX_M3_TOOL_NAMES = [
 	'librarian',
 	'view_media',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerMiniMaxM3(amp: PluginAPI) {
@@ -1216,6 +1225,7 @@ const QWEN_38_MAX_TOOL_NAMES = [
 	'librarian',
 	'view_media',
 	'mcp__*',
+	'plugin__*',
 ] as const
 
 function registerQwen38Max(amp: PluginAPI) {
