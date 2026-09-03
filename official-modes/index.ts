@@ -1,6 +1,7 @@
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
 // @amp-agent-mode {"key":"deepseek-v4-flash","label":"DeepSeek V4 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
+// @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
 // @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
 // @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
 // @amp-agent-mode {"key":"gpt56s-pro","label":"GPT-5.6 Sol Pro","color":"#14b8a6","features":["pro"]}
@@ -33,6 +34,10 @@ import {
 	DEEPSEEK_V4_PRO_AGENT_PROMPT,
 	DEEPSEEK_V4_PRO_TOOL_NAMES,
 } from './modes/deepseek-v4-pro'
+import {
+	GEMINI_38_FLASH_AGENT_PROMPT,
+	GEMINI_38_FLASH_TOOL_NAMES,
+} from './modes/gemini-38-flash'
 import { GLM_52_AGENT_PROMPT, GLM_52_TOOL_NAMES } from './modes/glm-52'
 import { GLM_53_FLASH_AGENT_PROMPT, GLM_53_FLASH_TOOL_NAMES } from './modes/glm-53-flash'
 import { GPT_56_AGENT_PROMPT, GPT_56_TOOL_NAMES } from './modes/gpt-56'
@@ -118,6 +123,27 @@ function registerDeepSeekV4Flash(amp: PluginAPI) {
 		label: 'DeepSeek V4 Flash',
 		description: 'DeepSeek V4 Flash (0731) on Fireworks',
 		color: '#60a5fa',
+		agent: agent.definition,
+	})
+}
+
+// ───── Gemini 3.8 Flash (gemini-3.8-flash) ─────
+
+function registerGemini38Flash(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gemini-3.8-flash',
+		model: 'google-vertex/gemini-3.8-flash',
+		instructions: GEMINI_38_FLASH_AGENT_PROMPT,
+		tools: GEMINI_38_FLASH_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'Gemini 3.8 Flash', color: '#4285f4' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gemini-3.8-flash',
+		label: 'Gemini 3.8 Flash',
+		description: 'Gemini 3.8 Flash on Vertex: fast, multimodal, for small well-defined tasks',
+		color: '#4285f4',
 		agent: agent.definition,
 	})
 }
@@ -339,6 +365,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'claude-opus-5': registerClaudeOpus5,
 	'deepseek-v4-flash': registerDeepSeekV4Flash,
 	'deepseek-v4-pro': registerDeepSeekV4Pro,
+	'gemini-3.8-flash': registerGemini38Flash,
 	'glm-5.2': registerGLM52,
 	'glm-5.3-flash': registerGLM53Flash,
 	'gpt56s-pro': registerGPT56SolPro,
