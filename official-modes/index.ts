@@ -142,7 +142,7 @@ function registerGemini38Flash(amp: PluginAPI) {
 	amp.registerAgentMode({
 		key: 'gemini-3.8-flash',
 		label: 'Gemini 3.8 Flash',
-		description: 'Gemini 3.8 Flash on Vertex: fast, multimodal, for small well-defined tasks',
+		description: 'Gemini 3.8 Flash on Vertex at high',
 		color: '#4285f4',
 		agent: agent.definition,
 	})
