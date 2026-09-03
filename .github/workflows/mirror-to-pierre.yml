@@ -1,0 +1,31 @@
+name: Mirror to Pierre
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mirror-to-pierre
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - name: Push main to the official plugin distribution repository
+        env:
+          AMP_API_KEY: ${{ secrets.AMP_API_KEY }}
+        run: |
+          test -n "$AMP_API_KEY"
+          git config credential.helper \
+            '!f() { printf "%s\n" username=amp "password=$AMP_API_KEY"; }; f'
+          git remote add pierre https://ampcode.com/git/-/official-plugins
+          git push pierre HEAD:main

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+amp plugins exec ./official-modes agent.start --data '{"message":"smoke"}'
