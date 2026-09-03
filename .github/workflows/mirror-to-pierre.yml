@@ -25,8 +25,11 @@ jobs:
           AMP_API_KEY: ${{ secrets.AMP_API_KEY }}
         run: |
           test -n "$AMP_API_KEY"
-          git config --global credential.helper store
-          printf 'protocol=https\nhost=ampcode.com\nusername=amp\npassword=%s\n\n' \
-            "$AMP_API_KEY" | git credential approve
+          basic_auth="$(printf 'amp:%s' "$AMP_API_KEY" | base64 -w0)"
+          export GIT_CONFIG_GLOBAL="$(mktemp)"
+          trap 'rm -f "$GIT_CONFIG_GLOBAL"' EXIT
+          printf '[http "https://ampcode.com/"]\n\textraHeader = Authorization: Basic %s\n' \
+            "$basic_auth" > "$GIT_CONFIG_GLOBAL"
+          unset basic_auth AMP_API_KEY
           git remote add pierre https://ampcode.com/git/-/official-plugins
           git push pierre HEAD:main
