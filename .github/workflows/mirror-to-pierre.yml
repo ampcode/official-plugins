@@ -25,7 +25,8 @@ jobs:
           AMP_API_KEY: ${{ secrets.AMP_API_KEY }}
         run: |
           test -n "$AMP_API_KEY"
-          git config credential.helper \
-            '!f() { printf "%s\n" username=amp "password=$AMP_API_KEY"; }; f'
+          git config --global credential.helper store
+          printf 'protocol=https\nhost=ampcode.com\nusername=amp\npassword=%s\n\n' \
+            "$AMP_API_KEY" | git credential approve
           git remote add pierre https://ampcode.com/git/-/official-plugins
           git push pierre HEAD:main
