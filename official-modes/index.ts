@@ -320,7 +320,7 @@ function registerQwen38Max(amp: PluginAPI) {
 		model: 'alibaba/qwen3.8-max',
 		instructions: QWEN_38_MAX_AGENT_PROMPT,
 		tools: QWEN_38_MAX_TOOL_NAMES,
-		reasoningEffort: 'high',
+		reasoningEffort: 'xhigh',
 		display: { label: 'Qwen3.8 Max', color: '#a855f7' },
 	})
 
