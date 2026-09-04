@@ -5,6 +5,7 @@
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
 // @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
 // @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
+// @amp-agent-mode {"key":"gpt56s","label":"GPT-5.6 Sol","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt56s-pro","label":"GPT-5.6 Sol Pro","color":"#14b8a6","features":["pro"]}
 // @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
 // @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
@@ -218,6 +219,27 @@ function registerGLM53Flash(amp: PluginAPI) {
 	})
 }
 
+// ───── GPT-5.6 Sol (gpt56s) ─────
+
+function registerGPT56Sol(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-5.6-sol',
+		model: 'openai/gpt-5.6-sol',
+		instructions: GPT_56_AGENT_PROMPT,
+		tools: GPT_56_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'GPT-5.6 Sol', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt56s',
+		label: 'GPT-5.6 Sol',
+		description: 'GPT-5.6 Sol at high effort with Amp High behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
 // ───── GPT-5.6 Sol Pro (gpt56s-pro) ─────
 
 function registerGPT56SolPro(amp: PluginAPI) {
@@ -392,6 +414,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gemini-3.8-flash': registerGemini38Flash,
 	'glm-5.2': registerGLM52,
 	'glm-5.3-flash': registerGLM53Flash,
+	'gpt56s': registerGPT56Sol,
 	'gpt56s-pro': registerGPT56SolPro,
 	'grok45': registerGrok45,
 	'grok46': registerGrok46,
