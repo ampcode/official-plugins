@@ -1,4 +1,9 @@
 // @amp-agent-mode {"key":"astra","label":"GPT-6 Astra","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt-6-astra-low","label":"GPT-6 Astra Low","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt-6-astra-medium","label":"GPT-6 Astra Medium","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt-6-astra-high","label":"GPT-6 Astra High","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt-6-astra-xhigh","label":"GPT-6 Astra XHigh","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt-6-astra-max","label":"GPT-6 Astra Max","color":"#14b8a6"}
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
 // @amp-agent-mode {"key":"deepseek-v4-flash","label":"DeepSeek V4 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
@@ -22,13 +27,12 @@
  * `registerAgentMode` call below; the server reads the headers to list modes before the
  * plugin runs. Each mode registers inside its own try/catch so one failure does not remove
  * the others.
- * Prompts and tool lists live in `modes/` so this directory plugin is not limited by the
- * single-file plugin transport.
+ * Model-specific prompts and tool lists live in `modes/`; modes that extend built-in Amp
+ * behavior inherit its current prompt and tools at runtime.
  */
 
 import type { PluginAPI } from '@ampcode/plugin'
 
-import { ASTRA_AGENT_PROMPT, ASTRA_TOOL_NAMES } from './modes/astra'
 import {
 	DEEPSEEK_V4_FLASH_AGENT_PROMPT,
 	DEEPSEEK_V4_FLASH_TOOL_NAMES,
@@ -52,22 +56,121 @@ import { MUSE_SPARK_AGENT_PROMPT, MUSE_SPARK_TOOL_NAMES } from './modes/muse-spa
 import { OPUS_AGENT_PROMPT, OPUS_TOOL_NAMES } from './modes/opus'
 import { QWEN_38_MAX_AGENT_PROMPT, QWEN_38_MAX_TOOL_NAMES } from './modes/qwen-38-max'
 
+// ───── GPT-6 Astra Low (gpt-6-astra-low) ─────
+
+function registerGPT6AstraLow(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-astra-low',
+		extends: 'low',
+		model: 'openai/gpt-6-astra',
+		reasoningEffort: 'low',
+		display: { label: 'GPT-6 Astra Low', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt-6-astra-low',
+		label: 'GPT-6 Astra Low',
+		description: 'GPT-6 Astra at low reasoning effort with Amp Low behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
+// ───── GPT-6 Astra Medium (gpt-6-astra-medium) ─────
+
+function registerGPT6AstraMedium(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-astra-medium',
+		extends: 'medium',
+		model: 'openai/gpt-6-astra',
+		reasoningEffort: 'medium',
+		display: { label: 'GPT-6 Astra Medium', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt-6-astra-medium',
+		label: 'GPT-6 Astra Medium',
+		description: 'GPT-6 Astra at medium reasoning effort with Amp Medium behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
+// ───── GPT-6 Astra High (gpt-6-astra-high) ─────
+
+function registerGPT6AstraHigh(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-astra-high',
+		extends: 'high',
+		model: 'openai/gpt-6-astra',
+		reasoningEffort: 'high',
+		display: { label: 'GPT-6 Astra High', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt-6-astra-high',
+		label: 'GPT-6 Astra High',
+		description: 'GPT-6 Astra at high reasoning effort with Amp High behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
+// ───── GPT-6 Astra XHigh (gpt-6-astra-xhigh) ─────
+
+function registerGPT6AstraXHigh(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-astra-xhigh',
+		extends: 'high',
+		model: 'openai/gpt-6-astra',
+		reasoningEffort: 'xhigh',
+		display: { label: 'GPT-6 Astra XHigh', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt-6-astra-xhigh',
+		label: 'GPT-6 Astra XHigh',
+		description: 'GPT-6 Astra at xhigh reasoning effort with Amp High behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
+// ───── GPT-6 Astra Max (gpt-6-astra-max) ─────
+
+function registerGPT6AstraMax(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-astra-max',
+		extends: 'ultra',
+		model: 'openai/gpt-6-astra',
+		reasoningEffort: 'max',
+		display: { label: 'GPT-6 Astra Max', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt-6-astra-max',
+		label: 'GPT-6 Astra Max',
+		description: 'GPT-6 Astra at max reasoning effort with Amp Ultra behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
 // ───── GPT-6 Astra (astra) ─────
 
 function registerGPT6Astra(amp: PluginAPI) {
 	const agent = amp.createAgent({
 		name: 'gpt-6-astra',
+		extends: 'medium',
 		model: 'openai/gpt-6-astra',
-		instructions: ASTRA_AGENT_PROMPT,
-		tools: ASTRA_TOOL_NAMES,
-		reasoningEffort: 'xhigh',
+		reasoningEffort: 'medium',
 		display: { label: 'GPT-6 Astra', color: '#14b8a6' },
 	})
 
 	amp.registerAgentMode({
 		key: 'astra',
 		label: 'GPT-6 Astra',
-		description: 'GPT-6 Astra at xhigh effort with Amp High behavior',
+		description: 'GPT-6 Astra at medium reasoning effort with Amp Medium behavior',
 		color: '#14b8a6',
 		agent: agent.definition,
 	})
@@ -407,6 +510,11 @@ function registerQwen38Max(amp: PluginAPI) {
 // ───── Registration ─────
 
 const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
+	'gpt-6-astra-low': registerGPT6AstraLow,
+	'gpt-6-astra-medium': registerGPT6AstraMedium,
+	'gpt-6-astra-high': registerGPT6AstraHigh,
+	'gpt-6-astra-xhigh': registerGPT6AstraXHigh,
+	'gpt-6-astra-max': registerGPT6AstraMax,
 	'astra': registerGPT6Astra,
 	'claude-opus-5': registerClaudeOpus5,
 	'deepseek-v4-flash': registerDeepSeekV4Flash,
