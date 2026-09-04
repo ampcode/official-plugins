@@ -1,3 +1,4 @@
+// @amp-agent-mode {"key":"astra","label":"GPT-6 Astra","color":"#14b8a6"}
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
 // @amp-agent-mode {"key":"deepseek-v4-flash","label":"DeepSeek V4 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
@@ -26,6 +27,7 @@
 
 import type { PluginAPI } from '@ampcode/plugin'
 
+import { ASTRA_AGENT_PROMPT, ASTRA_TOOL_NAMES } from './modes/astra'
 import {
 	DEEPSEEK_V4_FLASH_AGENT_PROMPT,
 	DEEPSEEK_V4_FLASH_TOOL_NAMES,
@@ -48,6 +50,27 @@ import { MINIMAX_M3_AGENT_PROMPT, MINIMAX_M3_TOOL_NAMES } from './modes/minimax-
 import { MUSE_SPARK_AGENT_PROMPT, MUSE_SPARK_TOOL_NAMES } from './modes/muse-spark'
 import { OPUS_AGENT_PROMPT, OPUS_TOOL_NAMES } from './modes/opus'
 import { QWEN_38_MAX_AGENT_PROMPT, QWEN_38_MAX_TOOL_NAMES } from './modes/qwen-38-max'
+
+// ───── GPT-6 Astra (astra) ─────
+
+function registerGPT6Astra(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-astra',
+		model: 'openai/gpt-6-astra',
+		instructions: ASTRA_AGENT_PROMPT,
+		tools: ASTRA_TOOL_NAMES,
+		reasoningEffort: 'xhigh',
+		display: { label: 'GPT-6 Astra', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'astra',
+		label: 'GPT-6 Astra',
+		description: 'GPT-6 Astra at xhigh effort with Amp High behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
 
 // ───── Claude Opus 5 (claude-opus-5) ─────
 
@@ -362,6 +385,7 @@ function registerQwen38Max(amp: PluginAPI) {
 // ───── Registration ─────
 
 const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
+	'astra': registerGPT6Astra,
 	'claude-opus-5': registerClaudeOpus5,
 	'deepseek-v4-flash': registerDeepSeekV4Flash,
 	'deepseek-v4-pro': registerDeepSeekV4Pro,
