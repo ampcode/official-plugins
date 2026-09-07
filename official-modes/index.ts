@@ -523,7 +523,7 @@ function registerDaybreakBlue(amp: PluginAPI) {
 		key: 'daybreak-blue',
 		label: 'Daybreak Blue',
 		description:
-			'Requires access to Daybreak Blue through your personal ChatGPT subscription, linked to Amp.',
+			'Requires access to Daybreak Blue through your personal ChatGPT subscription.',
 		color: '#3b82f6',
 		agent: agent.definition,
 	})
