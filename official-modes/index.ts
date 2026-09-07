@@ -5,6 +5,7 @@
 // @amp-agent-mode {"key":"gpt-6-astra-xhigh","label":"GPT-6 Astra XHigh","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt-6-astra-max","label":"GPT-6 Astra Max","color":"#14b8a6"}
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
+// @amp-agent-mode {"key":"daybreak-blue","label":"Daybreak Blue","color":"#3b82f6"}
 // @amp-agent-mode {"key":"deepseek-v4-flash","label":"DeepSeek V4 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
@@ -507,6 +508,27 @@ function registerQwen38Max(amp: PluginAPI) {
 	})
 }
 
+// ───── Daybreak Blue (daybreak-blue) ─────
+
+function registerDaybreakBlue(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		model: 'openai/gpt-daybreak-blue-latest',
+		instructions: GPT_56_AGENT_PROMPT,
+		tools: GPT_56_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'Daybreak Blue', color: '#3b82f6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'daybreak-blue',
+		label: 'Daybreak Blue',
+		description:
+			'Requires access to Daybreak Blue through your personal ChatGPT subscription, linked to Amp.',
+		color: '#3b82f6',
+		agent: agent.definition,
+	})
+}
+
 // ───── Registration ─────
 
 const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
@@ -517,6 +539,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gpt-6-astra-max': registerGPT6AstraMax,
 	'astra': registerGPT6Astra,
 	'claude-opus-5': registerClaudeOpus5,
+	'daybreak-blue': registerDaybreakBlue,
 	'deepseek-v4-flash': registerDeepSeekV4Flash,
 	'deepseek-v4-pro': registerDeepSeekV4Pro,
 	'gemini-3.8-flash': registerGemini38Flash,
