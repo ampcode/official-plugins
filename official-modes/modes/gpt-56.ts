@@ -70,6 +70,7 @@ export const GPT_56_TOOL_NAMES = [
 	'web_search',
 	'read_web_page',
 	'Task',
+	'create_thread',
 	'skill',
 	'read_thread',
 	'find_thread',
