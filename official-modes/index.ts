@@ -10,8 +10,10 @@
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
 // @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
 // @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
+// @amp-agent-mode {"key":"gpt56l","label":"GPT-5.6 Luna","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt56s","label":"GPT-5.6 Sol","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt56s-pro","label":"GPT-5.6 Sol Pro","color":"#14b8a6","features":["pro"]}
+// @amp-agent-mode {"key":"gpt56t","label":"GPT-5.6 Terra","color":"#14b8a6"}
 // @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
 // @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
 // @amp-agent-mode {"key":"kimi-k3","label":"Kimi K3","color":"#3b82f6"}
@@ -292,6 +294,26 @@ function registerGLM53Flash(amp: PluginAPI) {
 	})
 }
 
+// ───── GPT-5.6 Luna (gpt56l) ─────
+
+function registerGPT56Luna(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-5.6-luna',
+		extends: 'low',
+		model: 'openai/gpt-5.6-luna',
+		reasoningEffort: 'medium',
+		display: { label: 'GPT-5.6 Luna', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt56l',
+		label: 'GPT-5.6 Luna',
+		description: 'GPT-5.6 Luna at medium effort with Amp Low behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
 // ───── GPT-5.6 Sol (gpt56s) ─────
 
 function registerGPT56Sol(amp: PluginAPI) {
@@ -337,6 +359,26 @@ function registerGPT56SolPro(amp: PluginAPI) {
 		description: 'GPT-5.6 Sol Pro at high effort (OpenAI API only)',
 		color: '#14b8a6',
 		agent: proAgent.definition,
+	})
+}
+
+// ───── GPT-5.6 Terra (gpt56t) ─────
+
+function registerGPT56Terra(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-5.6-terra',
+		extends: 'low',
+		model: 'openai/gpt-5.6-terra',
+		reasoningEffort: 'medium',
+		display: { label: 'GPT-5.6 Terra', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt56t',
+		label: 'GPT-5.6 Terra',
+		description: 'GPT-5.6 Terra at medium effort with Amp Low behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
 	})
 }
 
@@ -513,8 +555,10 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gemini-3.8-flash': registerGemini38Flash,
 	'glm-5.2': registerGLM52,
 	'glm-5.3-flash': registerGLM53Flash,
+	'gpt56l': registerGPT56Luna,
 	'gpt56s': registerGPT56Sol,
 	'gpt56s-pro': registerGPT56SolPro,
+	'gpt56t': registerGPT56Terra,
 	'grok45': registerGrok45,
 	'grok46': registerGrok46,
 	'kimi-k3': registerKimiK3,
