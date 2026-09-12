@@ -6,8 +6,7 @@
 // @amp-agent-mode {"key":"gpt-6-astra-max","label":"GPT-6 Astra Max","color":"#14b8a6"}
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
 // @amp-agent-mode {"key":"daybreak-blue","label":"Daybreak Blue","color":"#3b82f6"}
-// @amp-agent-mode {"key":"deepseek-v4-flash","label":"DeepSeek V4 Flash","color":"#60a5fa"}
-// @amp-agent-mode {"key":"deepseek-v4-pro","label":"DeepSeek V4 Pro","color":"#2563eb"}
+// @amp-agent-mode {"key":"deepseek-v4.1-flash","label":"DeepSeek V4.1 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
 // @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
 // @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
@@ -35,13 +34,9 @@
 import type { PluginAPI } from '@ampcode/plugin'
 
 import {
-	DEEPSEEK_V4_FLASH_AGENT_PROMPT,
-	DEEPSEEK_V4_FLASH_TOOL_NAMES,
-} from './modes/deepseek-v4-flash'
-import {
-	DEEPSEEK_V4_PRO_AGENT_PROMPT,
-	DEEPSEEK_V4_PRO_TOOL_NAMES,
-} from './modes/deepseek-v4-pro'
+	DEEPSEEK_V4_1_FLASH_AGENT_PROMPT,
+	DEEPSEEK_V4_1_FLASH_TOOL_NAMES,
+} from './modes/deepseek-v4.1-flash'
 import {
 	GEMINI_38_FLASH_AGENT_PROMPT,
 	GEMINI_38_FLASH_TOOL_NAMES,
@@ -203,53 +198,27 @@ function registerClaudeOpus5(amp: PluginAPI) {
 	})
 }
 
-// ───── DeepSeek V4 Pro (deepseek-v4-pro) ─────
+// ───── DeepSeek V4.1 Flash (deepseek-v4.1-flash) ─────
 
-function registerDeepSeekV4Pro(amp: PluginAPI) {
+function registerDeepSeekV4_1Flash(amp: PluginAPI) {
 	if (!amp.experimental) {
 		amp.logger.log('Experimental plugin API is not available.')
 		return
 	}
 
 	const agent = amp.experimental.createAgent({
-		name: 'deepseek-v4-pro',
-		model: 'deepseek/deepseek-v4-pro',
-		instructions: DEEPSEEK_V4_PRO_AGENT_PROMPT,
-		tools: DEEPSEEK_V4_PRO_TOOL_NAMES,
-		reasoningEffort: 'high',
-		display: { label: 'DeepSeek V4 Pro', color: '#2563eb' },
-	})
-
-	amp.experimental.registerAgentMode({
-		key: 'deepseek-v4-pro',
-		label: 'DeepSeek V4 Pro',
-		description: 'DeepSeek V4 Pro (0813) on Fireworks',
-		color: '#2563eb',
-		agent: agent.definition,
-	})
-}
-
-// ───── DeepSeek V4 Flash (deepseek-v4-flash) ─────
-
-function registerDeepSeekV4Flash(amp: PluginAPI) {
-	if (!amp.experimental) {
-		amp.logger.log('Experimental plugin API is not available.')
-		return
-	}
-
-	const agent = amp.experimental.createAgent({
-		name: 'deepseek-v4-flash',
-		model: 'deepseek/deepseek-v4-flash',
-		instructions: DEEPSEEK_V4_FLASH_AGENT_PROMPT,
-		tools: DEEPSEEK_V4_FLASH_TOOL_NAMES,
+		name: 'deepseek-v4.1-flash',
+		model: 'deepseek/deepseek-v4.1-flash',
+		instructions: DEEPSEEK_V4_1_FLASH_AGENT_PROMPT,
+		tools: DEEPSEEK_V4_1_FLASH_TOOL_NAMES,
 		reasoningEffort: 'max',
-		display: { label: 'DeepSeek V4 Flash', color: '#60a5fa' },
+		display: { label: 'DeepSeek V4.1 Flash', color: '#60a5fa' },
 	})
 
 	amp.experimental.registerAgentMode({
-		key: 'deepseek-v4-flash',
-		label: 'DeepSeek V4 Flash',
-		description: 'DeepSeek V4 Flash (0731) on Fireworks',
+		key: 'deepseek-v4.1-flash',
+		label: 'DeepSeek V4.1 Flash',
+		description: 'DeepSeek V4.1 Flash on Fireworks',
 		color: '#60a5fa',
 		agent: agent.definition,
 	})
@@ -540,8 +509,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'astra': registerGPT6Astra,
 	'claude-opus-5': registerClaudeOpus5,
 	'daybreak-blue': registerDaybreakBlue,
-	'deepseek-v4-flash': registerDeepSeekV4Flash,
-	'deepseek-v4-pro': registerDeepSeekV4Pro,
+	'deepseek-v4.1-flash': registerDeepSeekV4_1Flash,
 	'gemini-3.8-flash': registerGemini38Flash,
 	'glm-5.2': registerGLM52,
 	'glm-5.3-flash': registerGLM53Flash,

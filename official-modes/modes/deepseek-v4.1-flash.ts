@@ -1,4 +1,4 @@
-export const DEEPSEEK_V4_FLASH_AGENT_PROMPT = `
+export const DEEPSEEK_V4_1_FLASH_AGENT_PROMPT = `
 You are a coding agent. Your job is to modify the user's codebase to satisfy the
 latest request, then verify the result.
 
@@ -49,7 +49,7 @@ latest request, then verify the result.
 </communication>
 `
 
-export const DEEPSEEK_V4_FLASH_TOOL_NAMES = [
+export const DEEPSEEK_V4_1_FLASH_TOOL_NAMES = [
 	'Read',
 	'finder',
 	'shell_command',
