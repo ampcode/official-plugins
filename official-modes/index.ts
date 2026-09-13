@@ -220,7 +220,7 @@ function registerDeepSeekV4_1Flash(amp: PluginAPI) {
 	amp.experimental.registerAgentMode({
 		key: 'deepseek-v4.1-flash',
 		label: 'DeepSeek V4.1 Flash',
-		description: 'DeepSeek V4.1 Flash on Fireworks',
+		description: 'DeepSeek V4.1 Flash',
 		color: '#60a5fa',
 		agent: agent.definition,
 	})
@@ -288,7 +288,7 @@ function registerGLM53Flash(amp: PluginAPI) {
 	amp.registerAgentMode({
 		key: 'glm-5.3-flash',
 		label: 'GLM 5.3 Flash',
-		description: 'GLM 5.3 Flash on Fireworks: fast, multimodal, for small well-defined tasks',
+		description: 'GLM 5.3 Flash: fast, multimodal, for small well-defined tasks',
 		color: '#84cc16',
 		agent: agent.definition,
 	})
@@ -450,7 +450,7 @@ function registerKimiK3(amp: PluginAPI) {
 	amp.registerAgentMode({
 		key: 'kimi-k3',
 		label: 'Kimi K3',
-		description: 'Kimi K3 on Fireworks',
+		description: 'Kimi K3',
 		color: '#3b82f6',
 		agent: agent.definition,
 	})
@@ -492,7 +492,7 @@ function registerMiniMaxM3(amp: PluginAPI) {
 	amp.registerAgentMode({
 		key: 'minimax-m3',
 		label: 'MiniMax M3',
-		description: 'MiniMax M3 on Fireworks',
+		description: 'MiniMax M3',
 		color: '#f97316',
 		agent: agent.definition,
 	})
@@ -513,7 +513,7 @@ function registerQwen38Max(amp: PluginAPI) {
 	amp.registerAgentMode({
 		key: 'qwen3.8-max',
 		label: 'Qwen3.8 Max',
-		description: 'Qwen3.8 Max on Fireworks',
+		description: 'Qwen3.8 Max',
 		color: '#a855f7',
 		agent: agent.definition,
 	})
