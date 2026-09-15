@@ -141,7 +141,7 @@ export const OPUS_TOOL_NAMES = [
 	'get_thread_status',
 	'send_thread_message',
 	'wait_for_threads',
-	'archive_current_thread',
+	'update_thread',
 	'send_message_to_puck',
 	'mcp__*',
 	'plugin__*',

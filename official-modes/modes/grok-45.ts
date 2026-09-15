@@ -17,6 +17,7 @@ export const GROK_45_TOOL_NAMES = [
 	'shell_command_status',
 	'skill',
 	'Task',
+	'update_thread',
 	'view_media',
 	'web_search',
 	'mcp__*',

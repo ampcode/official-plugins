@@ -79,7 +79,7 @@ export const GPT_56_TOOL_NAMES = [
 	'finder',
 	'view_media',
 	'painter',
-	'archive_current_thread',
+	'update_thread',
 	'mcp__*',
 	'plugin__*',
 ] as const

@@ -48,6 +48,7 @@ export const KIMI_K3_TOOL_NAMES = [
 	'read_web_page',
 	'read_thread',
 	'find_thread',
+	'update_thread',
 	'skill',
 	'oracle',
 	'Task',
