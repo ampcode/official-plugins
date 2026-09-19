@@ -4,7 +4,9 @@
 // @amp-agent-mode {"key":"gpt-6-astra-high","label":"GPT-6 Astra High","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt-6-astra-xhigh","label":"GPT-6 Astra XHigh","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt-6-astra-max","label":"GPT-6 Astra Max","color":"#14b8a6"}
+// @amp-agent-mode {"key":"claude-fable-5-1","label":"Claude Fable 5.1","color":"#d97757"}
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
+// @amp-agent-mode {"key":"claude-sonnet-5","label":"Claude Sonnet 5","color":"#d97757"}
 // @amp-agent-mode {"key":"daybreak-blue","label":"Daybreak Blue","color":"#3b82f6"}
 // @amp-agent-mode {"key":"deepseek-v4.1-flash","label":"DeepSeek V4.1 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
@@ -39,6 +41,7 @@ import {
 	DEEPSEEK_V4_1_FLASH_AGENT_PROMPT,
 	DEEPSEEK_V4_1_FLASH_TOOL_NAMES,
 } from './modes/deepseek-v4.1-flash'
+import { FABLE_AGENT_PROMPT, FABLE_TOOL_NAMES } from './modes/fable'
 import {
 	GEMINI_38_FLASH_AGENT_PROMPT,
 	GEMINI_38_FLASH_TOOL_NAMES,
@@ -53,6 +56,7 @@ import { MINIMAX_M3_AGENT_PROMPT, MINIMAX_M3_TOOL_NAMES } from './modes/minimax-
 import { MUSE_SPARK_AGENT_PROMPT, MUSE_SPARK_TOOL_NAMES } from './modes/muse-spark'
 import { OPUS_AGENT_PROMPT, OPUS_TOOL_NAMES } from './modes/opus'
 import { QWEN_38_MAX_AGENT_PROMPT, QWEN_38_MAX_TOOL_NAMES } from './modes/qwen-38-max'
+import { SONNET_AGENT_PROMPT, SONNET_TOOL_NAMES } from './modes/sonnet'
 
 // ───── GPT-6 Astra Low (gpt-6-astra-low) ─────
 
@@ -174,6 +178,32 @@ function registerGPT6Astra(amp: PluginAPI) {
 	})
 }
 
+// ───── Claude Fable 5.1 (claude-fable-5-1) ─────
+
+function registerClaudeFable51(amp: PluginAPI) {
+	if (!amp.experimental) {
+		amp.logger.log('Experimental plugin API is not available.')
+		return
+	}
+
+	const agent = amp.experimental.createAgent({
+		name: 'claude-fable-5-1',
+		model: 'anthropic/claude-fable-5-1',
+		instructions: FABLE_AGENT_PROMPT,
+		tools: FABLE_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'Claude Fable 5.1', color: '#d97757' },
+	})
+
+	amp.experimental.registerAgentMode({
+		key: 'claude-fable-5-1',
+		label: 'Claude Fable 5.1',
+		description: 'Claude Fable 5.1 at high',
+		color: '#d97757',
+		agent: agent.definition,
+	})
+}
+
 // ───── Claude Opus 5 (claude-opus-5) ─────
 
 function registerClaudeOpus5(amp: PluginAPI) {
@@ -195,6 +225,32 @@ function registerClaudeOpus5(amp: PluginAPI) {
 		key: 'claude-opus-5',
 		label: 'Claude Opus 5',
 		description: 'Claude Opus 5 at high',
+		color: '#d97757',
+		agent: agent.definition,
+	})
+}
+
+// ───── Claude Sonnet 5 (claude-sonnet-5) ─────
+
+function registerClaudeSonnet5(amp: PluginAPI) {
+	if (!amp.experimental) {
+		amp.logger.log('Experimental plugin API is not available.')
+		return
+	}
+
+	const agent = amp.experimental.createAgent({
+		name: 'claude-sonnet-5',
+		model: 'anthropic/claude-sonnet-5',
+		instructions: SONNET_AGENT_PROMPT,
+		tools: SONNET_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'Claude Sonnet 5', color: '#d97757' },
+	})
+
+	amp.experimental.registerAgentMode({
+		key: 'claude-sonnet-5',
+		label: 'Claude Sonnet 5',
+		description: 'Claude Sonnet 5 at high',
 		color: '#d97757',
 		agent: agent.definition,
 	})
@@ -549,7 +605,9 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gpt-6-astra-xhigh': registerGPT6AstraXHigh,
 	'gpt-6-astra-max': registerGPT6AstraMax,
 	'astra': registerGPT6Astra,
+	'claude-fable-5-1': registerClaudeFable51,
 	'claude-opus-5': registerClaudeOpus5,
+	'claude-sonnet-5': registerClaudeSonnet5,
 	'daybreak-blue': registerDaybreakBlue,
 	'deepseek-v4.1-flash': registerDeepSeekV4_1Flash,
 	'gemini-3.8-flash': registerGemini38Flash,
