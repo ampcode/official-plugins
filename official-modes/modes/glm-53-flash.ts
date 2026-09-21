@@ -64,6 +64,7 @@ export const GLM_53_FLASH_TOOL_NAMES = [
 	'send_thread_message',
 	'update_thread',
 	'wait_for_threads',
+	'ask_user_choice',
 	'skill',
 	'oracle',
 	'librarian',

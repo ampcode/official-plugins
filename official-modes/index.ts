@@ -11,6 +11,7 @@
 // @amp-agent-mode {"key":"deepseek-v4.1-flash","label":"DeepSeek V4.1 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
 // @amp-agent-mode {"key":"glm-5.2","label":"GLM 5.2 (exp)","color":"#10a37f"}
+// @amp-agent-mode {"key":"glm-5.3","label":"GLM 5.3","color":"#10a37f"}
 // @amp-agent-mode {"key":"glm-5.3-flash","label":"GLM 5.3 Flash","color":"#84cc16"}
 // @amp-agent-mode {"key":"gpt56l","label":"GPT-5.6 Luna","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt56s","label":"GPT-5.6 Sol","color":"#14b8a6"}
@@ -47,6 +48,7 @@ import {
 	GEMINI_38_FLASH_TOOL_NAMES,
 } from './modes/gemini-38-flash'
 import { GLM_52_AGENT_PROMPT, GLM_52_TOOL_NAMES } from './modes/glm-52'
+import { GLM_53_AGENT_PROMPT, GLM_53_TOOL_NAMES } from './modes/glm-53'
 import { GLM_53_FLASH_AGENT_PROMPT, GLM_53_FLASH_TOOL_NAMES } from './modes/glm-53-flash'
 import { GPT_56_AGENT_PROMPT, GPT_56_TOOL_NAMES } from './modes/gpt-56'
 import { GROK_45_PROMPT, GROK_45_TOOL_NAMES } from './modes/grok-45'
@@ -324,6 +326,27 @@ function registerGLM52(amp: PluginAPI) {
 		key: 'glm-5.2',
 		label: 'GLM 5.2 (exp)',
 		description: 'Experimental GLM 5.2-driven agent mode.',
+		color: '#10a37f',
+		agent: agent.definition,
+	})
+}
+
+// ───── GLM 5.3 (glm-5.3) ─────
+
+function registerGLM53(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'glm-5.3',
+		model: 'zhipuai/glm-5.3',
+		instructions: GLM_53_AGENT_PROMPT,
+		tools: GLM_53_TOOL_NAMES,
+		reasoningEffort: 'max',
+		display: { label: 'GLM 5.3', color: '#10a37f' },
+	})
+
+	amp.registerAgentMode({
+		key: 'glm-5.3',
+		label: 'GLM 5.3',
+		description: 'GLM 5.3 at max reasoning effort for coding tasks.',
 		color: '#10a37f',
 		agent: agent.definition,
 	})
@@ -612,6 +635,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'deepseek-v4.1-flash': registerDeepSeekV4_1Flash,
 	'gemini-3.8-flash': registerGemini38Flash,
 	'glm-5.2': registerGLM52,
+	'glm-5.3': registerGLM53,
 	'glm-5.3-flash': registerGLM53Flash,
 	'gpt56l': registerGPT56Luna,
 	'gpt56s': registerGPT56Sol,
