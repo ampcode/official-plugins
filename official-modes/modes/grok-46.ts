@@ -162,6 +162,7 @@ export const GROK_46_TOOL_NAMES = [
 	'update_thread',
 	'wait_for_threads',
 	'download_thread_file',
+	'download_thread_changes',
 	'upload_thread_file',
 	'notepad',
 	'skill',
