@@ -10,19 +10,20 @@ const headers = [...source.matchAll(/^\/\/ @amp-agent-mode (\{.*\})$/gm)].map(
 )
 const expectedModes = [
 	{
-		key: 'claude-fable-5-1',
-		label: 'Claude Fable 5.1',
-		model: 'anthropic/claude-fable-5-1',
+		key: 'gpt6l',
+		label: 'GPT-6 Luna',
+		name: 'gpt-6-luna',
+		model: 'openai/gpt-6-luna',
+		extends: 'low',
+		reasoningEffort: 'medium',
 	},
 	{
-		key: 'claude-opus-5-5',
-		label: 'Claude Opus 5.5',
-		model: 'anthropic/claude-opus-5-5',
-	},
-	{
-		key: 'claude-sonnet-5',
-		label: 'Claude Sonnet 5',
-		model: 'anthropic/claude-sonnet-5',
+		key: 'gpt6s',
+		label: 'GPT-6 Sol',
+		name: 'gpt-6-sol',
+		model: 'openai/gpt-6-sol',
+		extends: 'high',
+		reasoningEffort: 'high',
 	},
 ]
 
@@ -43,32 +44,26 @@ const amp = {
 
 registerOfficialModes(amp as never)
 
-const opusAgent = createdAgents.find(({ name }) => name === 'claude-opus-5')
-if (!opusAgent?.instructions || !opusAgent.tools) {
-	throw new Error('Missing Claude Opus 5 prompt or tools')
-}
-
 for (const expected of expectedModes) {
 	const matchingHeaders = headers.filter(({ key }) => key === expected.key)
 	const [header] = matchingHeaders
 	if (
 		matchingHeaders.length !== 1 ||
 		header.label !== expected.label ||
-		header.color !== '#d97757'
+		header.color !== '#14b8a6'
 	) {
 		throw new Error(`Invalid discovery metadata for ${expected.key}`)
 	}
 
 	const matchingAgents = createdAgents.filter(
-		({ name }) => name === expected.key,
+		({ name }) => name === expected.name,
 	)
 	const [agent] = matchingAgents
 	if (
 		matchingAgents.length !== 1 ||
 		agent.model !== expected.model ||
-		agent.reasoningEffort !== 'high' ||
-		agent.instructions !== opusAgent?.instructions ||
-		agent.tools !== opusAgent?.tools
+		agent.extends !== expected.extends ||
+		agent.reasoningEffort !== expected.reasoningEffort
 	) {
 		throw new Error(`Invalid runtime agent for ${expected.key}`)
 	}
@@ -84,8 +79,10 @@ for (const expected of expectedModes) {
 	) {
 		throw new Error(`Missing runtime mode registration for ${expected.key}`)
 	}
+
+	if (!source.includes(`'${expected.key}': registerGPT6`)) {
+		throw new Error(`Missing registrar for ${expected.key}`)
+	}
 }
 
-console.log(
-	'Claude Fable 5.1, Opus 5.5, and Sonnet 5 metadata and registrations match',
-)
+console.log('GPT-6 Sol and Luna metadata and registrations match')

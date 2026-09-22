@@ -6,6 +6,7 @@
 // @amp-agent-mode {"key":"gpt-6-astra-max","label":"GPT-6 Astra Max","color":"#14b8a6"}
 // @amp-agent-mode {"key":"claude-fable-5-1","label":"Claude Fable 5.1","color":"#d97757"}
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
+// @amp-agent-mode {"key":"claude-opus-5-5","label":"Claude Opus 5.5","color":"#d97757"}
 // @amp-agent-mode {"key":"claude-sonnet-5","label":"Claude Sonnet 5","color":"#d97757"}
 // @amp-agent-mode {"key":"daybreak-blue","label":"Daybreak Blue","color":"#3b82f6"}
 // @amp-agent-mode {"key":"deepseek-v4.1-flash","label":"DeepSeek V4.1 Flash","color":"#60a5fa"}
@@ -17,6 +18,8 @@
 // @amp-agent-mode {"key":"gpt56s","label":"GPT-5.6 Sol","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt56s-pro","label":"GPT-5.6 Sol Pro","color":"#14b8a6","features":["pro"]}
 // @amp-agent-mode {"key":"gpt56t","label":"GPT-5.6 Terra","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt6l","label":"GPT-6 Luna","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt6s","label":"GPT-6 Sol","color":"#14b8a6"}
 // @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
 // @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
 // @amp-agent-mode {"key":"grok47","label":"Grok 4.7","color":"#0ea5e9"}
@@ -229,6 +232,32 @@ function registerClaudeOpus5(amp: PluginAPI) {
 		key: 'claude-opus-5',
 		label: 'Claude Opus 5',
 		description: 'Claude Opus 5 at high',
+		color: '#d97757',
+		agent: agent.definition,
+	})
+}
+
+// ───── Claude Opus 5.5 (claude-opus-5-5) ─────
+
+function registerClaudeOpus55(amp: PluginAPI) {
+	if (!amp.experimental) {
+		amp.logger.log('Experimental plugin API is not available.')
+		return
+	}
+
+	const agent = amp.experimental.createAgent({
+		name: 'claude-opus-5-5',
+		model: 'anthropic/claude-opus-5-5',
+		instructions: OPUS_AGENT_PROMPT,
+		tools: OPUS_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'Claude Opus 5.5', color: '#d97757' },
+	})
+
+	amp.experimental.registerAgentMode({
+		key: 'claude-opus-5-5',
+		label: 'Claude Opus 5.5',
+		description: 'Claude Opus 5.5 at high',
 		color: '#d97757',
 		agent: agent.definition,
 	})
@@ -463,6 +492,46 @@ function registerGPT56Terra(amp: PluginAPI) {
 	})
 }
 
+// ───── GPT-6 Luna (gpt6l) ─────
+
+function registerGPT6Luna(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-luna',
+		extends: 'low',
+		model: 'openai/gpt-6-luna',
+		reasoningEffort: 'medium',
+		display: { label: 'GPT-6 Luna', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt6l',
+		label: 'GPT-6 Luna',
+		description: 'GPT-6 Luna at medium effort with Amp Low behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
+// ───── GPT-6 Sol (gpt6s) ─────
+
+function registerGPT6Sol(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6-sol',
+		extends: 'high',
+		model: 'openai/gpt-6-sol',
+		reasoningEffort: 'high',
+		display: { label: 'GPT-6 Sol', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt6s',
+		label: 'GPT-6 Sol',
+		description: 'GPT-6 Sol at high effort with Amp High behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
 // ───── Grok 4.5 (grok45) ─────
 
 function registerGrok45(amp: PluginAPI) {
@@ -659,6 +728,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'astra': registerGPT6Astra,
 	'claude-fable-5-1': registerClaudeFable51,
 	'claude-opus-5': registerClaudeOpus5,
+	'claude-opus-5-5': registerClaudeOpus55,
 	'claude-sonnet-5': registerClaudeSonnet5,
 	'daybreak-blue': registerDaybreakBlue,
 	'deepseek-v4.1-flash': registerDeepSeekV4_1Flash,
@@ -670,6 +740,8 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gpt56s': registerGPT56Sol,
 	'gpt56s-pro': registerGPT56SolPro,
 	'gpt56t': registerGPT56Terra,
+	'gpt6l': registerGPT6Luna,
+	'gpt6s': registerGPT6Sol,
 	'grok45': registerGrok45,
 	'grok46': registerGrok46,
 	'grok47': registerGrok47,
