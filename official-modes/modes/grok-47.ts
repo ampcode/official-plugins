@@ -1,0 +1,4 @@
+export {
+	GROK_46_PROMPT as GROK_47_PROMPT,
+	GROK_46_TOOL_NAMES as GROK_47_TOOL_NAMES,
+} from './grok-46'

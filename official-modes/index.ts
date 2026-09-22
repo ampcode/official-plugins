@@ -19,6 +19,7 @@
 // @amp-agent-mode {"key":"gpt56t","label":"GPT-5.6 Terra","color":"#14b8a6"}
 // @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
 // @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
+// @amp-agent-mode {"key":"grok47","label":"Grok 4.7","color":"#0ea5e9"}
 // @amp-agent-mode {"key":"kimi-k3","label":"Kimi K3","color":"#3b82f6"}
 // @amp-agent-mode {"key":"muse-spark","label":"Muse Spark 1.3","color":"#0668e1"}
 // @amp-agent-mode {"key":"minimax-m3","label":"MiniMax M3","color":"#f97316"}
@@ -53,6 +54,7 @@ import { GLM_53_FLASH_AGENT_PROMPT, GLM_53_FLASH_TOOL_NAMES } from './modes/glm-
 import { GPT_56_AGENT_PROMPT, GPT_56_TOOL_NAMES } from './modes/gpt-56'
 import { GROK_45_PROMPT, GROK_45_TOOL_NAMES } from './modes/grok-45'
 import { GROK_46_PROMPT, GROK_46_TOOL_NAMES } from './modes/grok-46'
+import { GROK_47_PROMPT, GROK_47_TOOL_NAMES } from './modes/grok-47'
 import { KIMI_K3_AGENT_PROMPT, KIMI_K3_TOOL_NAMES } from './modes/kimi-k3'
 import { MINIMAX_M3_AGENT_PROMPT, MINIMAX_M3_TOOL_NAMES } from './modes/minimax-m3'
 import { MUSE_SPARK_AGENT_PROMPT, MUSE_SPARK_TOOL_NAMES } from './modes/muse-spark'
@@ -514,6 +516,33 @@ function registerGrok46(amp: PluginAPI) {
 	})
 }
 
+// ───── Grok 4.7 (grok47) ─────
+
+function registerGrok47(amp: PluginAPI) {
+	if (!amp.experimental) {
+		amp.logger.log('Experimental plugin API is not available.')
+		return
+	}
+
+	const agent = amp.experimental.createAgent({
+		name: 'grok-4-7',
+		model: 'xai/grok-4.7',
+		instructions: GROK_47_PROMPT,
+		tools: GROK_47_TOOL_NAMES,
+		reasoningEffort: 'high',
+		compactionThresholdTokens: 300_000,
+		display: { label: 'Grok 4.7', color: '#0ea5e9' },
+	})
+
+	amp.experimental.registerAgentMode({
+		key: 'grok47',
+		label: 'Grok 4.7',
+		description: 'Grok 4.7 with the ultra system prompt and ultra tool set',
+		color: '#0ea5e9',
+		agent: agent.definition,
+	})
+}
+
 // ───── Kimi K3 (kimi-k3) ─────
 
 function registerKimiK3(amp: PluginAPI) {
@@ -643,6 +672,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gpt56t': registerGPT56Terra,
 	'grok45': registerGrok45,
 	'grok46': registerGrok46,
+	'grok47': registerGrok47,
 	'kimi-k3': registerKimiK3,
 	'muse-spark': registerMuseSpark,
 	'minimax-m3': registerMiniMaxM3,
