@@ -4,6 +4,6 @@
 - Keep each model's prompt and tool list in its own file under `official-modes/modes/`.
 - Keep `@amp-agent-mode` directives and literal `createAgent` model and effort values in the entrypoint so server metadata parsing works.
 - Keep each official skill in `skills/<name>/` with its `SKILL.md` and reference files; the directory name must equal the frontmatter `name`. Do not put plugin code under `skills/`; Amp never loads it as a plugin.
-- Do not add a skill whose name collides with a builtin skill in the Amp CLI (`core/src/skills/builtin/` in ampcode/amp); the builtin would mask it.
+- The Amp CLI ships no skill content of its own; every skill Amp provides lives here. Feature gates, sandbox gates, and the Puck skill list are keyed by skill name in `core/src/skills/builtin/index.ts` in ampcode/amp, so land a gate change there before adding a skill that needs one.
 - Run format checks before committing.
 - Treat GitHub `main` as the source of truth. The mirror workflow must only fast-forward Pierre.
