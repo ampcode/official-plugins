@@ -25,6 +25,14 @@ const expectedModes = [
 		extends: 'high',
 		reasoningEffort: 'high',
 	},
+	{
+		key: 'gpt61s',
+		label: 'GPT-6.1 Sol',
+		name: 'gpt-6.1-sol',
+		model: 'openai/gpt-6.1-sol',
+		extends: 'high',
+		reasoningEffort: 'high',
+	},
 ]
 
 const createdAgents: Record<string, unknown>[] = []
@@ -85,4 +93,6 @@ for (const expected of expectedModes) {
 	}
 }
 
-console.log('GPT-6 Sol and Luna metadata and registrations match')
+console.log(
+	'GPT-6 Sol, GPT-6.1 Sol, and GPT-6 Luna metadata and registrations match',
+)
