@@ -1,6 +1,8 @@
 ---
 name: browser-use
 description: "Use websites to accomplish specific tasks on the web on the user’s behalf (not for testing a local dev server): sign in, fill and submit forms, buy, book, download, or read pages that need a session or JavaScript, in the orb’s Chrome with agent-browser. Covers recording the run, form-control pitfalls, avoiding duplicate submissions, and reporting a visual transcript with cropped confirmation screenshots."
+metadata:
+  sandbox-only: true
 ---
 
 # Browser use: acting on websites for the user

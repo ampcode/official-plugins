@@ -3,6 +3,8 @@ name: gmail
 description: "Reads, searches, sends, archives, and labels Gmail messages. Use when working with Gmail or email."
 builtin-tools:
   - gmail
+metadata:
+  feature: gmail-skill
 ---
 
 # Gmail

@@ -1,6 +1,8 @@
 ---
 name: creating-webhooks
 description: "Creates durable webhook handlers in Amp plugins running in Orbs. Use when asked to create, configure, or test a plugin webhook."
+metadata:
+  sandbox-only: true
 ---
 
 # Creating Webhooks

@@ -1,6 +1,8 @@
 ---
 name: building-client-plugins
 description: "Builds personal plugins that run in the Amp web, iOS, and macOS apps. Use when customizing the client UI, sidebar orb colors, or client-side behavior with Jev. Not for executor plugins."
+metadata:
+  feature: client-plugins
 ---
 
 # Building Client Plugins

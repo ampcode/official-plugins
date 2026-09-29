@@ -8,6 +8,8 @@ builtin-tools:
   - google_docs_write
   - google_sheets_read
   - google_sheets_write
+metadata:
+  feature: gmail-skill
 ---
 
 # Google Workspace

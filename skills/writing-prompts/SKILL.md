@@ -1,6 +1,8 @@
 ---
 name: writing-prompts
 description: "Writes and revises text a model consumes: system prompts, tool and parameter descriptions, AGENTS.md and other agent guidance, skill descriptions, and prompt templates. Use when drafting, editing, or reviewing any of these. Load FIRST, before touching model instructions."
+metadata:
+  feature: custom-agents
 ---
 
 # Writing Model Instructions

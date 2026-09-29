@@ -3,6 +3,8 @@ name: building-agents
 description: "Creates, edits, lists, and deletes custom agents (personal or workspace) with the manage_custom_agents tool: writes their instructions, picks their MCP servers, tools, and runtime, and saves drafts as it goes. Use when asked to build, set up, change, or remove a custom agent, or when the request comes from the agent builder page. Load FIRST, before calling manage_custom_agents."
 builtin-tools:
   - manage_custom_agents
+metadata:
+  feature: custom-agents
 ---
 
 # Building Custom Agents

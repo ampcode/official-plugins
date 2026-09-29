@@ -1,6 +1,8 @@
 ---
 name: creating-charts
 description: "Renders interactive charts inline in replies from fenced flint code blocks. Use when visualizing data such as comparisons, trends, distributions, or breakdowns."
+metadata:
+  sandbox-only: true
 ---
 
 # Creating Charts

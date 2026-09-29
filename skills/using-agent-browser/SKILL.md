@@ -1,6 +1,8 @@
 ---
 name: using-agent-browser
 description: "Drives the preinstalled agent-browser Chromium in an orb for browser interaction, UI inspection, screenshots, recordings, and web E2E checks. Use before any agent-browser work: covers localhost dev servers, sessions that survive pause/resume, 2x screenshots, hover and touch emulation limits, and known command pitfalls."
+metadata:
+  sandbox-only: true
 ---
 
 # Using agent-browser in an orb
