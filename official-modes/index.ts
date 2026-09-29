@@ -8,6 +8,7 @@
 // @amp-agent-mode {"key":"claude-opus-5","label":"Claude Opus 5","color":"#d97757"}
 // @amp-agent-mode {"key":"claude-opus-5-5","label":"Claude Opus 5.5","color":"#d97757"}
 // @amp-agent-mode {"key":"claude-sonnet-5","label":"Claude Sonnet 5","color":"#d97757"}
+// @amp-agent-mode {"key":"claude-sonnet-5-5","label":"Claude Sonnet 5.5","color":"#d97757"}
 // @amp-agent-mode {"key":"daybreak-blue","label":"Daybreak Blue","color":"#3b82f6"}
 // @amp-agent-mode {"key":"deepseek-v4.1-flash","label":"DeepSeek V4.1 Flash","color":"#60a5fa"}
 // @amp-agent-mode {"key":"gemini-3.8-flash","label":"Gemini 3.8 Flash","color":"#4285f4"}
@@ -285,6 +286,32 @@ function registerClaudeSonnet5(amp: PluginAPI) {
 		key: 'claude-sonnet-5',
 		label: 'Claude Sonnet 5',
 		description: 'Claude Sonnet 5 at high',
+		color: '#d97757',
+		agent: agent.definition,
+	})
+}
+
+// ───── Claude Sonnet 5.5 (claude-sonnet-5-5) ─────
+
+function registerClaudeSonnet55(amp: PluginAPI) {
+	if (!amp.experimental) {
+		amp.logger.log('Experimental plugin API is not available.')
+		return
+	}
+
+	const agent = amp.experimental.createAgent({
+		name: 'claude-sonnet-5-5',
+		model: 'anthropic/claude-sonnet-5-5',
+		instructions: SONNET_AGENT_PROMPT,
+		tools: SONNET_TOOL_NAMES,
+		reasoningEffort: 'high',
+		display: { label: 'Claude Sonnet 5.5', color: '#d97757' },
+	})
+
+	amp.experimental.registerAgentMode({
+		key: 'claude-sonnet-5-5',
+		label: 'Claude Sonnet 5.5',
+		description: 'Claude Sonnet 5.5 at high',
 		color: '#d97757',
 		agent: agent.definition,
 	})
@@ -751,6 +778,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'claude-opus-5': registerClaudeOpus5,
 	'claude-opus-5-5': registerClaudeOpus55,
 	'claude-sonnet-5': registerClaudeSonnet5,
+	'claude-sonnet-5-5': registerClaudeSonnet55,
 	'daybreak-blue': registerDaybreakBlue,
 	'deepseek-v4.1-flash': registerDeepSeekV4_1Flash,
 	'gemini-3.8-flash': registerGemini38Flash,

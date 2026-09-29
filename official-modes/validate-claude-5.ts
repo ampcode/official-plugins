@@ -24,6 +24,11 @@ const expectedModes = [
 		label: 'Claude Sonnet 5',
 		model: 'anthropic/claude-sonnet-5',
 	},
+	{
+		key: 'claude-sonnet-5-5',
+		label: 'Claude Sonnet 5.5',
+		model: 'anthropic/claude-sonnet-5-5',
+	},
 ]
 
 const createdAgents: Record<string, unknown>[] = []
@@ -87,5 +92,5 @@ for (const expected of expectedModes) {
 }
 
 console.log(
-	'Claude Fable 5.1, Opus 5.5, and Sonnet 5 metadata and registrations match',
+	'Claude Fable 5.1, Opus 5.5, Sonnet 5, and Sonnet 5.5 metadata and registrations match',
 )
