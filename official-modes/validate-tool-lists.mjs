@@ -12,6 +12,10 @@ const requiredTools = [
 	'download_thread_file',
 	'download_thread_changes',
 	'upload_thread_file',
+	'get_schedule',
+	'set_schedule',
+	'update_schedule',
+	'clear_schedule',
 ]
 
 for (const file of readdirSync(modesDirectory).filter((file) =>
@@ -44,5 +48,5 @@ for (const file of readdirSync(modesDirectory).filter((file) =>
 }
 
 console.log(
-	'Every explicit mode tool list includes thread coordination, file transfer, and Ship archival tools',
+	'Every explicit mode tool list includes thread coordination, file transfer, schedule, and Ship archival tools',
 )
