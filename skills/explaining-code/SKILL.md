@@ -21,6 +21,23 @@ clearer:
 - File ownership → shallow file tree
 - Interaction, data flow, states, or architecture → a fenced `diagram` block
 
+Keep structural views narrow and concrete. For example, a runtime explanation might need only the
+calls that control the result:
+
+```text
+submitForm
+  createSession
+    persistPrompt
+    launchAgent
+  navigateToSession
+```
+
+For a visual UI, layout, state comparison, or concept too dense for a `diagram` block, write one
+focused HTML artifact. Choose a diagram, infographic, or short slide deck based on the point. Match
+the product's colors, type, spacing, and components; use real labels and data; support desktop and
+mobile. Save it under `.amp/in/artifacts/` and link it in the response so Amp renders it in the
+thread.
+
 ## Diagram blocks
 
 For `diagram` blocks, use portable Unicode line art. Amp renders light connectors as muted
@@ -57,6 +74,11 @@ Choose the form by what the reader must compare:
 - Behavior was added, and the earlier state is only its absence → the result alone.
 - The exact text is the point, such as a signature, a config value, or a schema field → a focused
   `diff` block instead of a drawing.
+
+Match a `diff` block to the view being discussed. It can show a component tree, file tree, call
+tree, control flow, or source code; it does not need to be a literal source diff. Show the whole
+block instead when most of it is new, omitted context would hide ownership or order, or the user
+needs a copyable target shape.
 
 Draw the unchanged parts with light lines and the changed parts with the accent glyphs, so the eye
 lands on the difference first. Write a consequence that matters, such as a latency, a count, or an
@@ -102,3 +124,6 @@ queued ──→ running ──→ done
 
 Keep labels concrete. Place a visual next to the text it supports. Include only the calls, files,
 props, states, and boundaries needed to answer the question.
+
+Use one view or several, but rarely all of them. Each view must add information rather than repeat
+the prose.
