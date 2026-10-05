@@ -21,23 +21,6 @@ clearer:
 - File ownership → shallow file tree
 - Interaction, data flow, states, or architecture → a fenced `diagram` block
 
-Keep structural views narrow and concrete. For example, a runtime explanation might need only the
-calls that control the result:
-
-```text
-submitForm
-  createSession
-    persistPrompt
-    launchAgent
-  navigateToSession
-```
-
-For a visual UI, layout, state comparison, or concept too dense for a `diagram` block, write one
-focused HTML artifact. Choose a diagram, infographic, or short slide deck based on the point. Match
-the product's colors, type, spacing, and components; use real labels and data; support desktop and
-mobile. Save it under `.amp/in/artifacts/` and link it in the response so Amp renders it in the
-thread.
-
 ## Diagram blocks
 
 For `diagram` blocks, use portable Unicode line art. Amp renders light connectors as muted
@@ -74,11 +57,6 @@ Choose the form by what the reader must compare:
 - Behavior was added, and the earlier state is only its absence → the result alone.
 - The exact text is the point, such as a signature, a config value, or a schema field → a focused
   `diff` block instead of a drawing.
-
-Match a `diff` block to the view being discussed. It can show a component tree, file tree, call
-tree, control flow, or source code; it does not need to be a literal source diff. Show the whole
-block instead when most of it is new, omitted context would hide ownership or order, or the user
-needs a copyable target shape.
 
 Draw the unchanged parts with light lines and the changed parts with the accent glyphs, so the eye
 lands on the difference first. Write a consequence that matters, such as a latency, a count, or an
@@ -127,3 +105,96 @@ props, states, and boundaries needed to answer the question.
 
 Use one view or several, but rarely all of them. Each view must add information rather than repeat
 the prose.
+
+## Other useful views
+
+Keep structural views narrow and concrete. A call tree should show runtime order and nesting, not
+every function on the stack:
+
+```text
+submitForm
+  createSession
+    persistPrompt
+    launchAgent
+  navigateToSession
+```
+
+Use a component tree to show UI ownership. Add only the state, hooks, files, and package boundaries
+that explain where behavior lives:
+
+```tsx
+<SessionPage> (apps/example/src/routes/session.tsx)
+  useSessionEvents()
+  <SessionToolbar>
+    <RunSkillButton> (packages/ui)
+```
+
+Use a shallow file tree to show responsibility or the shape of a broad refactor:
+
+```text
+src/
+├── commands/       # parses user actions
+├── sessions/       # owns session state
+└── transport/      # sends API requests
+```
+
+A `diff` block does not need to be a literal source diff. Match its shape to the view under
+discussion so the reader can see the behavioral or structural change without translating edited
+lines back into the system.
+
+For a call tree or call stack change:
+
+```diff
+ submitForm
+   createSession
+     persistPrompt
++    expandSkillMention
+     launchAgent
+-  navigateToSession
++  navigateToSession
++    subscribeToEvents
+```
+
+For a component change:
+
+```diff
+ <SessionPage>
+   useSessionEvents()
+   <SessionToolbar>
++    <RunSkillButton />
+   <SessionTimeline>
++    <SkillResultCard />
+```
+
+For a file layout change:
+
+```diff
+ src/
+ ├── commands/
++│   └── show-me.ts       # expands the slash command
+ ├── sessions/
+-└── transport.ts
++└── transport/
++    ├── client.ts
++    └── stream.ts
+```
+
+For a state or control-flow change:
+
+```diff
+ on(save)
+-  write content
++  if content is unchanged
++    return cached result
++  write new content
++  invalidate cache
+```
+
+Show the whole block instead when most of it is new, omitted context would hide ownership or order,
+or the user needs a copyable target shape.
+
+For a visual UI, layout, state comparison, or concept too dense for a `diagram` block, write one
+focused HTML artifact. Choose a diagram, infographic, or short slide deck based on the point. Match
+the product's colors, type, spacing, and components; use real labels and data; support desktop and
+mobile. Save it under `.amp/in/artifacts/` and link it in the response so Amp renders it in the
+thread.
