@@ -192,9 +192,3 @@ For a state or control-flow change:
 
 Show the whole block instead when most of it is new, omitted context would hide ownership or order,
 or the user needs a copyable target shape.
-
-For a visual UI, layout, state comparison, or concept too dense for a `diagram` block, write one
-focused HTML artifact. Choose a diagram, infographic, or short slide deck based on the point. Match
-the product's colors, type, spacing, and components; use real labels and data; support desktop and
-mobile. Save it under `.amp/in/artifacts/` and link it in the response so Amp renders it in the
-thread.
