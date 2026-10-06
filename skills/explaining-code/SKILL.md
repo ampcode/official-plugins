@@ -102,3 +102,93 @@ queued ──→ running ──→ done
 
 Keep labels concrete. Place a visual next to the text it supports. Include only the calls, files,
 props, states, and boundaries needed to answer the question.
+
+Use one view or several, but rarely all of them. Each view must add information rather than repeat
+the prose.
+
+## Other useful views
+
+Keep structural views narrow and concrete. A call tree should show runtime order and nesting, not
+every function on the stack:
+
+```text
+submitForm
+  createSession
+    persistPrompt
+    launchAgent
+  navigateToSession
+```
+
+Use a component tree to show UI ownership. Add only the state, hooks, files, and package boundaries
+that explain where behavior lives:
+
+```tsx
+<SessionPage> (apps/example/src/routes/session.tsx)
+  useSessionEvents()
+  <SessionToolbar>
+    <RunSkillButton> (packages/ui)
+```
+
+Use a shallow file tree to show responsibility or the shape of a broad refactor:
+
+```text
+src/
+├── commands/       # parses user actions
+├── sessions/       # owns session state
+└── transport/      # sends API requests
+```
+
+A `diff` block does not need to be a literal source diff. Match its shape to the view under
+discussion so the reader can see the behavioral or structural change without translating edited
+lines back into the system.
+
+For a call tree or call stack change:
+
+```diff
+ submitForm
+   createSession
+     persistPrompt
++    expandSkillMention
+     launchAgent
+-  navigateToSession
++  navigateToSession
++    subscribeToEvents
+```
+
+For a component change:
+
+```diff
+ <SessionPage>
+   useSessionEvents()
+   <SessionToolbar>
++    <RunSkillButton />
+   <SessionTimeline>
++    <SkillResultCard />
+```
+
+For a file layout change:
+
+```diff
+ src/
+ ├── commands/
++│   └── show-me.ts       # expands the slash command
+ ├── sessions/
+-└── transport.ts
++└── transport/
++    ├── client.ts
++    └── stream.ts
+```
+
+For a state or control-flow change:
+
+```diff
+ on(save)
+-  write content
++  if content is unchanged
++    return cached result
++  write new content
++  invalidate cache
+```
+
+Show the whole block instead when most of it is new, omitted context would hide ownership or order,
+or the user needs a copyable target shape.
