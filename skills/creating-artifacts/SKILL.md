@@ -1,29 +1,35 @@
 ---
-name: presenting-artifacts
-description: "Presents plans, proposals, research and investigation write-ups, comparisons, status reports, and other documents as skimmable, self-contained HTML pages with before-and-after drawings, serves them from the orb, and shares portal links where readers can comment on any block. Use when asked for a plan or a proposal, when asked to write up findings or a report for review, or when asked for a page, an artifact, or a link to share."
+name: creating-artifacts
+description: "Creates artifacts: plans, proposals, research and investigation write-ups, comparisons, status reports, explanations, and other documents for a person to read. Writes each one as a skimmable, self-contained HTML page with before-and-after drawings, serves it from the orb, and shares a portal link where readers can comment on any block. Use when asked for an artifact, a plan, a proposal, a write-up of findings, a report, or a page or link to share, and before writing any standalone HTML page that presents results to the user."
 metadata:
   sandbox-only: true
 ---
 
-# Presenting Artifacts
+# Creating Artifacts
 
-An artifact here is a document for a person to read, written as one self-contained HTML page. A
-reader can skim it in two minutes, comment on any block, and open the same link again after
-each revision. This skill covers when to make a page, what goes in it, how to write it, how to
-make it easy to comment on, and how to share it.
+An artifact here is a document for a person to read, written as one self-contained HTML page
+and shared by its portal link. A reader can skim it in two minutes, comment on any block, and
+open the same link again after each revision. This skill covers when to make a page, what goes
+in it, how to write it, how to make it easy to comment on, and how to share it.
 
 `<skill>` below is this skill's base directory. Run commands from the workspace root.
 
 ## When to Make a Page
 
-Make a page when the user asks for one, or when the result is a document that someone will
-review, share, or come back to:
+Make a page when the user asks for an artifact or a page, or when the result is a document
+that someone will review, share, or come back to:
 
 - a plan, a proposal, or a design
 - a write-up of research, of an investigation, or of a review
 - a comparison of options
 - a status report
 - an explanation of a system or of a change that needs drawings
+
+Share every standalone HTML page that you write for the user this way, also when it does not
+use the template. A link to the file gives the reader no review button and no link to pass on.
+
+Screenshots, recordings, and data files are not pages. This skill does not change how you save
+and link them.
 
 Answer in the chat instead when the result fits in a short message and nobody needs to comment
 on its parts. A page costs the reader a click, so it must save more reading than that.
