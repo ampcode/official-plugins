@@ -100,6 +100,12 @@ function checkPage(html) {
 		)
 	}
 
+	if (!/<figure\b/i.test(markup)) {
+		warnings.push(
+			'has no picture: show the main point in a <figure>, unless the page has nothing with a shape to draw',
+		)
+	}
+
 	const seen = new Set()
 	const duplicates = new Set()
 	for (const match of markup.matchAll(/<[a-z][^>]*?\sid\s*=\s*(?:"([^"]*)"|'([^']*)')/gi)) {
