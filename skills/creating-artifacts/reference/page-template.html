@@ -10,6 +10,7 @@
 				--bg: #ffffff;
 				--surface: #f6f7f9;
 				--border: #e1e4ea;
+				--line: #aeb6c4;
 				--text: #1b1f27;
 				--muted: #5d6675;
 				--accent: #2f5fd0;
@@ -28,6 +29,7 @@
 					--bg: #14161a;
 					--surface: #1c1f25;
 					--border: #2c313a;
+					--line: #566070;
 					--text: #e7e9ee;
 					--muted: #9ba3b1;
 					--accent: #8fb0ff;
@@ -377,7 +379,7 @@
 				font-weight: 600;
 			}
 			/* The script at the end of the page adds these classes. */
-			.hot {
+			pre .hot {
 				color: var(--accent);
 			}
 			.line {
@@ -390,6 +392,347 @@
 			.line.del {
 				background: var(--bad-soft);
 				color: var(--bad);
+			}
+			/* Visuals. .viz frames one picture. .flow, .parts, and .bars are ready-made pictures. */
+			.viz {
+				container-type: inline-size;
+				padding: 1.1rem 1rem;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				background: var(--surface);
+				overflow-x: auto;
+			}
+			.viz > :last-child {
+				margin-bottom: 0;
+			}
+			.viz svg {
+				margin: 0 auto;
+				color: var(--text);
+				font-family: var(--sans);
+			}
+			.compare > div {
+				display: flex;
+				flex-direction: column;
+			}
+			.compare .viz {
+				flex: 1;
+			}
+
+			/* A flow: nodes joined by edges, top to bottom. */
+			.flow {
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+			}
+			.node {
+				min-width: 6.5rem;
+				max-width: 100%;
+				padding: 0.45rem 0.85rem;
+				border: 1.5px solid var(--line);
+				border-radius: 8px;
+				background: var(--bg);
+				font-size: 0.92rem;
+				font-weight: 600;
+				line-height: 1.3;
+				text-align: center;
+			}
+			.node small {
+				display: block;
+				margin-top: 0.15rem;
+				color: var(--muted);
+				font-size: 0.8rem;
+				font-weight: 400;
+			}
+			.node.hot {
+				border-color: var(--accent);
+				background: var(--accent-soft);
+			}
+			.node.ok {
+				border-color: var(--ok);
+				background: var(--ok-soft);
+			}
+			.node.bad {
+				border-color: var(--bad);
+				background: var(--bad-soft);
+			}
+			.node.gone {
+				border-style: dashed;
+				background: none;
+				color: var(--muted);
+			}
+			/* The line is a background, the arrowhead is ::after, and ::before is the moving dot. */
+			.edge {
+				position: relative;
+				align-self: stretch;
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+				column-gap: 1.2rem;
+				min-height: 2.5rem;
+				margin: 2px 0;
+				color: var(--line);
+				background: linear-gradient(currentColor, currentColor) top center / 1.5px calc(100% - 5px)
+					no-repeat;
+			}
+			.edge::after {
+				content: '';
+				position: absolute;
+				left: 50%;
+				bottom: 0;
+				translate: -50% 0;
+				border: 5px solid transparent;
+				border-top: 7px solid currentColor;
+				border-bottom-width: 0;
+			}
+			.edge > span {
+				grid-column: 2;
+				align-self: center;
+				padding: 0.4rem 0 0.6rem;
+				color: var(--muted);
+				font-size: 0.8rem;
+				line-height: 1.25;
+			}
+			.edge.hot,
+			.edge.hot > span {
+				color: var(--accent);
+			}
+			/* Nodes that belong together or run in parallel. */
+			.group {
+				position: relative;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: flex-start;
+				justify-content: center;
+				gap: 0.5rem;
+				max-width: 100%;
+				padding: 1.7rem 0.6rem 0.6rem;
+				border: 1.5px dashed var(--line);
+				border-radius: 10px;
+			}
+			.group::before {
+				content: attr(data-label);
+				position: absolute;
+				top: 0.35rem;
+				left: 0.7rem;
+				color: var(--muted);
+				font-size: 0.75rem;
+				font-weight: 600;
+			}
+			/* Left to right, when the picture is wide enough. */
+			@container (min-width: 34rem) {
+				.flow.row {
+					flex-direction: row;
+					justify-content: center;
+				}
+				.flow.row > .edge {
+					align-self: center;
+					flex: 1 1 3rem;
+					min-width: 3rem;
+					max-width: 10rem;
+					grid-template-columns: minmax(0, 1fr);
+					grid-template-rows: 1fr 1fr;
+					min-height: 2.6rem;
+					margin: 0 2px;
+					background-position: left center;
+					background-size: calc(100% - 5px) 1.5px;
+				}
+				.flow.row > .edge::after {
+					left: auto;
+					right: 0;
+					bottom: auto;
+					top: 50%;
+					translate: 0 -50%;
+					border: 5px solid transparent;
+					border-left: 7px solid currentColor;
+					border-right-width: 0;
+				}
+				.flow.row > .edge > span {
+					grid-column: 1;
+					grid-row: 1;
+					align-self: end;
+					padding: 0 0.6rem 0.3rem 0.2rem;
+					text-align: center;
+				}
+				.flow.row > .group {
+					flex-direction: column;
+					align-items: stretch;
+				}
+			}
+
+			/* One text split into labelled parts. */
+			.parts {
+				display: grid;
+				gap: 0.5rem;
+			}
+			.parts > div {
+				display: grid;
+				grid-template-columns: 8.5rem minmax(0, 1fr);
+				gap: 0.75rem;
+				align-items: start;
+			}
+			.parts dt {
+				padding-top: 0.55rem;
+				color: var(--muted);
+				font-size: 0.8rem;
+				font-weight: 600;
+			}
+			.parts dd {
+				margin: 0;
+				padding: 0.5rem 0.8rem;
+				border: 1.5px solid var(--line);
+				border-radius: 8px;
+				background: var(--bg);
+				font-size: 0.92rem;
+			}
+			.parts.code dd {
+				font: 0.84rem/1.5 var(--mono);
+				white-space: pre-wrap;
+				overflow-wrap: anywhere;
+			}
+			.parts > .hot dt {
+				color: var(--accent);
+			}
+			.parts > .hot dd {
+				border-color: var(--accent);
+				background: var(--accent-soft);
+			}
+			@container (max-width: 26rem) {
+				.parts > div {
+					grid-template-columns: minmax(0, 1fr);
+					gap: 0.15rem;
+				}
+				.parts dt {
+					padding-top: 0;
+				}
+			}
+
+			/* Bars: --v on each row is its length in percent of the longest bar. */
+			.bars {
+				display: grid;
+				grid-template-columns: auto minmax(3rem, 1fr) auto;
+				gap: 0.45rem 0.7rem;
+				padding: 0;
+				list-style: none;
+				font-size: 0.9rem;
+			}
+			.bars li {
+				display: grid;
+				grid-column: 1 / -1;
+				grid-template-columns: subgrid;
+				align-items: center;
+			}
+			.bars li::after {
+				content: '';
+				grid-column: 2;
+				grid-row: 1;
+				width: calc(var(--v, 0) * 1%);
+				min-width: 2px;
+				height: 0.85rem;
+				border-radius: 3px;
+				background: var(--line);
+				/* A script that changes --v gets a smooth change. */
+				transition: width 0.25s ease-out;
+			}
+			.bars li > span {
+				grid-column: 1;
+				max-width: 11rem;
+			}
+			.bars li > b {
+				grid-column: 3;
+				font: 600 0.84rem var(--mono);
+			}
+			.bars li.hot::after {
+				background: var(--accent);
+			}
+			.bars li.hot > b {
+				color: var(--accent);
+			}
+
+			/* Motion. Every picture is complete when it stands still: in print, in a screenshot, and
+			   for a reader who turned motion off. */
+			@media screen and (prefers-reduced-motion: no-preference) {
+				/* A dot travels along a live edge. Use it for the path that the data takes. */
+				.edge.live::before {
+					content: '';
+					position: absolute;
+					left: 50%;
+					top: 0;
+					width: 7px;
+					height: 7px;
+					margin: -3.5px;
+					border-radius: 50%;
+					background: var(--accent);
+					animation: travel-down 1.8s linear infinite;
+				}
+				@keyframes travel-down {
+					0% {
+						top: 0;
+						opacity: 0;
+					}
+					15%,
+					80% {
+						opacity: 1;
+					}
+					100% {
+						top: calc(100% - 6px);
+						opacity: 0;
+					}
+				}
+				@container (min-width: 34rem) {
+					.flow.row > .edge.live::before {
+						left: 0;
+						top: 50%;
+						animation-name: travel-right;
+					}
+				}
+				@keyframes travel-right {
+					0% {
+						left: 0;
+						opacity: 0;
+					}
+					15%,
+					80% {
+						opacity: 1;
+					}
+					100% {
+						left: calc(100% - 6px);
+						opacity: 0;
+					}
+				}
+				/* The script at the end of the page adds .play when the figure scrolls into view. */
+				.play .seq > * {
+					animation: appear 0.45s ease-out both;
+					animation-delay: calc(var(--i, 0) * 0.3s);
+				}
+				.play .bars li::after {
+					transform-origin: left;
+					animation: grow 0.8s ease-out both;
+				}
+				@keyframes appear {
+					from {
+						opacity: 0;
+						transform: translateY(-6px);
+					}
+				}
+				@keyframes grow {
+					from {
+						transform: scaleX(0);
+					}
+				}
+			}
+			.replay {
+				margin-left: 0.5rem;
+				padding: 0;
+				border: 0;
+				background: none;
+				color: var(--accent);
+				font: inherit;
+				text-decoration: underline;
+				cursor: pointer;
+			}
+			@media print {
+				.replay {
+					display: none;
+				}
 			}
 			figure svg,
 			figure img {
@@ -544,53 +887,38 @@
 				<section id="approach" data-toc="Approach">
 					<h2>⟦A heading that states the approach, for example: Write to both stores first, then switch reads⟧</h2>
 					<p>⟦How it works, in the order things happen. The first sentence of each paragraph carries its point.⟧</p>
-					<!-- Show the change as a drawing of what the system does before and after. Use the same
-					     layout and labels in both panes, so that only the difference moves.
-					     Light lines (─│┌┐└┘→↓) for unchanged parts, heavy glyphs (━┃┏┓┗┛▶▼●) for changed
-					     parts; the page colors the heavy glyphs. At most 38 columns in each pane.
-					     When Before would be empty, delete the compare wrapper and keep one <pre>.
-					     Start each drawing line at the first column. Keep tabs, &, < and > out of a
-					     drawing: a tab has no fixed width, and an escape takes one column on screen but
-					     several in the source, so the boxes stop lining up.
-					     Other views: <pre> for a call tree, pseudocode, or a file tree;
-					     <pre class="diff"> for lines that start with + or -. -->
+					<!-- Show the change as a picture of what the system does before and after. Use the same
+					     layout and labels in both panes, so that only the difference moves. Mark only the
+					     changed parts with class="hot". When Before would be empty, delete the compare
+					     wrapper and keep one .viz.
+					     The Pictures section of the skill lists the other pictures: .flow.row, .group,
+					     .parts, .bars, inline <svg>, your own markup, and <pre> for code views. -->
 					<figure id="fig-⟦short-name⟧">
 						<div class="compare">
 							<div>
 								<p class="pane">Before</p>
-								<pre class="diagram">⟦
-┌─────────┐
-│ Handler │
-└────┬────┘
-     │ charge()
-     ↓
-┌─────────┐
-│ Stripe  │
-└─────────┘
-request waits up to 30 s
-⟧</pre>
+								<div class="viz">
+									<div class="flow">
+										<div class="node">⟦Handler⟧</div>
+										<div class="edge"><span>⟦charge()⟧</span></div>
+										<div class="node">⟦Stripe⟧<small>⟦request waits up to 30 s⟧</small></div>
+									</div>
+								</div>
 							</div>
 							<div>
 								<p class="pane">After</p>
-								<pre class="diagram">⟦
-┌─────────┐
-│ Handler │
-└────┳────┘
-     ┃ enqueue()
-     ▼
-┏━━━━━━━━━┓
-┃ Worker  ┃
-┗━━━━┳━━━━┛
-     ┃ charge(), 3 retries
-     ▼
-┌─────────┐
-│ Stripe  │
-└─────────┘
-request returns in 20 ms
-⟧</pre>
+								<div class="viz">
+									<div class="flow">
+										<div class="node">⟦Handler⟧<small>⟦request returns in 20 ms⟧</small></div>
+										<div class="edge hot live"><span>⟦enqueue()⟧</span></div>
+										<div class="node hot">⟦Worker⟧</div>
+										<div class="edge hot"><span>⟦charge(), 3 retries⟧</span></div>
+										<div class="node">⟦Stripe⟧</div>
+									</div>
+								</div>
 							</div>
 						</div>
-						<figcaption>⟦What the reader should notice in the drawing.⟧</figcaption>
+						<figcaption>⟦What the reader should notice in the picture.⟧</figcaption>
 					</figure>
 					<aside class="note" id="note-⟦short-name⟧">
 						<p>⟦A constraint or fact that shapes the approach. Use class="note warn" for a hazard.⟧</p>
@@ -750,6 +1078,38 @@ request returns in 20 ms
 					return span
 				})
 				pre.replaceChildren(...lines)
+			}
+
+			// Plays the one-shot motion of a picture when it scrolls into view, and adds a Replay
+			// button. Without this script the pictures are complete and still.
+			if (matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+				const play = new IntersectionObserver((entries) => {
+					for (const entry of entries) {
+						if (!entry.isIntersecting) continue
+						entry.target.classList.add('play')
+						play.unobserve(entry.target)
+					}
+				})
+				for (const figure of document.querySelectorAll('figure')) {
+					if (!figure.querySelector('.seq, .bars')) continue
+					for (const sequence of figure.querySelectorAll('.seq')) {
+						;[...sequence.children].forEach((child, index) => child.style.setProperty('--i', index))
+					}
+					play.observe(figure)
+					// A picture with its own controls needs no Replay button.
+					if (figure.querySelector('input, select, button')) continue
+					const button = document.createElement('button')
+					button.type = 'button'
+					button.className = 'replay'
+					button.textContent = 'Replay'
+					button.addEventListener('click', () => {
+						figure.classList.remove('play')
+						void figure.offsetWidth
+						figure.classList.add('play')
+					})
+					const caption = figure.querySelector('figcaption') ?? figure
+					caption.append(button)
+				}
 			}
 		</script>
 	</body>
