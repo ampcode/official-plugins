@@ -1,0 +1,735 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>⟦Same text as the h1⟧</title>
+		<style>
+			:root {
+				color-scheme: light dark;
+				--bg: #ffffff;
+				--surface: #f6f7f9;
+				--border: #e1e4ea;
+				--text: #1b1f27;
+				--muted: #5d6675;
+				--accent: #2f5fd0;
+				--accent-soft: #eaf0fd;
+				--ok: #1f7a4d;
+				--ok-soft: #e4f4ec;
+				--warn: #8a5a00;
+				--warn-soft: #fdf1d8;
+				--bad: #b3261e;
+				--bad-soft: #fde8e6;
+				--sans: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+				--mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+			}
+			@media (prefers-color-scheme: dark) {
+				:root {
+					--bg: #14161a;
+					--surface: #1c1f25;
+					--border: #2c313a;
+					--text: #e7e9ee;
+					--muted: #9ba3b1;
+					--accent: #8fb0ff;
+					--accent-soft: #1e2a47;
+					--ok: #6fd3a0;
+					--ok-soft: #173326;
+					--warn: #f0c36a;
+					--warn-soft: #3a2e12;
+					--bad: #ff9d94;
+					--bad-soft: #401f1c;
+				}
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html {
+				scroll-behavior: smooth;
+			}
+			body {
+				margin: 0;
+				background: var(--bg);
+				color: var(--text);
+				font: 16px/1.55 var(--sans);
+				-webkit-text-size-adjust: 100%;
+			}
+			.layout {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr);
+				max-width: 46rem;
+				margin: 0 auto;
+				/* Bottom space keeps the last block clear of the review button in the corner. */
+				padding: 2.5rem 1.25rem 6rem;
+			}
+			.toc {
+				display: none;
+			}
+			@media (min-width: 64rem) {
+				.layout {
+					grid-template-columns: 13rem minmax(0, 46rem);
+					gap: 3rem;
+					max-width: 64rem;
+				}
+				.toc {
+					display: block;
+					position: sticky;
+					top: 2.5rem;
+					align-self: start;
+					max-height: calc(100vh - 5rem);
+					overflow-y: auto;
+					font-size: 0.875rem;
+				}
+			}
+			.toc ol {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+			}
+			.toc a {
+				display: block;
+				padding: 0.3rem 0.6rem;
+				border-left: 2px solid var(--border);
+				color: var(--muted);
+				text-decoration: none;
+			}
+			.toc a:hover,
+			.toc a[aria-current='true'] {
+				border-left-color: var(--accent);
+				color: var(--text);
+			}
+			h1,
+			h2,
+			h3 {
+				line-height: 1.25;
+				text-wrap: balance;
+			}
+			h1 {
+				margin: 0.4rem 0 0.75rem;
+				font-size: 2rem;
+				letter-spacing: -0.01em;
+			}
+			h2 {
+				margin: 0 0 0.9rem;
+				font-size: 1.3rem;
+			}
+			h3 {
+				margin: 0;
+				font-size: 1.02rem;
+			}
+			p,
+			ul,
+			ol,
+			dl,
+			figure,
+			pre {
+				margin: 0 0 0.9rem;
+			}
+			a {
+				color: var(--accent);
+			}
+			section {
+				margin-top: 2.75rem;
+			}
+			[id] {
+				scroll-margin-top: 1.5rem;
+			}
+			.kicker,
+			.meta {
+				margin: 0;
+				color: var(--muted);
+				font-size: 0.875rem;
+			}
+			.meta {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem 0.75rem;
+				align-items: center;
+			}
+			.lede {
+				font-size: 1.15rem;
+				color: var(--text);
+			}
+
+			/* Summary: the part every reader sees. */
+			.facts {
+				display: grid;
+				gap: 1px;
+				margin: 0;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				background: var(--border);
+				overflow: hidden;
+			}
+			.facts > div {
+				display: grid;
+				grid-template-columns: 8.5rem minmax(0, 1fr);
+				gap: 1rem;
+				padding: 0.7rem 1rem;
+				background: var(--surface);
+			}
+			.facts dt {
+				color: var(--muted);
+				font-size: 0.875rem;
+				font-weight: 600;
+			}
+			.facts dd {
+				margin: 0;
+			}
+			/* The first row is what the reader is asked to do, so it stands out from the rest. */
+			.facts > .ask {
+				background: var(--accent-soft);
+			}
+			.facts > .ask dt {
+				color: var(--accent);
+			}
+			@media (max-width: 34rem) {
+				h1 {
+					font-size: 1.6rem;
+				}
+				.facts > div {
+					grid-template-columns: minmax(0, 1fr);
+					gap: 0.15rem;
+				}
+			}
+
+			/* Items: one decision, step, or alternative per block, so one comment hits one thing. */
+			.items {
+				list-style: none;
+				margin: 0;
+				padding: 0;
+				display: grid;
+				gap: 0.75rem;
+			}
+			.item {
+				padding: 0.9rem 1rem;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+			}
+			.item > :last-child {
+				margin-bottom: 0;
+			}
+			.item-head {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.5rem 0.6rem;
+				align-items: center;
+				margin-bottom: 0.5rem;
+			}
+			.item-head h3 {
+				flex: 1 1 12rem;
+			}
+			.tag {
+				padding: 0.05rem 0.4rem;
+				border-radius: 5px;
+				background: var(--accent-soft);
+				color: var(--accent);
+				font: 600 0.8rem/1.5 var(--mono);
+				white-space: nowrap;
+			}
+			:target {
+				outline: 2px solid var(--accent);
+				outline-offset: 3px;
+				border-radius: 10px;
+			}
+			.chip {
+				display: inline-block;
+				padding: 0.05rem 0.55rem;
+				border-radius: 999px;
+				background: var(--surface);
+				border: 1px solid var(--border);
+				color: var(--muted);
+				font-size: 0.78rem;
+				font-weight: 600;
+				white-space: nowrap;
+			}
+			.chip.review,
+			.chip.doing {
+				background: var(--warn-soft);
+				border-color: transparent;
+				color: var(--warn);
+			}
+			.chip.done,
+			.chip.pick {
+				background: var(--ok-soft);
+				border-color: transparent;
+				color: var(--ok);
+			}
+			.chip.blocked {
+				background: var(--bad-soft);
+				border-color: transparent;
+				color: var(--bad);
+			}
+			.options {
+				padding-left: 1.2rem;
+				list-style: disc;
+			}
+			.options li {
+				margin-bottom: 0.3rem;
+			}
+			.detail {
+				display: grid;
+				grid-template-columns: 4.5rem minmax(0, 1fr);
+				gap: 0.25rem 0.75rem;
+				font-size: 0.92rem;
+			}
+			.detail dt {
+				color: var(--muted);
+				font-weight: 600;
+			}
+			.detail dd {
+				margin: 0;
+			}
+			.quiet {
+				color: var(--muted);
+				font-size: 0.92rem;
+			}
+
+			.note {
+				margin: 0 0 0.9rem;
+				padding: 0.75rem 1rem;
+				border-left: 3px solid var(--accent);
+				border-radius: 0 8px 8px 0;
+				background: var(--accent-soft);
+			}
+			.note.warn {
+				border-left-color: var(--warn);
+				background: var(--warn-soft);
+			}
+			.note > :last-child {
+				margin-bottom: 0;
+			}
+
+			.table-wrap {
+				margin: 0 0 0.9rem;
+				overflow-x: auto;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+			}
+			table {
+				width: 100%;
+				/* On a phone the table scrolls sideways instead of squeezing its columns. */
+				min-width: 34rem;
+				border-collapse: collapse;
+				font-size: 0.92rem;
+			}
+			th,
+			td {
+				padding: 0.55rem 0.8rem;
+				border-bottom: 1px solid var(--border);
+				text-align: left;
+				vertical-align: top;
+			}
+			th {
+				background: var(--surface);
+				color: var(--muted);
+				font-size: 0.82rem;
+			}
+			tr:last-child td {
+				border-bottom: 0;
+			}
+			td:has(> .tag:only-child) {
+				width: 1%;
+				white-space: nowrap;
+			}
+
+			code {
+				padding: 0.1em 0.3em;
+				border-radius: 4px;
+				background: var(--surface);
+				font: 0.88em var(--mono);
+				overflow-wrap: anywhere;
+			}
+			pre {
+				padding: 0.8rem 1rem;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				background: var(--surface);
+				overflow-x: auto;
+				font: 0.84rem/1.45 var(--mono);
+			}
+			pre code {
+				padding: 0;
+				background: none;
+				font: inherit;
+				overflow-wrap: normal;
+			}
+			/* Box-drawing diagrams need tight lines, or the vertical strokes show gaps. */
+			figure pre {
+				line-height: 1.2;
+			}
+			/* Before and After side by side; the panes stack when the page is narrow. */
+			.compare {
+				display: grid;
+				grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+				gap: 0.75rem;
+				margin: 0 0 0.9rem;
+			}
+			.compare > div {
+				min-width: 0;
+			}
+			.compare pre {
+				margin: 0;
+			}
+			.pane {
+				margin: 0 0 0.3rem;
+				color: var(--muted);
+				font-size: 0.82rem;
+				font-weight: 600;
+			}
+			/* The script at the end of the page adds these classes. */
+			.hot {
+				color: var(--accent);
+			}
+			.line {
+				display: block;
+			}
+			.line.add {
+				background: var(--ok-soft);
+				color: var(--ok);
+			}
+			.line.del {
+				background: var(--bad-soft);
+				color: var(--bad);
+			}
+			figure svg,
+			figure img {
+				display: block;
+				max-width: 100%;
+				height: auto;
+			}
+			figcaption {
+				margin-top: 0.4rem;
+				color: var(--muted);
+				font-size: 0.875rem;
+			}
+			details {
+				margin: 0 0 0.6rem;
+				border: 1px solid var(--border);
+				border-radius: 10px;
+			}
+			summary {
+				padding: 0.6rem 1rem;
+				cursor: pointer;
+				font-weight: 600;
+			}
+			details > :not(summary) {
+				margin-left: 1rem;
+				margin-right: 1rem;
+			}
+			@media print {
+				.toc {
+					display: none;
+				}
+				.layout {
+					display: block;
+					max-width: none;
+					padding: 0;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<!--
+			How to use this template
+			- Replace every ⟦…⟧ placeholder. The text inside each one says what belongs there.
+			- Delete the sections this document does not need. Keep the header and the summary.
+			- Give every block a reader may comment on a unique id that names its content
+			  (id="step-backfill"), not its position. Keep ids the same across revisions.
+			- Keep tags (Q1, S1, R1) stable once shared. Readers quote them in chat.
+			- Escape &, < and > in text and code. Add no external scripts, styles, fonts, or images.
+		-->
+		<div class="layout">
+			<nav class="toc" aria-label="Contents"></nav>
+
+			<main>
+				<header id="top">
+					<p class="kicker">⟦Plan | Proposal | Research | Status⟧ · ⟦repository or project⟧</p>
+					<h1>⟦The outcome in under ten words, for example: Move session storage to Redis without downtime⟧</h1>
+					<p class="lede">
+						⟦Two sentences at most. What will be true when this is done, and the one thing the
+						reader must know or decide.⟧
+					</p>
+					<p class="meta">
+						<!-- Chip classes: review (waiting for the reader), doing, done, blocked. No class: draft. -->
+						<span class="chip review">⟦Awaiting review⟧</span>
+						<span>⟦Version 1 · 2026-01-31⟧</span>
+					</p>
+				</header>
+
+				<section id="summary" data-toc="Summary">
+					<h2>Summary</h2>
+					<dl class="facts">
+						<div class="ask" id="summary-ask">
+							<dt>Needs from you</dt>
+							<dd>
+								⟦What the reader must do, by tag and name. For example: Answers to Q1 (who hosts
+								Redis) and Q2 (session lifetime). Or: Nothing, this is for your information.⟧
+							</dd>
+						</div>
+						<div id="summary-goal">
+							<dt>Goal</dt>
+							<dd>⟦The problem and who has it. One sentence.⟧</dd>
+						</div>
+						<div id="summary-approach">
+							<dt>Approach</dt>
+							<dd>⟦The recommended approach and the main reason for it. One or two sentences.⟧</dd>
+						</div>
+						<div id="summary-done">
+							<dt>Done when</dt>
+							<dd>
+								⟦The state that ends the work, written so that someone can check it. For example:
+								All reads come from Redis, the sessions table is dropped, and pnpm test passes.⟧
+							</dd>
+						</div>
+						<div id="summary-size">
+							<dt>Size</dt>
+							<dd>⟦Number of steps, the areas of the code touched, and anything hard to undo.⟧</dd>
+						</div>
+					</dl>
+				</section>
+
+				<!-- Revisions only. Delete this section in version 1. Newest entry first. -->
+				<section id="changes" data-toc="What changed">
+					<h2>What changed in ⟦version 2⟧</h2>
+					<ul>
+						<li id="change-⟦short-name⟧">
+							⟦What changed and why, with the tag of the block it affects. For example: Q1 answered,
+							Redis chosen. S3 dropped because of that.⟧
+						</li>
+					</ul>
+				</section>
+
+				<section id="decisions" data-toc="Decisions needed">
+					<h2>Decisions needed</h2>
+					<ol class="items">
+						<li class="item" id="q-⟦short-name⟧">
+							<div class="item-head">
+								<span class="tag">Q1</span>
+								<h3>⟦The question, written as a question the reader can answer in a few words⟧</h3>
+							</div>
+							<p>⟦Why this must be decided now and what depends on it. One or two sentences.⟧</p>
+							<ul class="options">
+								<li>
+									<strong>A. ⟦Option⟧.</strong> ⟦What follows from choosing it.⟧
+									<span class="chip pick">Recommended</span>
+								</li>
+								<li><strong>B. ⟦Option⟧.</strong> ⟦What follows from choosing it.⟧</li>
+							</ul>
+							<p class="quiet">Without an answer I will go with ⟦A⟧.</p>
+						</li>
+					</ol>
+				</section>
+
+				<section id="approach" data-toc="Approach">
+					<h2>⟦A heading that states the approach, for example: Write to both stores first, then switch reads⟧</h2>
+					<p>⟦How it works, in the order things happen. The first sentence of each paragraph carries its point.⟧</p>
+					<!-- Show the change as a drawing of what the system does before and after. Use the same
+					     layout and labels in both panes, so that only the difference moves.
+					     Light lines (─│┌┐└┘→↓) for unchanged parts, heavy glyphs (━┃┏┓┗┛▶▼●) for changed
+					     parts; the page colors the heavy glyphs. At most 38 columns in each pane.
+					     When Before would be empty, delete the compare wrapper and keep one <pre>.
+					     Start each drawing line at the first column. Keep tabs, &, < and > out of a
+					     drawing: a tab has no fixed width, and an escape takes one column on screen but
+					     several in the source, so the boxes stop lining up.
+					     Other views: <pre> for a call tree, pseudocode, or a file tree;
+					     <pre class="diff"> for lines that start with + or -. -->
+					<figure id="fig-⟦short-name⟧">
+						<div class="compare">
+							<div>
+								<p class="pane">Before</p>
+								<pre class="diagram">⟦
+┌─────────┐
+│ Handler │
+└────┬────┘
+     │ charge()
+     ↓
+┌─────────┐
+│ Stripe  │
+└─────────┘
+request waits up to 30 s
+⟧</pre>
+							</div>
+							<div>
+								<p class="pane">After</p>
+								<pre class="diagram">⟦
+┌─────────┐
+│ Handler │
+└────┳────┘
+     ┃ enqueue()
+     ▼
+┏━━━━━━━━━┓
+┃ Worker  ┃
+┗━━━━┳━━━━┛
+     ┃ charge(), 3 retries
+     ▼
+┌─────────┐
+│ Stripe  │
+└─────────┘
+request returns in 20 ms
+⟧</pre>
+							</div>
+						</div>
+						<figcaption>⟦What the reader should notice in the drawing.⟧</figcaption>
+					</figure>
+					<aside class="note" id="note-⟦short-name⟧">
+						<p>⟦A constraint or fact that shapes the approach. Use class="note warn" for a hazard.⟧</p>
+					</aside>
+				</section>
+
+				<section id="steps" data-toc="Steps">
+					<h2>Steps</h2>
+					<ol class="items">
+						<li class="item" id="step-⟦short-name⟧">
+							<div class="item-head">
+								<span class="tag">S1</span>
+								<h3>⟦The result of the step, for example: Sessions are written to both stores⟧</h3>
+								<!-- Chip classes: none (to do), doing, done, blocked. -->
+								<span class="chip">To do</span>
+							</div>
+							<p>⟦What changes and why it comes at this point in the order. Two sentences at most.⟧</p>
+							<dl class="detail">
+								<dt>Touches</dt>
+								<dd><code>⟦path/to/file.ts⟧</code>, <code>⟦path/to/other.ts⟧</code></dd>
+								<dt>Verify</dt>
+								<dd>⟦The command, test, or observation that shows the step worked.⟧</dd>
+							</dl>
+						</li>
+					</ol>
+				</section>
+
+				<section id="risks" data-toc="Risks">
+					<h2>Risks</h2>
+					<div class="table-wrap">
+						<table>
+							<thead>
+								<tr>
+									<th></th>
+									<th>Risk</th>
+									<th>How we notice</th>
+									<th>What we do</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr id="risk-⟦short-name⟧">
+									<td><span class="tag">R1</span></td>
+									<td>⟦What could go wrong, or an assumption that may be false.⟧</td>
+									<td>⟦The earliest signal.⟧</td>
+									<td>⟦The step that reduces it, or the fallback.⟧</td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</section>
+
+				<section id="later" data-toc="Not yet specified">
+					<h2>Not yet specified</h2>
+					<p class="quiet">
+						In scope, but too early to plan. Each item becomes a question or a step when the thing
+						it waits for is known.
+					</p>
+					<ul>
+						<li id="later-⟦short-name⟧">
+							<strong>⟦The area, for example: How existing sessions expire.⟧</strong>
+							⟦What is still unclear. One sentence.⟧ Waits for ⟦the tag and name of a question or
+							step, for example: Q2 (session lifetime)⟧.
+						</li>
+					</ul>
+				</section>
+
+				<section id="scope" data-toc="Out of scope">
+					<h2>Out of scope</h2>
+					<ul>
+						<li id="scope-⟦short-name⟧">⟦Something a reader might expect that this work leaves alone, and why.⟧</li>
+					</ul>
+				</section>
+
+				<section id="alternatives" data-toc="Alternatives">
+					<h2>Alternatives considered</h2>
+					<details id="alt-⟦short-name⟧">
+						<summary>⟦The alternative, and in a few words why not⟧</summary>
+						<p>⟦What it would look like and the specific reason it lost.⟧</p>
+					</details>
+				</section>
+
+				<section id="evidence" data-toc="Evidence">
+					<h2>Evidence</h2>
+					<details id="evidence-⟦short-name⟧">
+						<summary>⟦The claim this supports, for example: Session reads are 40x more frequent than writes⟧</summary>
+						<p>⟦Where the fact comes from: file and line, command and output, or link.⟧</p>
+						<pre><code>⟦escaped code or command output⟧</code></pre>
+					</details>
+				</section>
+			</main>
+		</div>
+
+		<script>
+			// Builds the side contents list from the sections, so it cannot drift from the page.
+			const toc = document.querySelector('.toc')
+			const sections = [...document.querySelectorAll('main > section[id]')]
+			const list = document.createElement('ol')
+			const links = new Map()
+			for (const section of sections) {
+				const label = section.dataset.toc || section.querySelector('h2')?.textContent.trim()
+				if (!label) continue
+				const link = document.createElement('a')
+				link.href = `#${section.id}`
+				link.textContent = label
+				const count = section.querySelectorAll('.item, tbody > tr[id]').length
+				if (count > 0) link.textContent += ` (${count})`
+				links.set(section, link)
+				const entry = document.createElement('li')
+				entry.append(link)
+				list.append(entry)
+			}
+			toc.append(list)
+			const observer = new IntersectionObserver(
+				(entries) => {
+					for (const entry of entries) {
+						if (!entry.isIntersecting) continue
+						for (const link of links.values()) link.removeAttribute('aria-current')
+						links.get(entry.target)?.setAttribute('aria-current', 'true')
+					}
+				},
+				{ rootMargin: '0px 0px -70% 0px' },
+			)
+			for (const section of links.keys()) observer.observe(section)
+
+			// A line break before the end tag of a view would show as an empty last line.
+			for (const pre of document.querySelectorAll('figure pre')) {
+				const last = pre.lastChild
+				if (last?.nodeType === Node.TEXT_NODE) last.data = last.data.trimEnd()
+			}
+
+			// Colors the heavy glyphs in a drawing, so the changed parts stand out from the light lines.
+			const heavy = /([━┃┏┓┗┛┣┫┳┻╋▶◀▲▼●◆■]+)/
+			for (const pre of document.querySelectorAll('pre.diagram')) {
+				const walker = document.createTreeWalker(pre, NodeFilter.SHOW_TEXT)
+				const texts = []
+				while (walker.nextNode()) texts.push(walker.currentNode)
+				for (const text of texts) {
+					const parts = text.data.split(heavy)
+					if (parts.length === 1) continue
+					const pieces = parts.map((part, index) => {
+						if (index % 2 === 0) return part
+						const span = document.createElement('span')
+						span.className = 'hot'
+						span.textContent = part
+						return span
+					})
+					text.replaceWith(...pieces)
+				}
+			}
+
+			// Colors the added and removed lines in a diff view. The view holds text only.
+			for (const pre of document.querySelectorAll('pre.diff')) {
+				const lines = pre.textContent.split('\n').map((line) => {
+					const span = document.createElement('span')
+					span.className = line.startsWith('+') ? 'line add' : line.startsWith('-') ? 'line del' : 'line'
+					span.textContent = line === '' ? ' ' : line
+					return span
+				})
+				pre.replaceChildren(...lines)
+			}
+		</script>
+	</body>
+</html>
