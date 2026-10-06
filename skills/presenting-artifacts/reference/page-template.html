@@ -433,9 +433,11 @@
 			How to use this template
 			- Replace every ⟦…⟧ placeholder. The text inside each one says what belongs there.
 			- Delete the sections this document does not need. Keep the header and the summary.
+			  The sections are laid out for a plan. A page that is not a plan keeps Findings and
+			  renames the summary rows after "Needs from you" to fit, for example Answer and Confidence.
 			- Give every block a reader may comment on a unique id that names its content
 			  (id="step-backfill"), not its position. Keep ids the same across revisions.
-			- Keep tags (Q1, S1, R1) stable once shared. Readers quote them in chat.
+			- Keep tags (Q1, F1, S1, R1) stable once shared. Readers quote them in chat.
 			- Escape &, < and > in text and code. Add no external scripts, styles, fonts, or images.
 		-->
 		<div class="layout">
@@ -443,11 +445,11 @@
 
 			<main>
 				<header id="top">
-					<p class="kicker">⟦Plan | Proposal | Research | Status⟧ · ⟦repository or project⟧</p>
-					<h1>⟦The outcome in under ten words, for example: Move session storage to Redis without downtime⟧</h1>
+					<p class="kicker">⟦The kind of document, for example: Plan, Proposal, Research, Comparison, Status⟧ · ⟦repository or project⟧</p>
+					<h1>⟦The main point in under ten words, for example: Move session storage to Redis without downtime⟧</h1>
 					<p class="lede">
-						⟦Two sentences at most. What will be true when this is done, and the one thing the
-						reader must know or decide.⟧
+						⟦Two sentences at most. What the page says, and the one thing the reader must know or
+						decide.⟧
 					</p>
 					<p class="meta">
 						<!-- Chip classes: review (waiting for the reader), doing, done, blocked. No class: draft. -->
@@ -516,6 +518,25 @@
 								<li><strong>B. ⟦Option⟧.</strong> ⟦What follows from choosing it.⟧</li>
 							</ul>
 							<p class="quiet">Without an answer I will go with ⟦A⟧.</p>
+						</li>
+					</ol>
+				</section>
+
+				<!-- For research, an investigation, a review, a comparison, or an explanation: one item
+				     for each finding, the most important first. Delete this section in a plan. -->
+				<section id="findings" data-toc="Findings">
+					<h2>Findings</h2>
+					<ol class="items">
+						<li class="item" id="finding-⟦short-name⟧">
+							<div class="item-head">
+								<span class="tag">F1</span>
+								<h3>⟦The finding as a full statement, for example: Session reads are 40 times more frequent than writes⟧</h3>
+							</div>
+							<p>⟦What it means for the reader, and how sure you are. Three sentences at most.⟧</p>
+							<dl class="detail">
+								<dt>Source</dt>
+								<dd>⟦File and line, command, or link. Long proof goes under Evidence.⟧</dd>
+							</dl>
 						</li>
 					</ol>
 				</section>

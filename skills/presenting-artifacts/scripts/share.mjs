@@ -3,7 +3,7 @@
 //
 //   node share.mjs [--dir DIR] [--check]
 //
-// --dir DIR   Directory holding the pages. Default: .amp/in/artifacts/plans
+// --dir DIR   Directory holding the pages. Default: .amp/in/artifacts/pages
 // --check     Only check the pages; do not start the server or print links.
 //
 // Exits 1 when a page has an error or the server cannot be reached.
@@ -12,8 +12,8 @@ import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
-const SERVICE_NAME = 'plan-artifacts'
-const DEFAULT_DIR = '.amp/in/artifacts/plans'
+const SERVICE_NAME = 'artifact-pages'
+const DEFAULT_DIR = '.amp/in/artifacts/pages'
 
 function parseArgs(argv) {
 	const args = { dir: DEFAULT_DIR, check: false }
@@ -138,9 +138,9 @@ function ensurePortal(dir) {
 			command,
 			'--portal',
 			'--title',
-			'Plans',
+			'Pages',
 			'--description',
-			'Plans and reports for review. Use the review button on a page to comment on any block.',
+			'Pages for review. Use the review button on a page to comment on any block.',
 		],
 		{ encoding: 'utf8' },
 	)
