@@ -43,6 +43,19 @@ function decodeEntities(text) {
 }
 
 /**
+ * Removes every match of the pattern. Repeats until nothing matches, because one removal can
+ * join the text around it into a new match.
+ */
+function removeAll(text, pattern) {
+	let previous
+	do {
+		previous = text
+		text = text.replace(pattern, '')
+	} while (text !== previous)
+	return text
+}
+
+/**
  * Checks one page for the problems that break reading or commenting.
  * Errors stop sharing; warnings are printed and sharing continues.
  */
@@ -55,12 +68,11 @@ function checkPage(html) {
 		.trim()
 	if (!title) errors.push('has no <title>')
 
-	// Markup only: comments, code samples, scripts, and styles can hold anything.
-	const markup = html
-		.replace(/<!--[\s\S]*?-->/g, '')
-		.replace(/<(script|style|pre|code)\b[\s\S]*?<\/\1>/gi, '<$1></$1>')
+	const visible = removeAll(html, /<!--[\s\S]*?-->/g)
 
-	const visible = html.replace(/<!--[\s\S]*?-->/g, '')
+	// Markup only: code samples, scripts, and styles can hold anything.
+	const markup = visible.replace(/<(script|style|pre|code)\b[\s\S]*?<\/\1>/gi, '<$1></$1>')
+
 	const placeholders = (visible.match(/⟦/g) ?? []).length
 	if (placeholders > 0) {
 		errors.push(`still has ${placeholders} template placeholder(s) marked with ⟦ ⟧`)
@@ -79,7 +91,7 @@ function checkPage(html) {
 		warnings.push('has a drawing with an escaped character; check in a screenshot that it still lines up')
 	}
 
-	const content = visible.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, '')
+	const content = removeAll(visible, /<(script|style)\b[\s\S]*?<\/\1>/gi)
 	const preOpens = (content.match(/<pre\b/gi) ?? []).length
 	const preCloses = (content.match(/<\/pre\s*>/gi) ?? []).length
 	if (preOpens !== preCloses) {
