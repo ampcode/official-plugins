@@ -64,28 +64,26 @@ on its parts. A page costs the reader a click, so it must save more reading than
    have: take a screenshot with `agent-browser` and inspect it. Every drawing must line up, and
    nothing may run out of its block.
 5. **Reply** with the link first, then at most five lines: what you need from the reader by tag
-   and name, the main point of the page, and how to comment. For a plan, the main point is the
-   recommendation with what done looks like. The page holds the document; do not repeat it in
-   the reply.
+   and name, the main point of the page, and how to comment. The page holds the document; do
+   not repeat it in the reply.
 6. **Stop or continue.** When the user asked for the document, the page is the deliverable:
-   share it and end the turn. A plan that the user asked for ends the turn before its first
-   step. When the user asked for the work and you planned first, share the page and continue
-   with the steps that no open decision affects.
-7. **Keep the page current.** Revise the same file after each comment or decision. While you
-   execute a plan, update the step chips and the header chip, so the link always shows the real
+   share it and end the turn. When the user asked for work and the page describes it, share
+   the page and continue with the parts that no open decision affects.
+7. **Keep the page current.** Revise the same file after each comment or decision. While the
+   work that a page describes goes on, update its chips, so the link always shows the real
    state.
 
 Example reply:
 
 ```markdown
-[Plan: Move session storage to Redis](https://t-abc-p3000.onamp.dev/redis-sessions.html "amp-portal")
+[Investigation: Why checkout requests time out](https://t-abc-p3000.onamp.dev/checkout-timeouts.html "amp-portal")
 
-I need two answers before S3: **Q1** (who hosts Redis) and **Q2** (session lifetime). Without
-them I will use option A for both.
+I need one answer: **Q1** (may the handler return before the charge completes). Without it I
+will assume that it may not.
 
-I recommend writing to both stores first and switching reads after a day of matching results.
-The work is done when all reads come from Redis and the `sessions` table is dropped. There are
-5 steps; only S5, which drops the table, cannot be undone.
+The handler waits for the payment provider inside the request, and its retries push the
+slowest requests past the 30 second limit. **F1** has the measurements. **F3** is the one
+finding that I could not reproduce.
 
 To comment, use the review button in the corner of the page and select any block.
 ```
@@ -97,58 +95,41 @@ rules hold for every kind of page.
 
 - **Ground each claim in something you read.** Name the files, functions, commands, and
   sources. Label anything you could not verify as an assumption.
+- **Give one answer.** State one conclusion or recommend one option. The reader should not have
+  to choose between options that look equal. Put the others under Alternatives, each with the
+  specific reason it lost.
 - **Ask only what the reader must decide.** A question belongs under Decisions needed when its
   answer changes what happens next and neither the code nor the request settles it. Give each
   question options, a recommendation, and the default you will use without an answer. Decide
   everything else yourself and state the choice on the page.
-- **Size the page to the content.** A small plan needs the summary and two or three steps.
+- **Write down what is still open.** A part of the topic goes under Not yet specified when it
+  belongs on the page but you cannot yet state it as a precise claim or question, usually
+  because it waits for an answer or for more work. Name the area and what it waits for. The
+  test is whether you can state the question now, not whether you can answer it: a question
+  that you can state goes under Decisions needed. When an item becomes clear, replace it with
+  a block that takes the next free tag.
+- **Say what could prove the page wrong.** Put each assumption that may be false under Risks,
+  with the earliest signal that it is false.
+- **Say what the page leaves out** under Out of scope when a reader could assume that it is
+  covered.
+- **Size the page to the content.** A short page needs the summary and two or three blocks.
   Delete an empty section instead of filling it.
 
-The template has the sections of a plan and a Findings section for the other documents. Keep
-the parts that fit the document, and name the summary rows to fit. "Needs from you" stays the
-first row on every page.
+The template has more sections than one document needs. Keep the parts that fit the document,
+and name the summary rows to fit. "Needs from you" stays the first row on every page.
 
-| Document                            | Other summary rows              | Sections to keep                                       |
-| ----------------------------------- | ------------------------------- | ------------------------------------------------------ |
-| Plan                                | Goal, Approach, Done when, Size | Decisions needed, Approach, Steps, Risks, and the rest |
-| Proposal or design                  | Goal, Approach, Size            | Decisions needed, Approach, Risks, Alternatives        |
-| Research, investigation, or review  | Answer, Confidence              | Findings with the most important first, Evidence       |
-| Comparison of options               | Recommendation, Compared on     | Findings with one table that compares the options      |
-| Status report                       | State, Next                     | What changed, Steps with current chips, Risks          |
-| Explanation of a system or a change | Main point                      | Approach with its drawings, Findings for the parts     |
+| Document                            | Other summary rows              | Main sections                                      |
+| ----------------------------------- | ------------------------------- | -------------------------------------------------- |
+| Plan                                | Goal, Approach, Done when, Size | Approach, Steps                                    |
+| Proposal or design                  | Goal, Approach, Size            | Approach                                           |
+| Research, investigation, or review  | Answer, Confidence              | Findings with the most important first, Evidence   |
+| Comparison of options               | Recommendation, Compared on     | Findings with one table that compares the options  |
+| Status report                       | State, Next                     | What changed, Steps with current chips             |
+| Explanation of a system or a change | Main point                      | Approach with its drawings, Findings for the parts |
 
-For a document that is not in the table, start from the summary and Findings.
-
-## What Goes in a Plan
-
-A plan lets the reader approve, redirect, or stop the work before it becomes expensive. Every
-part of the page serves that decision.
-
-- **State what done looks like.** Fill the summary's "Done when" row with the state that ends
-  the work, written so that someone can check it: "All reads come from Redis, the `sessions`
-  table is dropped, and `pnpm test` passes." The Verify line of the last step proves it. When
-  you cannot state it, the goal is not yet clear: make that the first question under Decisions
-  needed.
-- **Recommend one approach.** The reader should not have to choose between options that look
-  equal. Put the others under Alternatives, each with the specific reason it lost.
-- **Put what would disprove an assumption under Risks**, with the earliest signal that it is
-  false.
-- **Write down what you cannot plan yet.** A part of the work goes under Not yet specified when
-  it is in scope but you cannot yet state it as a precise question or step, usually because it
-  waits for an answer or for the result of an earlier step. Name the area and what it waits
-  for, and leave it coarse: one item may later become several steps or none. The test is
-  whether you can state the question now, not whether you can answer it. A question you can
-  state goes under Decisions needed, even when nothing can act on it yet. When an item becomes
-  clear, replace it with a question or a step that takes the next free tag.
-- **Make each step a result someone can check.** Name the step by what is true afterwards
-  ("Sessions are written to both stores"), list what it touches, and say how to verify it. A
-  step that cannot be verified is too vague. A step that touches unrelated areas is two steps.
-- **Order the steps to learn early.** Start with a thin slice that runs end to end. Put the
-  largest unknown near the start. Put changes that are hard to undo, such as data migrations,
-  deletions, and published interfaces, near the end and say that they are hard to undo.
-- **Say what is out of scope** when a reader could assume it is included. Out of scope is work
-  that the goal does not cover; it never moves into the plan the way a Not yet specified item
-  does.
+Every kind of page also keeps Decisions needed, Risks, Not yet specified, Out of scope, and
+Alternatives when it has content for them. For a document that is not in the table, start from
+the summary and Findings.
 
 ## Drawings
 
@@ -197,7 +178,6 @@ only where they disagree. Write for that reader.
 - **The header and summary stand alone.** The summary opens with "Needs from you", because that
   is the row the reader must act on; write "Nothing, this is for your information" when that is
   true. A reader who stops after the summary knows what you need from them and the main point.
-  For a plan, that reader also knows what done looks like and the size of the work.
 - **Headings state the takeaway.** Write "Write to both stores first, then switch reads", not
   "Migration strategy". The fixed section names, such as Steps and Risks, stay as they are.
 - **One idea per block, and its first sentence carries the point.** Keep paragraphs to three
@@ -236,8 +216,8 @@ When a comment arrives:
 2. Change that block and every other block the change affects.
 3. Record the change under "What changed" with the tags involved, and raise the version in the
    header.
-4. Keep a settled question in place: add a `done` chip that reads "Decided: A" and move the
-   consequence into Approach and Steps. Deleting it would break the tags readers already quoted.
+4. Keep a settled question in place and add a `done` chip that reads "Decided: A". Deleting it
+   would break the tags readers already quoted.
 5. Run the share script again and reply with what changed in one or two lines and the same link.
 
 Answer a comment that only asks a question in the thread. Also add the answer to the page when
