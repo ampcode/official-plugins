@@ -1,6 +1,6 @@
 ---
 name: creating-artifacts
-description: "Creates artifacts: plans, proposals, research and investigation write-ups, comparisons, status reports, explanations, and other documents for a person to read. Writes each one as a skimmable, self-contained HTML page that shows its content in diagrams, charts, and before-and-after pictures, serves it from the orb, and shares a portal link where readers can comment on any block. Use when asked for an artifact, a plan, a proposal, a write-up of findings, a report, or a page or link to share, and before writing any standalone HTML page that presents results to the user."
+description: "Creates shareable artifacts: plans and proposals that others will review and comment on, research and investigation write-ups, comparisons, status reports, explanations, and other documents for a person to read. Writes each one as a skimmable, self-contained HTML page that shows its content in diagrams, charts, and before-and-after pictures, serves it from the orb, and shares a portal link where readers can comment on any block. Use when asked for an artifact or a page or link to share, when a plan, proposal, write-up, or report has readers outside this thread who will comment on it, will be revised and consulted over time, or needs visualizations or animations the chat cannot render, and before writing any standalone HTML page that presents results to the user. Plans stay inline in the chat by default, including the plan stated before implementing a task and plans the user asks for mid-thread for their own use, however long."
 metadata:
   sandbox-only: true
 ---
@@ -16,23 +16,33 @@ in it, how to write it, how to make it easy to comment on, and how to share it.
 
 ## When to Make a Page
 
-Make a page when the user asks for an artifact or a page, or when the result is a document
-that someone will review, share, or come back to:
+The reply in the chat is the default. It is read in the thread, in order, where the work
+happens. A page costs the reader a click and a switch of context, so make one only when the
+user asks for an artifact or a page, or when the document needs something a chat message
+cannot give:
 
-- a plan, a proposal, or a design
-- a write-up of research, of an investigation, or of a review
-- a comparison of options
-- a status report
-- an explanation of a system or of a change that needs pictures
+- **Readers outside this thread.** Teammates must review, approve, or comment on specific parts,
+  and they do not read the thread. The link to pass on and the comment on any block are the
+  point.
+- **A life beyond this turn.** The document will be revised over days or consulted while the
+  work runs, and its link must stay stable. A chat message is buried after a few turns.
+- **Visualizations that carry the argument.** Before-and-after structure, flows, charts,
+  animated sequences, or a control the reader can try, which prose and a text diagram cannot
+  hold.
+
+Documents that often meet one of these: a plan, proposal, or design that a team decides on; a
+write-up of research, of an investigation, or of a review; a comparison of options; a status
+report; an explanation of a system or of a change that needs diagrams or animation.
+
+Length alone is not a reason. A plan is inline when you state it before implementing a task,
+when the user asks for it mid-thread for their own use, or when the user is the only reader,
+even when it is long. Plan inline unless one of the three reasons above holds.
 
 Share every standalone HTML page that you write for the user this way, also when it does not
 use the template. A link to the file gives the reader no review button and no link to pass on.
 
 Screenshots, recordings, and data files are not pages. This skill does not change how you save
 and link them.
-
-Answer in the chat instead when the result fits in a short message and nobody needs to comment
-on its parts. A page costs the reader a click, so it must save more reading than that.
 
 ## Workflow
 
