@@ -141,6 +141,15 @@ Each AGENTS.md governs the directory that contains it and every child directory 
 These guidance files are delivered dynamically in the conversation context after file operations (Read, create_file) and user file mentions, so you don't have to search for them. They appear with a header like "Contents of [path] ([scope]):" followed by <instructions> tags. The files at the repository root and the directories up to the working directory are included automatically; when working in subdirectories, watch for any additional AGENTS.md files that apply.
 `
 
+/**
+ * Appended to the built-in Medium and Ultra prompts by the grok46-medium and grok46-high modes.
+ * Each rule targets a Grok 4.6 failure mode that several independent reports describe and that
+ * the base prompts do not cover for xAI models.
+ */
+export const GROK_46_EXTENDED_MODE_INSTRUCTIONS = `- Report a task as done only when tool output shows that the result works. When a check fails or the result falls short of the request, fix it and check again; repeat until it passes or you reach a blocker you can name.
+- When you say what you will do next, do it in the same turn. End your turn only when the request is complete, you need something from the user, or you are blocked.
+- Use the names the user and the code already use. Do not coin acronyms, shorthand, or labels of your own.`
+
 export const GROK_46_TOOL_NAMES = [
 	'finder',
 	'shell_command',

@@ -60,7 +60,11 @@ import { GLM_53_AGENT_PROMPT, GLM_53_TOOL_NAMES } from './modes/glm-53'
 import { GLM_53_FLASH_AGENT_PROMPT, GLM_53_FLASH_TOOL_NAMES } from './modes/glm-53-flash'
 import { GPT_56_AGENT_PROMPT, GPT_56_TOOL_NAMES } from './modes/gpt-56'
 import { GROK_45_PROMPT, GROK_45_TOOL_NAMES } from './modes/grok-45'
-import { GROK_46_PROMPT, GROK_46_TOOL_NAMES } from './modes/grok-46'
+import {
+	GROK_46_EXTENDED_MODE_INSTRUCTIONS,
+	GROK_46_PROMPT,
+	GROK_46_TOOL_NAMES,
+} from './modes/grok-46'
 import { GROK_47_PROMPT, GROK_47_TOOL_NAMES } from './modes/grok-47'
 import { KIMI_K3_AGENT_PROMPT, KIMI_K3_TOOL_NAMES } from './modes/kimi-k3'
 import { MINIMAX_M3_AGENT_PROMPT, MINIMAX_M3_TOOL_NAMES } from './modes/minimax-m3'
@@ -642,6 +646,7 @@ function registerGrok46Medium(amp: PluginAPI) {
 		name: 'grok-4-6-medium',
 		extends: 'medium',
 		model: 'xai/grok-4.6',
+		instructions: GROK_46_EXTENDED_MODE_INSTRUCTIONS,
 		reasoningEffort: 'medium',
 		display: { label: 'Grok 4.6 Medium', color: '#0ea5e9' },
 	})
@@ -662,6 +667,7 @@ function registerGrok46High(amp: PluginAPI) {
 		name: 'grok-4-6-high',
 		extends: 'ultra',
 		model: 'xai/grok-4.6',
+		instructions: GROK_46_EXTENDED_MODE_INSTRUCTIONS,
 		reasoningEffort: 'high',
 		display: { label: 'Grok 4.6 High', color: '#0ea5e9' },
 	})
