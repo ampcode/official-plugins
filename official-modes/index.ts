@@ -24,6 +24,8 @@
 // @amp-agent-mode {"key":"gpt61s","label":"GPT-6.1 Sol","color":"#14b8a6"}
 // @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
 // @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
+// @amp-agent-mode {"key":"grok46-medium","label":"Grok 4.6 Medium","color":"#0ea5e9"}
+// @amp-agent-mode {"key":"grok46-high","label":"Grok 4.6 High","color":"#0ea5e9"}
 // @amp-agent-mode {"key":"grok47","label":"Grok 4.7","color":"#0ea5e9"}
 // @amp-agent-mode {"key":"kimi-k3","label":"Kimi K3","color":"#3b82f6"}
 // @amp-agent-mode {"key":"muse-spark","label":"Muse Spark 1.3","color":"#0668e1"}
@@ -633,6 +635,46 @@ function registerGrok46(amp: PluginAPI) {
 	})
 }
 
+// ───── Grok 4.6 Medium (grok46-medium) ─────
+
+function registerGrok46Medium(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'grok-4-6-medium',
+		extends: 'medium',
+		model: 'xai/grok-4.6',
+		reasoningEffort: 'medium',
+		display: { label: 'Grok 4.6 Medium', color: '#0ea5e9' },
+	})
+
+	amp.registerAgentMode({
+		key: 'grok46-medium',
+		label: 'Grok 4.6 Medium',
+		description: 'Grok 4.6 at medium effort with Amp Medium behavior',
+		color: '#0ea5e9',
+		agent: agent.definition,
+	})
+}
+
+// ───── Grok 4.6 High (grok46-high) ─────
+
+function registerGrok46High(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'grok-4-6-high',
+		extends: 'ultra',
+		model: 'xai/grok-4.6',
+		reasoningEffort: 'high',
+		display: { label: 'Grok 4.6 High', color: '#0ea5e9' },
+	})
+
+	amp.registerAgentMode({
+		key: 'grok46-high',
+		label: 'Grok 4.6 High',
+		description: 'Grok 4.6 at high effort with Amp Ultra behavior',
+		color: '#0ea5e9',
+		agent: agent.definition,
+	})
+}
+
 // ───── Grok 4.7 (grok47) ─────
 
 function registerGrok47(amp: PluginAPI) {
@@ -794,6 +836,8 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gpt61s': registerGPT61Sol,
 	'grok45': registerGrok45,
 	'grok46': registerGrok46,
+	'grok46-medium': registerGrok46Medium,
+	'grok46-high': registerGrok46High,
 	'grok47': registerGrok47,
 	'kimi-k3': registerKimiK3,
 	'muse-spark': registerMuseSpark,
