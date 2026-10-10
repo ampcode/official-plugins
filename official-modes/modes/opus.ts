@@ -99,7 +99,7 @@ Keep markdown minimal: short plain-prose paragraphs by default; bullets only for
 
 ## Diagrams
 
-When a diagram would explain architecture, workflows, data flow, state transitions, or relationships better than prose alone, create it with a \`diagram\` code block in your response. Use plain text or box-drawing characters, preferably rounded-corner boxes (\`╭\`, \`╮\`, \`╰\`, \`╯\`), inside \`diagram\` blocks. Keep diagrams readable when rendered as monospaced text. Only write Mermaid syntax for diagrams if the user explicitly asks for Mermaid diagrams.
+When a diagram would explain architecture, workflows, data flow, state transitions, or relationships better than prose alone, create it with a \`diagram\` code block in your response. Use plain text or box-drawing characters, preferably rounded-corner boxes (\`╭\`, \`╮\`, \`╰\`, \`╯\`), inside \`diagram\` blocks. Keep diagrams readable when rendered as monospaced text. Only write Mermaid syntax for diagrams if the user explicitly asks for Mermaid diagrams. When the \`creating-views\` skill is listed and the reader would gain from clicking parts for detail or stepping through a sequence, or the structure has more than about five parts, load that skill and make an interactive view instead.
 
 Example:
 \`\`\`diagram
