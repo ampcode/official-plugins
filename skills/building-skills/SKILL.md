@@ -235,10 +235,13 @@ In an Amp sandbox/orb, local skill directories do not outlive the sandbox, so a
 persistent skill belongs in a global repository (or `.agents/skills/` when it is
 repo-specific).
 
-To install a skill into the local global directory from an existing source, use
-`amp skill add --global <source>` where the source is `@user/skill`,
-`owner/repo`, a git URL, or a local path (`--name`, `--overwrite`). Global
-User/Workspace skills are managed through their repository instead.
+To install a skill from an existing source, use `amp skill add <source>` where
+the source is `owner/repo[/path]`, a GitHub tree URL, a git URL, or a local path
+(`--name`, `--overwrite`). With no flag it installs into `.agents/skills/`;
+`--global` installs into `~/.config/agents/skills/`; `--target <clone-directory>`
+installs into a Global User/Workspace Skills repository clone, which then needs
+the commit and push workflow below. In an orb, an unqualified "install" request
+means the User Skills repository. Say which destination you chose and why.
 
 Inspect an Amp personal skill URL with `read_web_page`. If it is inaccessible, say
 it may be private or unavailable. If the current user message explicitly asks to
