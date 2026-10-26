@@ -807,11 +807,13 @@ function registerQwen38Max(amp: PluginAPI) {
 
 // ───── Daybreak Blue (daybreak-blue) ─────
 
+// Amp serves this model ID as GPT-6 Sol with the Daybreak Blue access program, so the mode uses
+// the same Amp High behavior as GPT-6 Sol.
 function registerDaybreakBlue(amp: PluginAPI) {
 	const agent = amp.createAgent({
+		name: 'daybreak-blue',
+		extends: 'high',
 		model: 'openai/gpt-daybreak-blue-latest',
-		instructions: GPT_56_AGENT_PROMPT,
-		tools: GPT_56_TOOL_NAMES,
 		reasoningEffort: 'high',
 		display: { label: 'Daybreak Blue', color: '#3b82f6' },
 	})
@@ -820,7 +822,7 @@ function registerDaybreakBlue(amp: PluginAPI) {
 		key: 'daybreak-blue',
 		label: 'Daybreak Blue',
 		description:
-			'Requires access to Daybreak Blue through your personal ChatGPT subscription.',
+			'GPT-6 Sol with Daybreak Blue. Requires an OpenAI API key from a project with Daybreak Blue turned on.',
 		color: '#3b82f6',
 		agent: agent.definition,
 	})
