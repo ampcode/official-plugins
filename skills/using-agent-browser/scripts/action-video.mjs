@@ -23,6 +23,7 @@ const keystrokeDelayMs = 40
 const actionTailSeconds = 0.6
 const maxLoopSeconds = 30
 const [command, ...commandArguments] = process.argv.slice(2)
+let allowedDomains
 
 if (!command || command === '--help' || command === '-h') {
 	usage(0)
@@ -30,20 +31,36 @@ if (!command || command === '--help' || command === '-h') {
 
 function usage(exitCode = 2) {
 	console.error(`Usage:
-  action-video.mjs start RAW.mp4 [--no-cursor]
+  action-video.mjs start RAW.mp4 [--no-cursor] [--allowed-domains LIST]
   action-video.mjs <agent-browser command...>
   action-video.mjs stop OUTPUT.mp4
 
 Set ACTION_VIDEO_SESSION to select the agent-browser session.
+Pass the session's allowlist to --allowed-domains to record without restore.
 --no-cursor records without agent-browser's cursor overlay, for pages that draw their own.`)
 	process.exit(exitCode)
 }
 
 function runAgentBrowser(arguments_, options = {}) {
 	const json = options.json ?? false
+	if (
+		allowedDomains &&
+		(process.env.AGENT_BROWSER_RESTORE || process.env.AGENT_BROWSER_SESSION_NAME)
+	) {
+		console.error(
+			'Unset AGENT_BROWSER_RESTORE and AGENT_BROWSER_SESSION_NAME before recording with an allowlist.',
+		)
+		process.exit(1)
+	}
 	const result = spawnSync(
 		agentBrowserPath,
-		['--session', session, '--restore', ...arguments_, ...(json ? ['--json'] : [])],
+		[
+			'--session',
+			session,
+			...(allowedDomains ? ['--allowed-domains', allowedDomains] : ['--restore']),
+			...arguments_,
+			...(json ? ['--json'] : []),
+		],
 		{ cwd: process.cwd(), encoding: 'utf8', stdio: json ? ['ignore', 'pipe', 'pipe'] : 'inherit' },
 	)
 	if (result.error) {
@@ -90,6 +107,7 @@ function moveTo(selector) {
 
 async function runRecordedCommand() {
 	const state = readState()
+	allowedDomains = state.allowedDomains
 	const startedAt = Date.now()
 	const [selector, ...rest] = commandArguments
 	const isPointerMove =
@@ -255,6 +273,17 @@ if (command === 'start') {
 	if (!commandArguments[0]) {
 		usage()
 	}
+	const allowlistIndex = commandArguments.indexOf('--allowed-domains')
+	if (
+		allowlistIndex !== -1 &&
+		(!commandArguments[allowlistIndex + 1] || commandArguments[allowlistIndex + 1].startsWith('--'))
+	) {
+		usage()
+	}
+	allowedDomains =
+		allowlistIndex === -1
+			? process.env.AGENT_BROWSER_ALLOWED_DOMAINS
+			: commandArguments[allowlistIndex + 1]
 	const hover = runAgentBrowser(['eval', "matchMedia('(hover: hover)').matches"], { json: true })
 	if (hover.result !== true) {
 		console.error(`Session "${session}" reports (hover: none), so hover states will not appear and touch fallbacks will.
@@ -266,12 +295,13 @@ Close it, reopen it with the desktop pointer wrapper from the using-agent-browse
 	mkdirSync(dirname(rawPath), { recursive: true })
 	const cursor = commandArguments.includes('--no-cursor') ? [] : ['--cursor']
 	runAgentBrowser(['record', 'restart', rawPath, ...cursor])
-	writeState({ rawPath, startedAt: Date.now(), events: [] })
+	writeState({ rawPath, startedAt: Date.now(), events: [], allowedDomains })
 } else if (command === 'stop') {
 	if (!commandArguments[0]) {
 		usage()
 	}
 	const state = readState()
+	allowedDomains = state.allowedDomains
 	const stoppedAt = Date.now()
 	runAgentBrowser(['record', 'stop'])
 	compactVideo(state, resolve(commandArguments[0]), stoppedAt)

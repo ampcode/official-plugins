@@ -155,6 +155,12 @@ $REC type "textarea" "Looks good."
 $REC stop "$PWD/.amp/in/artifacts/flow.mp4"
 ```
 
+- For a session opened with `--allowed-domains`, pass the same list to `start`, for example
+  `$REC start "$PWD/.amp/in/flow-raw.mp4" --allowed-domains localhost,127.0.0.1`. The recorder
+  keeps that list for every command and does not use `--restore`, which is incompatible with domain
+  containment. `AGENT_BROWSER_ALLOWED_DOMAINS` also supplies the list at `start`. Ensure restore is
+  not enabled in agent-browser's environment or config. If the daemon stops, the allowlist remains
+  in effect on recorder commands, but the browser's login state and recording cannot be restored.
 - The recorder drives real input. `mouse move`, `hover`, `click`, `drag`, and the pointer part of
   `fill` and `type` travel along curved paths, so every element the pointer crosses gets real hover
   events. `fill` and `type` send real keystrokes, one character at a time. agent-browser's cursor overlay draws the pointer
