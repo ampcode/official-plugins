@@ -82,6 +82,7 @@ export const GLM_53_FLASH_TOOL_NAMES = [
 	'load_plugin',
 	'reload_plugins',
 	'reload_skills',
+	'Task',
 	'view_media',
 	'mcp__*',
 	'plugin__*',

@@ -148,6 +148,7 @@ export const GLM_52_TOOL_NAMES = [
 	'load_plugin',
 	'reload_plugins',
 	'reload_skills',
+	'Task',
 	'view_media',
 	'painter',
 	'read_mcp_resource',

@@ -81,6 +81,7 @@ export const DEEPSEEK_V4_1_FLASH_TOOL_NAMES = [
 	'load_plugin',
 	'reload_plugins',
 	'reload_skills',
+	'Task',
 	'view_media',
 	'mcp__*',
 	'plugin__*',
