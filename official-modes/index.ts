@@ -23,6 +23,7 @@
 // @amp-agent-mode {"key":"gpt6l","label":"GPT-6 Luna","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt6s","label":"GPT-6 Sol","color":"#14b8a6"}
 // @amp-agent-mode {"key":"gpt61s","label":"GPT-6.1 Sol","color":"#14b8a6"}
+// @amp-agent-mode {"key":"gpt61t","label":"GPT-6.1 Terra","color":"#14b8a6"}
 // @amp-agent-mode {"key":"grok45","label":"Grok 4.5","color":"#10b981"}
 // @amp-agent-mode {"key":"grok46","label":"Grok 4.6","color":"#0ea5e9"}
 // @amp-agent-mode {"key":"grok47-medium","label":"Grok 4.7 Medium","color":"#0ea5e9"}
@@ -606,6 +607,26 @@ function registerGPT61Sol(amp: PluginAPI) {
 	})
 }
 
+// ───── GPT-6.1 Terra (gpt61t) ─────
+
+function registerGPT61Terra(amp: PluginAPI) {
+	const agent = amp.createAgent({
+		name: 'gpt-6.1-terra',
+		extends: 'low',
+		model: 'openai/gpt-6.1-terra',
+		reasoningEffort: 'medium',
+		display: { label: 'GPT-6.1 Terra', color: '#14b8a6' },
+	})
+
+	amp.registerAgentMode({
+		key: 'gpt61t',
+		label: 'GPT-6.1 Terra',
+		description: 'GPT-6.1 Terra at medium effort with Amp Low behavior',
+		color: '#14b8a6',
+		agent: agent.definition,
+	})
+}
+
 // ───── Grok 4.5 (grok45) ─────
 
 function registerGrok45(amp: PluginAPI) {
@@ -856,6 +877,7 @@ const MODE_REGISTRARS: Record<string, (amp: PluginAPI) => void> = {
 	'gpt6l': registerGPT6Luna,
 	'gpt6s': registerGPT6Sol,
 	'gpt61s': registerGPT61Sol,
+	'gpt61t': registerGPT61Terra,
 	'grok45': registerGrok45,
 	'grok46': registerGrok46,
 	'grok47-medium': registerGrok47Medium,
