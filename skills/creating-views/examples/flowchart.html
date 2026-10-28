@@ -1,0 +1,212 @@
+<!--
+Example: a flowchart or state diagram that explains one rule.
+Pattern: the title states the rule; the default state already colors the path that rule is about
+in --chart-1 and draws the failure branches as dashed gray, so the point lands before any click.
+Nodes are 12px text in hairline boxes with 6px corners on a grid; connectors are orthogonal with
+one small arrowhead; every edge that branches carries a short label. The layout is computed for
+the width: a row on desktop and a column on phones, with every label kept. Clicking or tabbing to
+a node opens its detail below, which opens on the step that proves the title. Data is illustrative.
+-->
+<div class="ui-header">
+	<p class="ui-title">
+		A deploy reaches everyone only after a healthy canary; a bad canary rolls back on its own
+	</p>
+	<p class="ui-sub">States of one deploy. Select a state for what happens there.</p>
+</div>
+<svg id="flow" width="100%" role="group" aria-label="Deploy states"></svg>
+<div id="detail" style="margin-top: 12px; max-width: 65ch"></div>
+<style>
+	#flow {
+		display: block;
+		overflow: visible;
+	}
+	#flow text {
+		font-size: 12px;
+		fill: var(--foreground);
+	}
+	#flow text.sub,
+	#flow text.edge {
+		font-size: 11px;
+		fill: var(--muted-foreground);
+	}
+	#flow .halo {
+		paint-order: stroke;
+		stroke: var(--background);
+		stroke-width: 3px;
+	}
+	#flow g.node {
+		cursor: pointer;
+		outline: none;
+	}
+	#flow g.node:focus-visible rect {
+		stroke: var(--link);
+		stroke-width: 2;
+	}
+	@media (hover: hover) {
+		#flow g.node:hover rect {
+			fill: var(--muted);
+		}
+	}
+</style>
+<script>
+	{
+		const nodes = {
+			queued: { label: 'Queued', sub: 'waits for a runner', main: 0 },
+			build: { label: 'Build', sub: 'about 3 min', main: 1 },
+			tests: { label: 'Tests', sub: 'about 6 min', main: 2 },
+			canary: { label: 'Canary', sub: '5% for 15 min', main: 3 },
+			live: { label: 'Live', sub: '100% of traffic', main: 4 },
+			failed: { label: 'Failed', sub: 'nothing shipped', between: ['build', 'tests'] },
+			rolledback: { label: 'Rolled back', sub: 'old version serves', under: 'canary' },
+		}
+		const edges = [
+			{ from: 'queued', to: 'build', path: true },
+			{ from: 'build', to: 'tests', path: true },
+			{ from: 'tests', to: 'canary', path: true },
+			{ from: 'canary', to: 'live', path: true },
+			{ from: 'build', to: 'failed', label: 'compile error' },
+			{ from: 'tests', to: 'failed', label: 'a test fails' },
+			{ from: 'canary', to: 'rolledback', label: 'errors over 1%' },
+		]
+		const details = {
+			queued: 'The deploy waits for a free runner. Newer deploys of the same branch replace it.',
+			build: 'Compiles and packages one image. A compile error stops here and nothing ships.',
+			tests: 'Runs the full suite against the image. Any failing test marks the deploy failed.',
+			canary: 'Routes 5% of traffic to the new version for 15 minutes. If the error rate stays under 1% it promotes to Live; otherwise traffic returns to the old version without anyone acting.',
+			live: 'Every request is served by the new version. The previous image stays ready for a manual rollback.',
+			failed: 'The deploy stops and its author is notified. Production never saw this version.',
+			rolledback:
+				'The old version serves all traffic again and an issue is opened with the canary error samples.',
+		}
+		const order = ['queued', 'build', 'tests', 'canary', 'live', 'failed', 'rolledback']
+		const state = { selected: 'canary' }
+		const svg = document.getElementById('flow')
+		const NW = 112
+		const NH = 44
+
+		function layout(w) {
+			const pos = {}
+			if (w >= 560) {
+				const step = (w - NW) / 4
+				for (const [id, n] of Object.entries(nodes))
+					if (n.main !== undefined) pos[id] = { x: n.main * step, y: 0 }
+				pos.failed = { x: (pos.build.x + pos.tests.x) / 2, y: 96 }
+				pos.rolledback = { x: pos.canary.x, y: 96 }
+				return { pos, wide: true, height: 96 + NH + 4 }
+			}
+			const rx = Math.min(w - NW, 200)
+			for (const [id, n] of Object.entries(nodes))
+				if (n.main !== undefined) pos[id] = { x: 0, y: n.main * 72 }
+			pos.failed = { x: rx, y: (pos.build.y + pos.tests.y) / 2 }
+			pos.rolledback = { x: rx, y: pos.canary.y }
+			return { pos, wide: false, height: 4 * 72 + NH + 4 }
+		}
+
+		function edgePath(e, pos, wide) {
+			const a = pos[e.from]
+			const b = pos[e.to]
+			const ax = a.x + NW / 2
+			const ay = a.y + NH / 2
+			if (e.path)
+				return wide
+					? { d: `M${a.x + NW},${ay}H${b.x - 2}`, lx: 0, ly: 0 }
+					: { d: `M${ax},${a.y + NH}V${b.y - 2}`, lx: 0, ly: 0 }
+			if (wide) {
+				const by = b.y + NH / 2
+				if (Math.abs(a.x - b.x) < 1)
+					return {
+						d: `M${ax},${a.y + NH}V${b.y - 2}`,
+						lx: ax + 6,
+						ly: (a.y + NH + b.y) / 2 + 4,
+						anchor: 'start',
+					}
+				const left = ax < b.x
+				const end = left ? b.x - 2 : b.x + NW + 2
+				return {
+					d: `M${ax},${a.y + NH}V${by}H${end}`,
+					lx: ax + (left ? -6 : 6),
+					ly: (a.y + NH + by) / 2 + 4,
+					anchor: left ? 'end' : 'start',
+				}
+			}
+			const bx = b.x + NW / 2
+			if (Math.abs(a.y - b.y) < 1)
+				return {
+					d: `M${a.x + NW},${ay}H${b.x - 2}`,
+					lx: (a.x + NW + b.x) / 2,
+					ly: ay - 6,
+					anchor: 'middle',
+				}
+			const down = ay < b.y
+			return {
+				d: `M${a.x + NW},${ay}H${bx}V${down ? b.y - 2 : b.y + NH + 2}`,
+				lx: a.x + NW + 6,
+				ly: ay - 6,
+				anchor: 'start',
+			}
+		}
+
+		function draw() {
+			const w = svg.getBoundingClientRect().width
+			if (!w) return
+			const { pos, wide, height } = layout(w)
+			svg.setAttribute('height', height)
+			svg.setAttribute('viewBox', `0 0 ${w} ${height}`)
+			let s = `<defs>${['path', 'other']
+				.map(
+					(k) =>
+						`<marker id="arrow-${k}" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0L6,3L0,6z" fill="${k === 'path' ? 'var(--chart-1)' : 'var(--muted-foreground)'}"/></marker>`,
+				)
+				.join('')}</defs>`
+			const labels = []
+			for (const e of edges) {
+				const p = edgePath(e, pos, wide)
+				s += e.path
+					? `<path d="${p.d}" fill="none" stroke="var(--chart-1)" stroke-width="1.5" marker-end="url(#arrow-path)"/>`
+					: `<path d="${p.d}" fill="none" stroke="var(--muted-foreground)" stroke-dasharray="3 3" marker-end="url(#arrow-other)"/>`
+				if (e.label)
+					labels.push(
+						`<text class="edge halo" x="${p.lx}" y="${p.ly}" text-anchor="${p.anchor}">${e.label}</text>`,
+					)
+			}
+			for (const id of order) {
+				const n = nodes[id]
+				const p = pos[id]
+				const selected = state.selected === id
+				s += `<g class="node" data-id="${id}" tabindex="0" role="button" aria-pressed="${selected}" aria-label="${n.label}, ${n.sub}">
+					<rect x="${p.x + 0.5}" y="${p.y + 0.5}" width="${NW - 1}" height="${NH - 1}" rx="6" fill="var(--background)" stroke="${selected ? 'var(--chart-1)' : 'var(--border)'}" stroke-width="${selected ? 2 : 1}"/>
+					<text x="${p.x + 10}" y="${p.y + 18}">${n.label}</text>
+					<text class="sub" x="${p.x + 10}" y="${p.y + 34}">${n.sub}</text>
+				</g>`
+			}
+			svg.innerHTML = s + labels.join('')
+			const n = nodes[state.selected]
+			document.getElementById('detail').innerHTML =
+				`<p style="margin-bottom: 2px">${n.label}</p><p class="ui-muted" style="text-wrap: pretty">${details[state.selected]}</p>`
+		}
+
+		const select = (id) => {
+			state.selected = id
+			draw()
+			svg.querySelector(`[data-id="${id}"]`)?.focus()
+		}
+		svg.addEventListener('click', (e) => {
+			const g = e.target.closest('g.node')
+			if (g) select(g.dataset.id)
+		})
+		svg.addEventListener('keydown', (e) => {
+			const g = e.target.closest('g.node')
+			if (!g) return
+			const i = order.indexOf(g.dataset.id)
+			if (e.key === 'Enter' || e.key === ' ') select(g.dataset.id)
+			else if (e.key === 'ArrowRight' || e.key === 'ArrowDown')
+				select(order[(i + 1) % order.length])
+			else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp')
+				select(order[(i - 1 + order.length) % order.length])
+			else return
+			e.preventDefault()
+		})
+		new ResizeObserver(draw).observe(svg)
+		draw()
+	}
+</script>

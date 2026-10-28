@@ -1,0 +1,140 @@
+<!--
+Example: a distribution drawn by hand, for a chart the kit does not have.
+Pattern: the title says "half within two weeks", so the chart is the cumulative share removed by
+age, the form that shows "N% within X" directly. Unequal histogram bins would make bar length lie.
+The x axis is logarithmic with ticks in human units, a dashed rule marks 50%, and the one value the
+title quotes is a labeled point computed from the data. Small scale functions, a ResizeObserver,
+halos on text, and a readout that follows the pointer or the arrow keys. Data is synthetic.
+-->
+<div class="ui-header">
+	<p class="ui-title" id="title">Half of our feature flags are removed within two weeks</p>
+	<p class="ui-sub" id="sub">Share of flags removed by their age at removal, log scale</p>
+</div>
+<svg id="chart" width="100%" height="220" tabindex="0" role="img"></svg>
+<p class="ui-caption" id="readout" style="margin-top: 4px">&nbsp;</p>
+<style>
+	#chart {
+		display: block;
+		overflow: visible;
+		outline: none;
+	}
+	#chart:focus-visible {
+		outline: 2px solid var(--link);
+		outline-offset: 1px;
+	}
+	#chart text {
+		font-size: 11px;
+		fill: var(--muted-foreground);
+		font-variant-numeric: tabular-nums;
+	}
+	#chart .halo {
+		paint-order: stroke;
+		stroke: var(--background);
+		stroke-width: 3px;
+	}
+</style>
+<script>
+	{
+		// Synthetic ages in days: a log-normal sample from a seeded generator, so it is stable.
+		let seed = 7
+		const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+		const normal = () => Math.sqrt(-2 * Math.log(rand())) * Math.cos(2 * Math.PI * rand())
+		const ages = Array.from({ length: 180 }, () =>
+			Math.max(1, Math.round(Math.exp(2.55 + 1.15 * normal()))),
+		).sort((a, b) => a - b)
+		const shareBy = (day) => ages.filter((a) => a <= day).length / ages.length
+		const pct = (v) => `${Math.round(v * 100)}%`
+
+		const at14 = shareBy(14)
+		document.getElementById('sub').textContent =
+			`Share of ${ages.length} flags removed by their age at removal, log scale`
+
+		const svg = document.getElementById('chart')
+		const readout = document.getElementById('readout')
+		const ticks = [
+			[1, '1 day'],
+			[7, '1 week'],
+			[30, '1 month'],
+			[90, '3 months'],
+			[365, '1 year'],
+		]
+		const H = 220
+		const top = 12
+		const bottom = 24
+		let focus = 14
+
+		function draw() {
+			const w = svg.getBoundingClientRect().width
+			if (!w) return
+			const x = (d) => (Math.log(d) / Math.log(365)) * (w - 2)
+			const y = (v) => top + (1 - v) * (H - top - bottom)
+			let s = ''
+			for (const v of [0, 0.25, 0.5, 0.75, 1]) {
+				s += `<line x1="0" x2="${w}" y1="${y(v)}" y2="${y(v)}" stroke="${v === 0 ? 'var(--border)' : 'var(--grid)'}"/>`
+			}
+			s += `<line x1="0" x2="${w}" y1="${y(0.5)}" y2="${y(0.5)}" stroke="var(--chart-context)" stroke-dasharray="4 3"/>`
+			// Step line: the share stays flat until the next removal.
+			let d = `M0,${y(0)}`
+			let prev = 0
+			for (let day = 1; day <= 365; day++) {
+				const v = shareBy(day)
+				if (v !== prev) {
+					d += `L${x(day).toFixed(1)},${y(prev).toFixed(1)}L${x(day).toFixed(1)},${y(v).toFixed(1)}`
+					prev = v
+				}
+			}
+			d += `L${x(365)},${y(prev)}`
+			s += `<path d="${d}" fill="none" stroke="var(--chart-1)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>`
+			const thin = w < 420
+			for (const [v, label] of [
+				[0, '0%'],
+				[0.25, '25%'],
+				[0.5, '50%'],
+				[0.75, '75%'],
+				[1, '100% removed'],
+			]) {
+				if (thin && (v === 0.25 || v === 0.75)) continue
+				s += `<text class="halo" x="0" y="${y(v) - 5}">${label}</text>`
+			}
+			for (const [day, label] of ticks) {
+				if (thin && (day === 7 || day === 90)) continue
+				const anchor = day === 1 ? 'start' : day === 365 ? 'end' : 'middle'
+				s += `<text x="${x(day)}" y="${H - 6}" text-anchor="${anchor}">${label}</text>`
+			}
+			// The value the title quotes, then the readout point for the focused day.
+			s += `<circle cx="${x(14)}" cy="${y(at14)}" r="3" fill="var(--chart-1)"/>`
+			s += `<text class="halo" x="${x(14) + 8}" y="${y(at14) + 16}" style="fill: var(--foreground)">${pct(at14)} by 2 weeks</text>`
+			if (focus !== 14) {
+				const v = shareBy(focus)
+				s += `<line x1="${x(focus)}" x2="${x(focus)}" y1="${top}" y2="${H - bottom}" stroke="var(--border)"/>`
+				s += `<circle cx="${x(focus)}" cy="${y(v)}" r="4" fill="var(--background)" stroke="var(--chart-1)" stroke-width="1.5"/>`
+			}
+			svg.setAttribute('viewBox', `0 0 ${w} ${H}`)
+			svg.innerHTML = s
+			readout.textContent = `By day ${focus}: ${pct(shareBy(focus))} of flags removed`
+		}
+
+		const dayAt = (clientX) => {
+			const r = svg.getBoundingClientRect()
+			const t = Math.min(1, Math.max(0, (clientX - r.left) / r.width))
+			return Math.max(1, Math.round(Math.exp(t * Math.log(365))))
+		}
+		svg.addEventListener('pointermove', (e) => {
+			focus = dayAt(e.clientX)
+			draw()
+		})
+		svg.addEventListener('pointerleave', () => {
+			focus = 14
+			draw()
+		})
+		svg.addEventListener('keydown', (e) => {
+			if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return
+			e.preventDefault()
+			const step = e.key === 'ArrowRight' ? 1.15 : 1 / 1.15
+			focus = Math.min(365, Math.max(1, Math.round(focus * step) + (step > 1 ? 1 : -1)))
+			draw()
+		})
+		new ResizeObserver(draw).observe(svg)
+		draw()
+	}
+</script>

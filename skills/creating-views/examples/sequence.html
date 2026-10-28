@@ -1,0 +1,233 @@
+<!--
+Example: a sequence diagram that proves a claim about where data goes.
+Pattern: lifelines with numbered messages, every row at full ink, and the messages the title is
+about (the ones carrying tokens) in --chart-1 from the first frame. A synced ledger beside it
+answers the title from a second angle: which party holds which secret after the selected step.
+Selecting a row (click, tap, or arrow keys) shows the raw message. The protocol is the public
+OAuth 2.0 authorization code flow with PKCE; names and values are placeholders.
+-->
+<div class="ui-header">
+	<p class="ui-title">
+		The browser only ever holds a one-time code and a session cookie; the tokens stay on the app
+		server
+	</p>
+	<p class="ui-sub">
+		OAuth sign-in with PKCE. Select a step to see the request and who holds what afterwards.
+	</p>
+</div>
+<div class="layout">
+	<svg id="seq" width="100%" tabindex="0" role="listbox" aria-label="Sign-in steps"></svg>
+	<div>
+		<p class="ui-label" style="margin-bottom: 4px">
+			Held after step <span id="stepno" class="ui-num"></span>
+		</p>
+		<table class="ui-table" id="ledger">
+			<tbody></tbody>
+		</table>
+	</div>
+</div>
+<div id="detail" style="margin-top: 12px"></div>
+<style>
+	.layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 200px;
+		gap: 24px;
+		align-items: start;
+	}
+	@media (max-width: 560px) {
+		.layout {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+	#seq {
+		display: block;
+		outline: none;
+	}
+	#seq:focus-visible {
+		outline: 2px solid var(--link);
+		outline-offset: 2px;
+	}
+	#seq text {
+		font-size: 11px;
+		fill: var(--muted-foreground);
+	}
+	#seq text.head {
+		font-size: 12px;
+		fill: var(--foreground);
+	}
+	#seq text.msg {
+		fill: var(--foreground);
+	}
+	#seq .halo {
+		paint-order: stroke;
+		stroke: var(--background);
+		stroke-width: 3px;
+	}
+	#seq g.row {
+		cursor: pointer;
+	}
+	#ledger td:last-child {
+		text-align: right;
+	}
+	pre {
+		margin: 6px 0 0;
+		padding: 10px 12px;
+		border-radius: var(--radius);
+		background: var(--card);
+		box-shadow: inset 0 0 0 1px var(--border);
+		font: 11px/16px var(--font-mono);
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+</style>
+<script>
+	{
+		const lanes = ['Browser', 'App server', 'Auth server', 'API']
+		// carries: 'code', 'token', or 'session'. holds: what each party holds after the step.
+		const steps = [
+			{ from: 0, to: 1, text: 'Click Sign in', raw: 'GET /login' },
+			{
+				from: 1,
+				to: 0,
+				text: 'Redirect with code challenge',
+				raw: '302 Location: https://auth.example/authorize?client_id=app&code_challenge=E9Mel…&state=xyz',
+			},
+			{
+				from: 0,
+				to: 2,
+				text: 'User signs in and consents',
+				raw: 'GET /authorize?client_id=app&code_challenge=E9Mel…&state=xyz',
+			},
+			{
+				from: 2,
+				to: 0,
+				text: 'Redirect back with a one-time code',
+				raw: '302 Location: https://app.example/callback?code=SplxlO…&state=xyz',
+				carries: 'code',
+				holds: { code: ['Browser'] },
+			},
+			{
+				from: 0,
+				to: 1,
+				text: 'Pass the code to the app',
+				raw: 'GET /callback?code=SplxlO…&state=xyz',
+				carries: 'code',
+				holds: { code: ['Browser', 'App server'] },
+			},
+			{
+				from: 1,
+				to: 2,
+				text: 'Code + verifier + client secret',
+				raw: 'POST /token\ngrant_type=authorization_code&code=SplxlO…&code_verifier=dBjftJ…',
+				carries: 'code',
+				holds: { code: [] },
+			},
+			{
+				from: 2,
+				to: 1,
+				text: 'Access and refresh tokens',
+				raw: '200 {"access_token":"…","refresh_token":"…","expires_in":3600}',
+				carries: 'token',
+				holds: { token: ['App server'] },
+			},
+			{
+				from: 1,
+				to: 3,
+				text: 'Call the API with the token',
+				raw: 'GET /me\nAuthorization: Bearer <access_token>',
+				carries: 'token',
+			},
+			{
+				from: 1,
+				to: 0,
+				text: 'Set a session cookie',
+				raw: 'Set-Cookie: session=7f3a…; HttpOnly; Secure; SameSite=Lax',
+				carries: 'session',
+				holds: { session: ['Browser', 'App server'] },
+			},
+		]
+		const secrets = [
+			['code', 'One-time code'],
+			['token', 'Access token'],
+			['session', 'Session cookie'],
+		]
+		const state = { step: 6 }
+		const svg = document.getElementById('seq')
+		const ROW = 30
+		const TOP = 28
+
+		const heldAfter = (i) => {
+			const held = { code: [], token: [], session: [] }
+			for (const s of steps.slice(0, i + 1)) Object.assign(held, s.holds ?? {})
+			return held
+		}
+
+		function draw() {
+			const w = svg.getBoundingClientRect().width
+			if (!w) return
+			const H = TOP + steps.length * ROW + 8
+			const gap = w / lanes.length
+			const lx = (k) => gap * k + gap / 2
+			svg.setAttribute('height', H)
+			svg.setAttribute('viewBox', `0 0 ${w} ${H}`)
+			let s = `<defs>${['msg', 'token']
+				.map(
+					(k) =>
+						`<marker id="m-${k}" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="7" markerHeight="7" markerUnits="userSpaceOnUse" orient="auto"><path d="M0,0L6,3L0,6z" fill="${k === 'token' ? 'var(--chart-1)' : 'var(--muted-foreground)'}"/></marker>`,
+				)
+				.join('')}</defs>`
+			lanes.forEach((name, k) => {
+				s += `<text class="head" x="${lx(k)}" y="14" text-anchor="middle">${w < 420 ? name.replace(' server', '') : name}</text>`
+				s += `<line x1="${lx(k)}" x2="${lx(k)}" y1="22" y2="${H}" stroke="var(--border)"/>`
+			})
+			steps.forEach((step, i) => {
+				const y = TOP + i * ROW + 22
+				const x1 = lx(step.from)
+				const x2 = lx(step.to)
+				const dir = x2 > x1 ? 1 : -1
+				const token = step.carries === 'token'
+				const selected = i === state.step
+				s += `<g class="row" data-i="${i}" role="option" aria-selected="${selected}">`
+				s += `<rect x="0" y="${y - 22}" width="${w}" height="${ROW}" fill="${selected ? 'var(--muted)' : 'transparent'}" rx="4"/>`
+				s += `<line x1="${x1}" x2="${x2 - dir * 2}" y1="${y}" y2="${y}" stroke="${token ? 'var(--chart-1)' : 'var(--muted-foreground)'}" stroke-width="${token ? 2 : 1}" ${step.from > step.to ? 'stroke-dasharray="3 3"' : ''} marker-end="url(#m-${token ? 'token' : 'msg'})"/>`
+				const tx = Math.min(x1, x2) + 6
+				s += `<text class="msg halo" x="${tx}" y="${y - 6}"><tspan style="fill: var(--muted-foreground)">${i + 1}  </tspan>${step.text}</text>`
+				s += '</g>'
+			})
+			svg.innerHTML = s
+
+			const held = heldAfter(state.step)
+			document.getElementById('stepno').textContent = state.step + 1
+			document.querySelector('#ledger tbody').innerHTML = secrets
+				.map(([key, name]) => {
+					const who = held[key]
+					const color =
+						key === 'token' && who.length ? 'var(--chart-1)' : 'var(--foreground)'
+					return `<tr><td>${name}</td><td style="color: ${who.length ? color : 'var(--muted-foreground)'}">${who.length ? who.join(', ') : 'nobody'}</td></tr>`
+				})
+				.join('')
+			const step = steps[state.step]
+			document.getElementById('detail').innerHTML =
+				`<p><span class="ui-muted ui-num">${state.step + 1}.</span> ${lanes[step.from]} to ${lanes[step.to]}: ${step.text}</p><pre></pre>`
+			document.querySelector('#detail pre').textContent = step.raw
+		}
+
+		svg.addEventListener('click', (e) => {
+			const row = e.target.closest('g.row')
+			if (!row) return
+			state.step = Number(row.dataset.i)
+			draw()
+		})
+		svg.addEventListener('keydown', (e) => {
+			const delta = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]
+			if (e.key === 'Home') state.step = 0
+			else if (e.key === 'End') state.step = steps.length - 1
+			else if (delta) state.step = Math.min(steps.length - 1, Math.max(0, state.step + delta))
+			else return
+			e.preventDefault()
+			draw()
+		})
+		new ResizeObserver(draw).observe(svg)
+		draw()
+	}
+</script>

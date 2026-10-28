@@ -1,0 +1,216 @@
+<!--
+Example: a weighted decision the reader can stress-test.
+Pattern: one state object; every output is computed from it and re-rendered, including the title.
+Each criterion carries one line of evidence. The sentence under the scores names the smallest
+single change of weight that hands the win to another option, which turns a weighted sum into a
+sensitivity check. Scores use a one-hue ramp from faint to strong. Data is illustrative.
+-->
+<div class="ui-header">
+	<p class="ui-title" id="title"></p>
+	<p class="ui-sub" id="sub"></p>
+</div>
+<div id="scores"></div>
+<p id="flip" style="margin: 8px 0 16px"></p>
+<table class="ui-table" id="matrix">
+	<thead>
+		<tr>
+			<th>Criterion</th>
+			<th style="width: 112px">Weight</th>
+			<th class="num col"><span class="long">Object</span><span class="short">Obj.</span></th>
+			<th class="num col"><span class="long">Postgres</span><span class="short">PG</span></th>
+			<th class="num col">Disk</th>
+		</tr>
+	</thead>
+	<tbody></tbody>
+</table>
+<div class="ui-row" style="margin-top: 12px; justify-content: space-between">
+	<span class="ui-caption"
+		>Scores run 1 to 5, higher is better, for about 10 TB of logs a year.</span
+	>
+	<button class="ui-btn sm" id="reset" disabled>Reset weights</button>
+</div>
+<style>
+	#matrix td:first-child {
+		padding-right: 12px;
+	}
+	.why {
+		display: block;
+		font-size: 12px;
+		color: var(--muted-foreground);
+	}
+	.score {
+		display: inline-block;
+		min-width: 24px;
+		border-radius: 4px;
+		text-align: center;
+		font-variant-numeric: tabular-nums;
+	}
+	.weight {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+	}
+	.weight .ui-range {
+		width: 72px;
+	}
+	.col {
+		width: 64px;
+	}
+	.short {
+		display: none;
+	}
+	@media (max-width: 480px) {
+		.why,
+		.long {
+			display: none;
+		}
+		.short {
+			display: inline;
+		}
+		.col {
+			width: 36px;
+		}
+		#matrix th:nth-child(2),
+		#matrix td:nth-child(2) {
+			width: 88px;
+		}
+		.weight .ui-range {
+			width: 52px;
+		}
+	}
+</style>
+<script>
+	{
+		const options = ['Object storage', 'Postgres', 'Local disk']
+		const criteria = [
+			{
+				name: 'Cost at 10 TB',
+				phrase: 'cost',
+				why: 'Object storage is about a tenth of database storage',
+				scores: [5, 2, 4],
+			},
+			{
+				name: 'Survives a lost machine',
+				phrase: 'surviving a lost machine',
+				why: 'Disk logs vanish with the runner',
+				scores: [5, 5, 1],
+			},
+			{
+				name: 'Search inside a log',
+				phrase: 'search inside a log',
+				why: 'Only Postgres can index the text',
+				scores: [2, 5, 1],
+			},
+			{
+				name: 'Retention and deletion',
+				phrase: 'retention and deletion',
+				why: 'Bucket lifecycle rules delete by age',
+				scores: [5, 3, 2],
+			},
+			{
+				name: 'Setup effort',
+				phrase: 'setup effort',
+				why: 'Disk needs nothing new',
+				scores: [3, 4, 5],
+			},
+			{
+				name: 'Time to first byte',
+				phrase: 'time to first byte',
+				why: 'Disk and Postgres answer in milliseconds',
+				scores: [3, 4, 5],
+			},
+		]
+		const defaults = [3, 3, 2, 2, 1, 1]
+		const state = { weights: [...defaults] }
+
+		const totals = (weights) => {
+			const sum = weights.reduce((a, b) => a + b, 0) || 1
+			return options.map((_, o) =>
+				Math.round(
+					(criteria.reduce((t, c, i) => t + c.scores[o] * weights[i], 0) / (sum * 5)) *
+						100,
+				),
+			)
+		}
+		const winner = (t) => t.indexOf(Math.max(...t))
+
+		// The smallest change to one weight (0 to 5) that gives another option the lead.
+		function flip() {
+			const current = winner(totals(state.weights))
+			let best = null
+			criteria.forEach((c, i) => {
+				for (let w = 0; w <= 5; w++) {
+					if (w === state.weights[i]) continue
+					const t = totals(state.weights.map((v, k) => (k === i ? w : v)))
+					const win = winner(t)
+					const sorted = [...t].sort((a, b) => b - a)
+					if (win !== current && sorted[0] > sorted[1]) {
+						const cost = Math.abs(w - state.weights[i])
+						if (!best || cost < best.cost) best = { cost, i, w, win }
+					}
+				}
+			})
+			return best
+		}
+
+		const ramp = (s) =>
+			`background: color-mix(in oklab, var(--chart-1) ${[0, 12, 30, 50, 75, 100][s]}%, var(--background)); color: ${s >= 4 ? 'var(--background)' : 'var(--foreground)'}`
+
+		const body = document.querySelector('#matrix tbody')
+		body.innerHTML = criteria
+			.map(
+				(c, i) => `<tr>
+				<td>${c.name}<span class="why">${c.why}</span></td>
+				<td><label class="weight"><input class="ui-range" type="range" min="0" max="5" step="1" value="${state.weights[i]}" data-i="${i}" aria-label="Weight for ${c.name}"><span class="ui-num" id="w${i}"></span></label></td>
+				${c.scores.map((s) => `<td class="num"><span class="score" style="${ramp(s)}">${s}</span></td>`).join('')}
+			</tr>`,
+			)
+			.join('')
+
+		let bars = null
+		function render() {
+			const t = totals(state.weights)
+			const win = winner(t)
+			const sorted = [...t].sort((a, b) => b - a)
+			const tie = sorted[0] === sorted[1]
+			document.getElementById('title').textContent = tie
+				? 'Two options tie at these weights'
+				: `${options[win]} wins at these weights`
+			const runnerUp = t.indexOf(sorted[1])
+			document.getElementById('sub').textContent = tie
+				? 'Weighted score out of 100'
+				: `Weighted score out of 100. It leads ${options[runnerUp]} by ${sorted[0] - sorted[1]} points.`
+			const items = options.map((label, o) => ({
+				label,
+				value: t[o],
+				highlight: !tie && o === win,
+			}))
+			// Create the bars once; later renders update them in place without replaying the grow-in.
+			if (bars) bars.update({ items })
+			else bars = ui.bars(document.getElementById('scores'), { items, sort: false, max: 100 })
+			const f = flip()
+			document.getElementById('flip').textContent = f
+				? `${f.w > state.weights[f.i] ? 'Raising' : 'Lowering'} the weight on ${criteria[f.i].phrase} from ${state.weights[f.i]} to ${f.w} would make ${options[f.win]} the pick.`
+				: 'No single weight change moves the pick.'
+			criteria.forEach((_, i) => {
+				document.getElementById(`w${i}`).textContent = state.weights[i]
+			})
+			document.getElementById('reset').disabled = state.weights.every(
+				(w, i) => w === defaults[i],
+			)
+		}
+		body.addEventListener('input', (e) => {
+			const i = Number(e.target.dataset.i)
+			state.weights[i] = Number(e.target.value)
+			render()
+		})
+		document.getElementById('reset').addEventListener('click', () => {
+			state.weights = [...defaults]
+			body.querySelectorAll('input').forEach((input, i) => {
+				input.value = defaults[i]
+			})
+			render()
+		})
+		render()
+	}
+</script>

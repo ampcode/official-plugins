@@ -1,0 +1,215 @@
+<!--
+Example: a UI exploration that settles one decision.
+Pattern: a title that asks the question; today's shipped behavior as the first option; three
+directions that differ on one named axis (where the failure shows); a trade-off line that follows
+the selection; a second control, outside the mock, for the condition that stresses each direction;
+real Amp anatomy from the kit; and the deciding actions (Retry, Remove, Send) working through every
+state. One state object, re-rendered on every change, with focus moved back to the replacement of
+the button the reader used, and a Reset.
+-->
+<div class="ui-header">
+	<p class="ui-title">Where should a failed attachment upload show?</p>
+	<p class="ui-sub">
+		Today's toast against three directions: on the file chip, a notice above the composer, or
+		blocking send. Try Retry, Remove, and Send in each.
+	</p>
+</div>
+<div class="ui-stack" style="--gap: 8px; margin-bottom: 12px">
+	<div class="ui-seg" id="dir" aria-label="Direction">
+		<button data-value="today" aria-selected="true">Today</button>
+		<button data-value="chip">On chip</button>
+		<button data-value="notice">Notice</button>
+		<button data-value="block">Block send</button>
+	</div>
+	<div class="ui-row" style="justify-content: space-between; flex-wrap: wrap">
+		<div class="ui-seg" id="cond" aria-label="Condition">
+			<button data-value="one" aria-selected="true">1 file failed</button>
+			<button data-value="many">1 of 3 failed</button>
+			<button data-value="offline">Offline</button>
+		</div>
+		<button class="ui-btn sm" id="reset"><i data-icon="play" class="sm"></i>Reset</button>
+	</div>
+	<p class="ui-muted" id="tradeoff" style="text-wrap: pretty"></p>
+</div>
+<div class="ui-pane" id="pane" style="position: relative">
+	<div class="ui-pane-header">
+		<span style="color: var(--foreground)">Profile the slow export</span>
+	</div>
+	<div class="ui-pane-body ui-stack">
+		<div class="ui-user-msg">The export takes 40 seconds now. Can you find out why?</div>
+		<div class="ui-tool-row"><code>pnpm run export --profile</code></div>
+		<div id="sent"></div>
+		<div id="notice"></div>
+		<div class="ui-composer">
+			<div class="ui-row" id="chips" style="flex-wrap: wrap; gap: 6px"></div>
+			<div class="ui-composer-input">Here is the trace from my machine</div>
+			<div class="ui-composer-footer">
+				<span class="ui-caption" id="footer"></span>
+				<span class="ui-spacer"></span>
+				<button class="ui-send" id="send" aria-label="Send">
+					<i data-icon="arrow-up"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+	<div id="toast"></div>
+</div>
+<style>
+	.file.failed {
+		box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--destructive) 45%, transparent);
+		color: var(--foreground);
+	}
+	.file button {
+		all: unset;
+		cursor: pointer;
+		display: inline-flex;
+		color: var(--muted-foreground);
+	}
+	.file button:focus-visible {
+		outline: 2px solid var(--link);
+		outline-offset: 1px;
+		border-radius: 3px;
+	}
+	.toast {
+		position: absolute;
+		top: 44px;
+		right: 12px;
+		padding: 8px 12px;
+		border-radius: 8px;
+		background: var(--background);
+		box-shadow:
+			0 0 0 1px var(--border),
+			0 4px 12px -4px rgb(0 0 0 / 0.16);
+	}
+	.ui-send:disabled {
+		opacity: 0.4;
+		cursor: default;
+	}
+	.ui-send {
+		border: 0;
+		cursor: pointer;
+	}
+</style>
+<script>
+	{
+		const tradeoffs = {
+			today: 'The toast disappears after four seconds and the message still sends without the file, so the agent never sees the trace.',
+			chip: 'The failure stays where the file is, and sending stays possible. Easy to miss with several files.',
+			notice: 'Hard to miss and names the file, at the cost of one more row above the composer while it is unresolved.',
+			block: 'Nothing sends without the file. Safest, but it blocks a message that would have been fine without it.',
+		}
+		const fresh = (cond) => ({
+			files:
+				cond === 'many'
+					? [
+							{ name: 'trace.json', status: 'failed' },
+							{ name: 'screenshot.png', status: 'ok' },
+							{ name: 'notes.md', status: 'ok' },
+						]
+					: [{ name: 'trace.json', status: 'failed' }],
+			sent: null,
+		})
+		const state = { dir: 'today', cond: 'one', ...fresh('one') }
+
+		const el = (id) => document.getElementById(id)
+		const failed = () => state.files.filter((f) => f.status === 'failed')
+		const icon = (name) => ui.icon(name, 'xs')
+
+		function chip(f, i) {
+			const showFailure = state.dir !== 'today' && f.status === 'failed'
+			const status =
+				f.status === 'retrying'
+					? `<i data-icon="loader-circle" class="xs ui-spin"></i>`
+					: showFailure
+						? `<span class="ui-dot" data-tone="danger"></span>`
+						: icon('paperclip')
+			const actions =
+				showFailure && state.dir === 'chip'
+					? `<button data-act="retry" data-i="${i}" aria-label="Retry ${f.name}">${icon('arrow-up-right')}</button>`
+					: ''
+			return `<span class="ui-chip file ${showFailure ? 'failed' : ''}">${status}${f.name}${actions}<button data-act="remove" data-i="${i}" aria-label="Remove ${f.name}">${icon('x')}</button></span>`
+		}
+
+		function render() {
+			const focused = document.activeElement?.dataset.act ? document.activeElement : null
+			draw()
+			if (focused && !focused.isConnected) {
+				const { act, i } = focused.dataset
+				const next =
+					document.querySelector(`[data-act="${act}"][data-i="${i}"]`) ??
+					document.querySelector('[data-act="remove"]') ??
+					el('send')
+				next.focus()
+			}
+		}
+
+		function draw() {
+			el('tradeoff').textContent = tradeoffs[state.dir]
+			el('chips').innerHTML = state.files.map(chip).join('')
+			const bad = failed()
+			const what =
+				state.cond === 'offline'
+					? "You're offline, so trace.json didn't upload."
+					: "trace.json didn't upload."
+			el('notice').innerHTML =
+				state.dir === 'notice' && bad.length
+					? `<div class="ui-row ui-enter" style="justify-content: space-between; flex-wrap: wrap"><span class="ui-status" data-tone="danger"><span class="ui-dot"></span>${what}</span><span class="ui-row"><button class="ui-btn sm outline" data-act="retry" data-i="0">Retry</button><button class="ui-btn sm" data-act="remove" data-i="0">Remove</button></span></div>`
+					: ''
+			el('toast').innerHTML =
+				state.dir === 'today' && bad.length && !state.sent
+					? `<div class="toast ui-enter">Upload failed <span class="ui-caption">(hides after 4 s)</span></div>`
+					: ''
+			el('footer').innerHTML =
+				state.dir === 'block' && bad.length
+					? `1 file didn't upload. <button class="ui-btn sm" data-act="retry" data-i="0" style="margin-left: 4px">Retry</button>`
+					: ''
+			el('send').disabled = state.dir === 'block' && bad.length > 0
+			el('sent').innerHTML = state.sent
+				? `<div class="ui-user-msg ui-enter">Here is the trace from my machine${state.sent.length ? `<div class="ui-caption">${state.sent.join(', ')}</div>` : '<div class="ui-caption">No files attached</div>'}</div>`
+				: ''
+		}
+
+		function retry(i) {
+			const f = state.files[i]
+			if (!f || f.status !== 'failed') return
+			f.status = 'retrying'
+			render()
+			setTimeout(() => {
+				f.status = state.cond === 'offline' ? 'failed' : 'ok'
+				render()
+			}, 900)
+		}
+
+		document.addEventListener('click', (e) => {
+			const target = e.target.closest('[data-act]')
+			if (!target) return
+			const i = Number(target.dataset.i)
+			if (target.dataset.act === 'retry')
+				retry(state.files.findIndex((f) => f.status === 'failed'))
+			if (target.dataset.act === 'remove') {
+				state.files.splice(i, 1)
+				render()
+			}
+		})
+		el('send').addEventListener('click', () => {
+			if (el('send').disabled) return
+			state.sent = state.files.filter((f) => f.status === 'ok').map((f) => f.name)
+			state.files = []
+			render()
+		})
+		const reset = () => {
+			Object.assign(state, fresh(state.cond))
+			render()
+		}
+		el('dir').addEventListener('change', (e) => {
+			state.dir = e.detail.value
+			reset()
+		})
+		el('cond').addEventListener('change', (e) => {
+			state.cond = e.detail.value
+			reset()
+		})
+		el('reset').addEventListener('click', reset)
+		render()
+	}
+</script>

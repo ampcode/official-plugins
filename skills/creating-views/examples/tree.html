@@ -1,0 +1,303 @@
+<!--
+Example: a tree that answers "where do I make this change?".
+Pattern: an indented outline, which fits any width, instead of a box-and-line tree. The default
+state expands only the folders on the path to the files the title names and collapses the rest
+with a count, so the answer shows without a click. The two files are in --chart-1, with a + or ~
+glyph for new or edited; folders stay neutral, since expansion already shows the path. Each row carries a muted one-line role that truncates on phones. The tree
+follows the WAI-ARIA tree pattern: one tab stop, arrows to move, Right and Left to open and close,
+Home and End. Selecting a file shows what to write in it. The project is a placeholder.
+-->
+<div class="ui-header">
+	<p class="ui-title">
+		Adding a command touches two files: a new handler in src/commands and one line in
+		plugin.json
+	</p>
+	<p class="ui-sub">
+		Layout of a plugin project. Folders you do not need are collapsed; select a file to see what
+		goes in it.
+	</p>
+</div>
+<div class="layout">
+	<div>
+		<div id="tree" role="tree" aria-label="Project files"></div>
+		<div class="ui-row" style="margin-top: 8px; justify-content: space-between">
+			<span class="ui-caption"
+				><span class="mark">+</span> new <span class="mark">~</span> edited</span
+			>
+			<button class="ui-btn sm" id="toggle"></button>
+		</div>
+	</div>
+	<div id="detail"></div>
+</div>
+<style>
+	.layout {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr) 280px;
+		gap: 24px;
+		align-items: start;
+	}
+	@media (max-width: 560px) {
+		.layout {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 12px;
+		}
+	}
+	.item {
+		display: flex;
+		align-items: center;
+		gap: 6px;
+		height: 26px;
+		padding-right: 8px;
+		border-radius: 4px;
+		cursor: pointer;
+		outline: none;
+		min-width: 0;
+	}
+	.item[aria-selected='true'] {
+		background: var(--muted);
+	}
+	.item:focus-visible {
+		outline: 2px solid var(--link);
+		outline-offset: -2px;
+	}
+	@media (hover: hover) {
+		.item:hover {
+			background: var(--muted);
+		}
+	}
+	.indent {
+		flex: none;
+		align-self: stretch;
+		background: repeating-linear-gradient(
+			to right,
+			transparent 0 7px,
+			var(--border) 7px 8px,
+			transparent 8px 16px
+		);
+	}
+	.chev {
+		flex: none;
+		width: 14px;
+		color: var(--muted-foreground);
+		transition: transform 150ms ease-out;
+	}
+	.item[aria-expanded='true'] .chev {
+		transform: rotate(90deg);
+	}
+	.name {
+		flex: none;
+		font: 12px/20px var(--font-mono);
+	}
+	.mark,
+	.touched .name {
+		color: var(--chart-1);
+	}
+	.mark {
+		font-family: var(--font-mono);
+	}
+	.role {
+		min-width: 0;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		font-size: 12px;
+		color: var(--muted-foreground);
+	}
+	.count {
+		margin-left: auto;
+		flex: none;
+		font-size: 11px;
+		color: var(--muted-foreground);
+	}
+	pre {
+		margin: 6px 0 0;
+		padding: 10px 12px;
+		border-radius: var(--radius);
+		background: var(--card);
+		box-shadow: inset 0 0 0 1px var(--border);
+		font: 11px/16px var(--font-mono);
+		white-space: pre-wrap;
+		overflow-wrap: anywhere;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.chev {
+			transition: none;
+		}
+	}
+</style>
+<script>
+	{
+		// change: 'new' or 'edit' marks the files the title names. code: what to write there.
+		const root = {
+			name: 'my-plugin',
+			children: [
+				{
+					name: 'plugin.json',
+					role: 'Manifest: name, commands, permissions',
+					change: 'edit',
+					code: '"commands": [\n  "deploy",\n  "preview",\n  "release-notes"\n]',
+				},
+				{ name: 'package.json', role: 'Dependencies and scripts' },
+				{ name: 'README.md', role: 'Usage for people installing the plugin' },
+				{
+					name: 'src',
+					children: [
+						{ name: 'index.ts', role: 'Loads every handler listed in plugin.json' },
+						{
+							name: 'commands',
+							children: [
+								{ name: 'deploy.ts', role: 'Existing command' },
+								{ name: 'preview.ts', role: 'Existing command' },
+								{
+									name: 'release-notes.ts',
+									role: 'The new command handler',
+									change: 'new',
+									code: "export default defineCommand({\n  name: 'release-notes',\n  async run(ctx) {\n    const log = await ctx.git.log()\n    return ctx.reply(draft(log))\n  },\n})",
+								},
+							],
+						},
+						{
+							name: 'lib',
+							children: [
+								{ name: 'config.ts', role: 'Reads user settings' },
+								{ name: 'http.ts', role: 'Shared fetch with retries' },
+								{ name: 'log.ts', role: 'Structured logging' },
+							],
+						},
+					],
+				},
+				{
+					name: 'test',
+					children: [
+						{ name: 'deploy.test.ts', role: 'Tests for deploy' },
+						{ name: 'preview.test.ts', role: 'Tests for preview' },
+					],
+				},
+				{
+					name: 'assets',
+					children: [
+						{ name: 'icon.svg', role: 'Marketplace icon' },
+						{ name: 'banner.png', role: 'Marketplace banner' },
+					],
+				},
+			],
+		}
+
+		const nodes = []
+		;(function index(node, level, parent) {
+			node.level = level
+			node.parent = parent
+			node.path = parent ? `${parent.path}/${node.name}` : node.name
+			nodes.push(node)
+			for (const child of node.children ?? []) index(child, level + 1, node)
+		})(root, 0, null)
+		const isFolder = (n) => Boolean(n.children)
+		const touched = (n) => (isFolder(n) ? n.children.some(touched) : Boolean(n.change))
+		const fileCount = (n) =>
+			isFolder(n) ? n.children.reduce((t, c) => t + fileCount(c), 0) : 1
+
+		const pathOpen = () => new Set(nodes.filter((n) => isFolder(n) && touched(n)))
+		const state = {
+			open: pathOpen(),
+			selected: nodes.find((n) => n.change === 'new'),
+		}
+		const tree = document.getElementById('tree')
+
+		function visible() {
+			const out = []
+			;(function walk(node) {
+				out.push(node)
+				if (state.open.has(node)) node.children.forEach(walk)
+			})(root)
+			return out
+		}
+
+		function render() {
+			const focusedInside = tree.contains(document.activeElement)
+			tree.innerHTML = visible()
+				.map((n) => {
+					const i = nodes.indexOf(n)
+					const folder = isFolder(n)
+					const expanded = folder ? ` aria-expanded="${state.open.has(n)}"` : ''
+					const mark = n.change
+						? `<span class="mark">${n.change === 'new' ? '+' : '~'}</span>`
+						: ''
+					return `<div class="item ${n.change ? 'touched' : ''}" role="treeitem" data-i="${i}" aria-level="${n.level + 1}" aria-selected="${n === state.selected}"${expanded} tabindex="${n === state.selected ? 0 : -1}">
+						<span class="indent" style="width: ${n.level * 16}px"></span>
+						${folder ? '<i data-icon="chevron-right" class="chev xs"></i>' : '<span class="chev"></span>'}
+						<span class="name">${n.name}${folder ? '/' : ''}</span>${mark}
+						${n.role ? `<span class="role">${n.role}</span>` : ''}
+						${folder && !state.open.has(n) ? `<span class="count">${fileCount(n)} files</span>` : ''}
+					</div>`
+				})
+				.join('')
+			if (focusedInside) tree.querySelector('[tabindex="0"]')?.focus()
+
+			const allOpen = nodes.filter(isFolder).every((n) => state.open.has(n))
+			document.getElementById('toggle').textContent = allOpen
+				? 'Collapse to the two files'
+				: 'Expand all'
+
+			const n = state.selected
+			const detail = document.getElementById('detail')
+			if (isFolder(n)) {
+				detail.innerHTML = `<p class="ui-mono"></p><p class="ui-label">${fileCount(n)} files${touched(n) ? ', including a file you change' : ', none you need to change'}</p>`
+			} else {
+				detail.innerHTML = `<p class="ui-mono"></p><p class="ui-label">${n.change === 'new' ? 'Create this file. ' : n.change === 'edit' ? 'Add the command to the list. ' : 'No change needed. '}${n.role}</p>${n.code ? '<pre></pre>' : ''}`
+				if (n.code) detail.querySelector('pre').textContent = n.code
+			}
+			detail.querySelector('.ui-mono').textContent = n.path
+		}
+
+		function select(n) {
+			state.selected = n
+			render()
+		}
+		function toggle(n) {
+			if (!isFolder(n)) return
+			if (state.open.has(n)) state.open.delete(n)
+			else state.open.add(n)
+		}
+
+		tree.addEventListener('click', (e) => {
+			const el = e.target.closest('.item')
+			if (!el) return
+			const n = nodes[Number(el.dataset.i)]
+			if (isFolder(n) && n !== root) toggle(n)
+			select(n)
+			tree.querySelector('[tabindex="0"]')?.focus()
+		})
+		tree.addEventListener('keydown', (e) => {
+			const list = visible()
+			const n = state.selected
+			const i = list.indexOf(n)
+			if (e.key === 'ArrowDown') select(list[Math.min(list.length - 1, i + 1)])
+			else if (e.key === 'ArrowUp') select(list[Math.max(0, i - 1)])
+			else if (e.key === 'Home') select(list[0])
+			else if (e.key === 'End') select(list[list.length - 1])
+			else if (e.key === 'ArrowRight') {
+				if (isFolder(n) && !state.open.has(n)) {
+					toggle(n)
+					render()
+				} else if (isFolder(n)) select(n.children[0])
+			} else if (e.key === 'ArrowLeft') {
+				if (isFolder(n) && state.open.has(n) && n !== root) {
+					toggle(n)
+					render()
+				} else if (n.parent) select(n.parent)
+			} else if (e.key === 'Enter' || e.key === ' ') {
+				if (n !== root) toggle(n)
+				render()
+			} else return
+			e.preventDefault()
+		})
+		document.getElementById('toggle').addEventListener('click', () => {
+			const folders = nodes.filter(isFolder)
+			state.open = folders.every((n) => state.open.has(n)) ? pathOpen() : new Set(folders)
+			if (!visible().includes(state.selected))
+				state.selected = nodes.find((n) => n.change === 'new')
+			render()
+		})
+		render()
+	}
+</script>

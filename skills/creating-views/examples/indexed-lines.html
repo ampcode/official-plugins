@@ -1,0 +1,51 @@
+<!--
+Example: a line chart whose title states a multiple ("tripled", "quadrupled").
+Pattern: plot the claim's own transform. Each series is divided by its own baseline, so the
+multiples in the title read straight off the y axis. On a millisecond axis the smaller service's
+4x rise would look smaller than the larger service's 3x rise. The baselines in ms stay in the
+caption so nothing is lost. Data is synthetic.
+-->
+<div class="ui-header">
+	<p class="ui-title">
+		v2.31 tripled api latency and quadrupled gateway latency; worker held steady
+	</p>
+	<p class="ui-sub">Daily p95 as a multiple of each service's day 1 to 6 average</p>
+</div>
+<div id="chart"></div>
+<p class="ui-caption" style="margin-top: 8px">
+	Baselines: api 212 ms, gateway 96 ms, worker 431 ms. v2.31 was live from day 7 until the
+	rollback on day 9.
+</p>
+<script>
+	{
+		const days = Array.from({ length: 14 }, (_, i) => `Day ${i + 1}`)
+		const ms = {
+			api: [208, 215, 211, 209, 214, 216, 455, 640, 590, 262, 219, 213, 210, 215],
+			gateway: [95, 97, 94, 98, 96, 96, 238, 410, 372, 131, 99, 97, 95, 96],
+			worker: [428, 433, 430, 429, 435, 431, 452, 458, 449, 437, 432, 430, 429, 433],
+		}
+		const index = (values) => {
+			const base = values.slice(0, 6).reduce((a, b) => a + b, 0) / 6
+			return values.map((v) => v / base)
+		}
+		const times = (v) => `${Math.round(v * 10) / 10}×`
+		ui.line(document.getElementById('chart'), {
+			x: days,
+			series: [
+				{ name: 'gateway', values: index(ms.gateway), highlight: true },
+				{ name: 'api', values: index(ms.api), highlight: true },
+				{ name: 'worker', values: index(ms.worker) },
+			],
+			format: times,
+			min: 0,
+			max: 4.5,
+			tooltipTitle: (i) => days[i],
+			annotations: [
+				{ type: 'band', from: 6, to: 8, label: 'v2.31 live' },
+				{ type: 'rule', y: 1, label: 'Baseline' },
+				{ type: 'point', series: 'gateway', at: 7, label: '4.3×' },
+				{ type: 'point', series: 'api', at: 7, label: '3.0×' },
+			],
+		})
+	}
+</script>

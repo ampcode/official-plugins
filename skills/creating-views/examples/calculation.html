@@ -1,0 +1,137 @@
+<!--
+Example: how a number is computed, with the inputs the reader can change.
+Pattern: the derivation as a ledger, one term per row: operator, value, and what the term is,
+with intermediate results on = rows so every step can be checked. Inputs carry their control in
+their own row, so the reader sees which term a control changes. The title and the sentence under
+the ledger are computed from the current state; the sentence answers the next question (what one
+more day costs, what the cheapest tier would cost). It opens on the observed values. Prices are
+public list prices for one cloud's object storage tiers; the database is a placeholder.
+-->
+<div class="ui-header">
+	<p class="ui-title" id="title"></p>
+	<p class="ui-sub">
+		Nightly full snapshots of one database, kept in object storage. Change the inputs to see
+		each step update.
+	</p>
+</div>
+<div id="ledger" role="group" aria-label="Cost calculation"></div>
+<p id="next" style="margin-top: 12px"></p>
+<style>
+	.term {
+		display: grid;
+		grid-template-columns: 16px 96px minmax(0, 1fr);
+		column-gap: 8px;
+		align-items: start;
+		padding: 5px 0;
+	}
+	.term.result {
+		border-top: 1px solid var(--border);
+	}
+	.op {
+		color: var(--muted-foreground);
+		font-variant-numeric: tabular-nums;
+	}
+	.value {
+		text-align: right;
+		font-variant-numeric: tabular-nums;
+	}
+	.result .value {
+		color: var(--foreground);
+	}
+	.final .value {
+		font-size: 15px;
+	}
+	.what {
+		color: var(--muted-foreground);
+	}
+	.what .ui-range,
+	.what .ui-seg {
+		margin-top: 4px;
+	}
+	.what .ui-seg {
+		display: flex;
+		width: fit-content;
+	}
+	.what .ui-range {
+		width: 100%;
+		max-width: 240px;
+		display: block;
+	}
+</style>
+<script>
+	{
+		const tiers = {
+			standard: { name: 'Standard', price: 0.023 },
+			infrequent: { name: 'Infrequent access', price: 0.0125 },
+			archive: { name: 'Archive', price: 0.004 },
+		}
+		const COMPRESSION = 0.45
+		const state = { sizeGB: 400, days: 30, tier: 'standard' }
+
+		const gb = (v) => `${Math.round(v).toLocaleString('en-US')} GB`
+		const usd = (v, digits = 2) =>
+			`$${v.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits })}`
+
+		const monthly = ({ sizeGB, days, tier }) => sizeGB * COMPRESSION * days * tiers[tier].price
+
+		document.getElementById('ledger').innerHTML = `
+			<div class="term"><span class="op"></span><span class="value" id="v-size"></span>
+				<div class="what">Database size<input class="ui-range" id="size" type="range" min="50" max="2000" step="50" aria-label="Database size in GB"></div></div>
+			<div class="term"><span class="op">×</span><span class="value">${COMPRESSION}</span>
+				<div class="what">Compressed size, measured on one snapshot</div></div>
+			<div class="term result"><span class="op">=</span><span class="value" id="v-per"></span>
+				<div class="what">Stored per snapshot</div></div>
+			<div class="term"><span class="op">×</span><span class="value" id="v-days"></span>
+				<div class="what">Snapshots kept, one a night<input class="ui-range" id="days" type="range" min="1" max="90" aria-label="Days kept"></div></div>
+			<div class="term result"><span class="op">=</span><span class="value" id="v-stored"></span>
+				<div class="what">Stored at any time</div></div>
+			<div class="term"><span class="op">×</span><span class="value" id="v-price"></span>
+				<div class="what">Per GB-month, by storage tier
+					<div class="ui-seg" id="tier" aria-label="Storage tier">
+						<button data-value="standard" aria-selected="true">Standard</button>
+						<button data-value="infrequent">Infrequent</button>
+						<button data-value="archive">Archive</button>
+					</div></div></div>
+			<div class="term result final"><span class="op">=</span><span class="value" id="v-total"></span>
+				<div class="what">Per month</div></div>`
+
+		const el = (id) => document.getElementById(id)
+		el('size').value = state.sizeGB
+		el('days').value = state.days
+
+		function render() {
+			const { sizeGB, days, tier } = state
+			const per = sizeGB * COMPRESSION
+			const total = monthly(state)
+			el('v-size').textContent = gb(sizeGB)
+			el('v-per').textContent = gb(per)
+			el('v-days').textContent = days
+			el('v-stored').textContent = gb(per * days)
+			el('v-price').textContent = `$${tiers[tier].price}`
+			ui.tween(el('v-total'), total, { format: (v) => usd(v) })
+
+			el('title').textContent =
+				`Keeping ${days} ${days === 1 ? 'night' : 'nights'} of snapshots of a ${gb(sizeGB)} database costs ${usd(total, 0)} a month in ${tiers[tier].name.toLowerCase()} storage`
+			const perDay = monthly({ ...state, days: days + 1 }) - total
+			const archive = monthly({ ...state, tier: 'archive' })
+			el('next').textContent =
+				tier === 'archive'
+					? `Each extra night kept adds ${usd(perDay)} a month. Archive is the cheapest tier, but reading a snapshot back takes longer.`
+					: `Each extra night kept adds ${usd(perDay)} a month. In archive storage the same snapshots would cost ${usd(archive, 0)}.`
+		}
+
+		el('size').addEventListener('input', (e) => {
+			state.sizeGB = Number(e.target.value)
+			render()
+		})
+		el('days').addEventListener('input', (e) => {
+			state.days = Number(e.target.value)
+			render()
+		})
+		el('tier').addEventListener('change', (e) => {
+			state.tier = e.detail.value
+			render()
+		})
+		render()
+	}
+</script>

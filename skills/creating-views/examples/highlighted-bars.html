@@ -1,0 +1,35 @@
+<!--
+Example: a ranking where one category is the point.
+Pattern: sorted horizontal bars from the kit, the category the title names in --chart-1 and the
+rest in gray, the long tail folded into one muted row that sorts last, values and shares at the
+bar ends instead of an axis, and a caption that says how the numbers were counted. Data is
+synthetic.
+-->
+<div class="ui-header">
+	<p class="ui-title">
+		The web package takes 58% of CI time, more than all other packages combined
+	</p>
+	<p class="ui-sub">CI minutes per package over the last 30 days, 711 minutes in total</p>
+</div>
+<div id="bars"></div>
+<p class="ui-caption" style="margin-top: 8px">
+	Counted from job durations on the main branch, retries included. Seven packages under 10 minutes
+	each are grouped as others.
+</p>
+<script>
+	{
+		ui.bars(document.getElementById('bars'), {
+			items: [
+				{ label: 'web', value: 412, highlight: true },
+				{ label: 'api', value: 118 },
+				{ label: 'cli', value: 64 },
+				{ label: 'shared', value: 41 },
+				{ label: 'docs', value: 22 },
+				{ label: 'infra', value: 19 },
+				{ label: 'Seven others', value: 35, muted: true },
+			],
+			format: (v) => `${v} min`,
+			share: true,
+		})
+	}
+</script>

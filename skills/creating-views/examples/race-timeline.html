@@ -1,0 +1,251 @@
+<!--
+Example: a timeline that explains a race between two callers.
+Pattern: one row per step, grouped by caller, on one shared time axis, so bar length is duration
+and horizontal position is when it happened. The steps the title names (the token refreshes) are
+in --chart-1; everything else is gray. A labeled rule marks the moment the race goes wrong, and the
+outcome sits at the end of each caller's last bar as a status dot with text. A switch compares the
+fix on the same axis, and the title is computed from the selected timeline. Pointer, tap, and arrow
+keys move a readout; the default readout is the step that fails. Timings are illustrative.
+-->
+<div class="ui-header">
+	<p class="ui-title" id="title"></p>
+	<p class="ui-sub">
+		Two API calls start with an expired access token. Each bar is one step; its length is the
+		time it took.
+	</p>
+</div>
+<div class="ui-seg" id="mode" aria-label="Timeline" style="margin-bottom: 12px">
+	<button data-value="today" aria-selected="true">Today</button>
+	<button data-value="shared">Shared refresh</button>
+</div>
+<svg id="chart" width="100%" tabindex="0" role="img"></svg>
+<p class="ui-label ui-num" id="readout" style="margin-top: 8px"></p>
+<p class="ui-caption" id="summary"></p>
+<style>
+	#chart {
+		display: block;
+		outline: none;
+	}
+	#chart:focus-visible {
+		outline: 2px solid var(--link);
+		outline-offset: 2px;
+	}
+	#chart text {
+		font-size: 11px;
+		fill: var(--muted-foreground);
+		font-variant-numeric: tabular-nums;
+	}
+	#chart text.step {
+		font-size: 12px;
+		fill: var(--foreground);
+	}
+	#chart .halo {
+		paint-order: stroke;
+		stroke: var(--background);
+		stroke-width: 3px;
+	}
+</style>
+<script>
+	{
+		// kind: 'refresh' (the steps the title is about), 'wait' (blocked, not working), or plain.
+		// outcome: the caller's result, shown at the end of its last bar.
+		const timelines = {
+			today: {
+				steps: [
+					{ caller: 'A', label: 'GET /orders', from: 0, to: 110, note: 'expired' },
+					{ caller: 'A', label: 'Refresh, token 2', from: 110, to: 360, kind: 'refresh' },
+					{
+						caller: 'A',
+						label: 'Retry, token 2',
+						from: 360,
+						to: 480,
+						outcome: { text: '401', tone: 'destructive' },
+						detail: 'it reached the server at 420 ms, after token 2 was revoked',
+					},
+					{ caller: 'B', label: 'GET /profile', from: 40, to: 150, note: 'expired' },
+					{ caller: 'B', label: 'Refresh, token 3', from: 150, to: 400, kind: 'refresh' },
+					{
+						caller: 'B',
+						label: 'Retry, token 3',
+						from: 400,
+						to: 500,
+						outcome: { text: '200', tone: 'success' },
+					},
+				],
+				clash: { at: 400, label: 'Token 3 revokes token 2' },
+				focus: 2,
+			},
+			shared: {
+				steps: [
+					{ caller: 'A', label: 'GET /orders', from: 0, to: 110, note: 'expired' },
+					{ caller: 'A', label: 'Refresh, token 2', from: 110, to: 360, kind: 'refresh' },
+					{
+						caller: 'A',
+						label: 'Retry, token 2',
+						from: 360,
+						to: 470,
+						outcome: { text: '200', tone: 'success' },
+					},
+					{ caller: 'B', label: 'GET /profile', from: 40, to: 150, note: 'expired' },
+					{
+						caller: 'B',
+						label: "Wait for A's refresh",
+						from: 150,
+						to: 360,
+						kind: 'wait',
+					},
+					{
+						caller: 'B',
+						label: 'Retry, token 2',
+						from: 360,
+						to: 460,
+						outcome: { text: '200', tone: 'success' },
+					},
+				],
+				clash: null,
+				focus: 4,
+			},
+		}
+		const state = { mode: 'today', focus: timelines.today.focus }
+		const svg = document.getElementById('chart')
+		const AXIS = 20
+		const HEAD = 24
+		const ROW = 26
+
+		const firstStart = (steps, caller) =>
+			Math.min(...steps.filter((s) => s.caller === caller).map((s) => s.from))
+		const lastEnd = (steps) => Math.max(...steps.map((s) => s.to))
+
+		function describe() {
+			const { steps } = timelines[state.mode]
+			const gap = firstStart(steps, 'B') - firstStart(steps, 'A')
+			const tokens = steps.filter((s) => s.kind === 'refresh').length
+			const failed = steps.filter((s) => s.outcome?.tone === 'destructive')
+			const title =
+				failed.length > 0
+					? `Two requests ${gap} ms apart both refresh the token, and the second refresh revokes the first, so request ${failed[0].caller} fails`
+					: `With one shared refresh, both requests succeed by ${lastEnd(steps)} ms and the server issues one new token`
+			document.getElementById('title').textContent = title
+			svg.setAttribute('aria-label', title)
+			document.getElementById('summary').textContent =
+				`${tokens} new ${tokens === 1 ? 'token' : 'tokens'} issued. The server rotates the access token on every refresh, which revokes the previous one.`
+		}
+
+		function draw() {
+			const w = svg.getBoundingClientRect().width
+			if (!w) return
+			const { steps, clash } = timelines[state.mode]
+			const callers = [...new Set(steps.map((s) => s.caller))]
+			const labelW = Math.min(150, Math.round(w * 0.36))
+			const max = Math.ceil((lastEnd(steps) * 1.15) / 100) * 100
+			const plotW = w - labelW - 8
+			const x = (ms) => labelW + (ms / max) * plotW
+			const tick = w < 480 ? 200 : 100
+
+			const rows = []
+			let y = AXIS
+			for (const caller of callers) {
+				rows.push({ head: `Request ${caller}`, y })
+				y += HEAD
+				for (const step of steps.filter((s) => s.caller === caller)) {
+					rows.push({ step, i: steps.indexOf(step), y })
+					y += ROW
+				}
+			}
+			const H = y + 4
+			svg.setAttribute('height', H)
+			svg.setAttribute('viewBox', `0 0 ${w} ${H}`)
+
+			let s = ''
+			for (let ms = 0; ms <= max; ms += tick) {
+				s += `<line x1="${x(ms)}" x2="${x(ms)}" y1="${AXIS - 4}" y2="${H}" stroke="var(--grid)"/>`
+				s += `<text x="${x(ms)}" y="11" text-anchor="${ms === 0 ? 'start' : ms === max ? 'end' : 'middle'}">${ms}${ms === max ? ' ms' : ''}</text>`
+			}
+			for (const row of rows) {
+				if (row.head) {
+					s += `<text class="step" x="0" y="${row.y + 16}">${row.head}</text>`
+					continue
+				}
+				const { step, i } = row
+				const mid = row.y + ROW / 2
+				const focused = i === state.focus
+				if (focused)
+					s += `<rect x="0" y="${row.y}" width="${w}" height="${ROW}" rx="4" fill="var(--muted)"/>`
+				s += `<text class="step" x="12" y="${mid + 4}">${step.label}</text>`
+				const bx = x(step.from)
+				const bw = x(step.to) - bx
+				if (step.kind === 'wait')
+					s += `<rect x="${bx + 0.5}" y="${mid - 4.5}" width="${bw - 1}" height="9" fill="none" stroke="var(--chart-context)" stroke-dasharray="3 2"/>`
+				else
+					s += `<rect x="${bx}" y="${mid - 5}" width="${bw}" height="10" fill="${step.kind === 'refresh' ? 'var(--chart-1)' : 'var(--chart-context)'}"/>`
+				const ex = x(step.to) + 6
+				if (step.outcome)
+					s += `<circle cx="${ex + 3}" cy="${mid}" r="3" fill="var(--${step.outcome.tone})"/><text class="step" x="${ex + 10}" y="${mid + 4}">${step.outcome.text}</text>`
+				else if (step.note) s += `<text x="${ex}" y="${mid + 4}">${step.note}</text>`
+			}
+			if (clash) {
+				const cx = x(clash.at)
+				s += `<line x1="${cx}" x2="${cx}" y1="${AXIS - 4}" y2="${H}" stroke="var(--foreground)" stroke-dasharray="2 3"/>`
+				s += `<text class="step halo" x="${cx - 4}" y="${AXIS + 16}" text-anchor="end">${clash.label}</text>`
+			}
+			svg.innerHTML = s
+
+			const step = steps[state.focus]
+			document.getElementById('readout').textContent =
+				`Request ${step.caller}, ${step.label}: ${step.from}–${step.to} ms (${step.to - step.from} ms)${step.outcome ? `, ${step.outcome.text}` : ''}${step.detail ? `: ${step.detail}` : ''}`
+		}
+
+		function render() {
+			describe()
+			draw()
+		}
+
+		function stepAt(clientY) {
+			const top = svg.getBoundingClientRect().top
+			const steps = timelines[state.mode].steps
+			let y = AXIS
+			let caller = null
+			for (const [i, step] of steps.entries()) {
+				if (step.caller !== caller) {
+					caller = step.caller
+					y += HEAD
+				}
+				if (clientY - top >= y && clientY - top < y + ROW) return i
+				y += ROW
+			}
+			return -1
+		}
+
+		const follow = (e) => {
+			const i = stepAt(e.clientY)
+			if (i >= 0 && i !== state.focus) {
+				state.focus = i
+				draw()
+			}
+		}
+		svg.addEventListener('pointermove', follow)
+		svg.addEventListener('pointerdown', follow)
+		svg.addEventListener('pointerleave', (e) => {
+			if (e.pointerType !== 'mouse') return
+			state.focus = timelines[state.mode].focus
+			draw()
+		})
+		svg.addEventListener('keydown', (e) => {
+			const n = timelines[state.mode].steps.length
+			const delta = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key]
+			if (e.key === 'Home') state.focus = 0
+			else if (e.key === 'End') state.focus = n - 1
+			else if (delta) state.focus = Math.min(n - 1, Math.max(0, state.focus + delta))
+			else return
+			e.preventDefault()
+			draw()
+		})
+		document.getElementById('mode').addEventListener('change', (e) => {
+			state.mode = e.detail.value
+			state.focus = timelines[state.mode].focus
+			render()
+		})
+		new ResizeObserver(draw).observe(svg)
+		render()
+	}
+</script>
