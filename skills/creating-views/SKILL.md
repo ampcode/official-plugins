@@ -1,6 +1,6 @@
 ---
 name: creating-views
-description: "Renders interactive HTML views inline in a reply from fenced amp-view blocks: charts, dashboards, explorable diagrams, UI mockups, prototypes, wireframes, and side-by-side design options. Use when seeing answers the question faster than reading: a trend or comparison across many values, a system or flow the reader should click through or step through, or a UI or design question; or when asked to chart, plot, visualize, mock up, prototype, sketch, or compare designs."
+description: "Renders charts, graphs, visualizations, and quick UI experiments inline in a reply as interactive HTML in fenced amp-view blocks, with no files, build, or dev server. Use for a chart or graph of data, such as a trend, a ranking, or a comparison; for a system, flow, or state machine the reader can click or step through; and for small UI experiments: mocking up a component or screen, prototyping an interaction, sketching a layout, or comparing two or three design directions side by side. Use when asked to chart, plot, graph, visualize, build a dashboard, mock up, prototype, sketch, or try out a UI idea."
 metadata:
   sandbox-only: true
 ---
@@ -32,9 +32,10 @@ Use a view when seeing answers the question faster than reading:
 - Data: a trend over time, a ranking, or a comparison across more than about six values.
 - Systems: an architecture, flow, or state machine with more than about five parts, when the reader
   gains from clicking a part for detail or stepping through a sequence.
-- Design: a UI mockup, an interaction prototype, a layout wireframe, or two or three design
-  directions side by side.
-- Any request to chart, plot, visualize, mock up, prototype, sketch, or build a dashboard.
+- Design: a quick UI experiment, such as a component or screen mockup, an interaction prototype,
+  a layout wireframe, or two or three design directions side by side.
+- Any request to chart, plot, graph, visualize, mock up, prototype, sketch, try out a UI idea, or
+  build a dashboard.
 
 Use Markdown instead for a short list, a table of a few rows, or one or two numbers. Use a
 `diagram` block instead for a small static structure that reads clearly as text. A view adds
