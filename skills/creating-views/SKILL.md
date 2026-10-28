@@ -1,6 +1,6 @@
 ---
 name: creating-views
-description: "Renders interactive HTML views inline in a reply from fenced amp-view blocks: charts, dashboards, explorable diagrams, UI mockups, prototypes, wireframes, and side-by-side design options. Use when seeing answers the question faster than reading: a trend or comparison across many values, a system or flow the reader should click through or step through, or a UI or design question; or when asked to chart, plot, visualize, mock up, prototype, sketch, or compare designs. For a standalone page that others will review and comment on, use creating-artifacts instead."
+description: "Renders interactive HTML views inline in a reply from fenced amp-view blocks: charts, dashboards, explorable diagrams, UI mockups, prototypes, wireframes, and side-by-side design options. Use when seeing answers the question faster than reading: a trend or comparison across many values, a system or flow the reader should click through or step through, or a UI or design question; or when asked to chart, plot, visualize, mock up, prototype, sketch, or compare designs."
 metadata:
   sandbox-only: true
 ---
