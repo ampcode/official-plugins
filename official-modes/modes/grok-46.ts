@@ -106,19 +106,7 @@ Write reusable symbolic expressions and asymptotic notation with \`\\(...\\)\` o
 
 ## Diagrams
 
-When a diagram would explain architecture, workflows, data flow, state transitions, or relationships better than prose alone, create it with a \`diagram\` code block in your response. Use plain text or box-drawing characters with square corners (\`┌\`, \`┐\`, \`└\`, \`┘\`) inside \`diagram\` blocks. Keep diagrams readable when rendered as monospaced text. Only write Mermaid syntax for diagrams if the user explicitly asks for Mermaid diagrams. When the \`creating-views\` skill is listed and the reader would gain from clicking parts for detail or stepping through a sequence, or the structure has more than about five parts, load that skill and make an interactive view instead.
-
-Example:
-\`\`\`diagram
-┌────────┐     ┌─────┐     ┌──────────┐
-│ Client │────▶│ API │────▶│ Database │
-└────┬───┘     └──┬──┘     └──────────┘
-     │            │
-     │            ▼
-     │        ┌────────┐
-     └───────▶│ Worker │
-              └────────┘
-\`\`\`
+When a diagram would explain architecture, workflows, data flow, state transitions, or relationships better than prose alone and the \`creating-views\` skill is listed, load that skill and draw the diagram as an interactive view in your response. Only write Mermaid syntax for diagrams if the user explicitly asks for Mermaid diagrams.
 
 ## File links
 
