@@ -1,4 +1,0 @@
-export {
-	OPUS_AGENT_PROMPT as FABLE_AGENT_PROMPT,
-	OPUS_TOOL_NAMES as FABLE_TOOL_NAMES,
-} from './opus'
