@@ -175,6 +175,13 @@ $REC stop "$PWD/.amp/in/artifacts/flow.mp4"
   `ffmpeg -i flow.mp4 -vf fps=5,scale=640:-1 /tmp/f%03d.png` and
   `magick montage /tmp/f*.png -tile 4x -geometry +4+4 sheet.png`.
 
+### Recording frame rate
+
+Recordings default to 30 fps. If recording fails with "Recording encoder fell … behind", retry with
+`start RAW.mp4 --fps 15`: the encoder writes one frame per output tick, so fewer frames means less
+work. A smaller viewport or DPR also helps. `--fps` accepts integers from 10–60; lower rates can
+drop brief states when idle time is cut.
+
 ## Touch and mobile
 
 agent-browser is Chromium-only and never emulates touch. `set viewport` and `set device` change
