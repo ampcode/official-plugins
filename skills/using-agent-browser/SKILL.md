@@ -177,15 +177,10 @@ $REC stop "$PWD/.amp/in/artifacts/flow.mp4"
 
 ### Recording frame rate
 
-Recordings default to 30 fps; pass `start RAW.mp4 --fps N` to choose an integer from 10–60. Lower
-rates can lose brief states during compaction. If recording fails with
-"Recording encoder fell more than 500 ms behind capture" or "fell behind by more than 16 buffered
-frames", retry with `--fps 15`. This can happen on a busy machine or with a large viewport × device
-pixel ratio (DPR). The encoder takes the latest captured frame on each output tick; lower fps
-produces fewer output frames. In one setup's 30→15 fps tests, encoder CPU fell by a median 46%;
-dropping incoming screencast frames (`everyNthFrame` 1→2) reduced it by under 1%. Exact figures are
-workload-specific, and 15 fps recovered only 2/3 runs at the largest size (2560×1440, DPR 2). A
-smaller viewport or DPR also reduces the work; lower fps makes motion more stepped.
+Recordings default to 30 fps. If recording fails with "Recording encoder fell … behind", retry with
+`start RAW.mp4 --fps 15`: the encoder writes one frame per output tick, so fewer frames means less
+work. A smaller viewport or DPR also helps. `--fps` accepts integers from 10–60; lower rates can
+drop brief states when idle time is cut.
 
 ## Touch and mobile
 
