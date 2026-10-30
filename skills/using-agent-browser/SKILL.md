@@ -175,6 +175,16 @@ $REC stop "$PWD/.amp/in/artifacts/flow.mp4"
   `ffmpeg -i flow.mp4 -vf fps=5,scale=640:-1 /tmp/f%03d.png` and
   `magick montage /tmp/f*.png -tile 4x -geometry +4+4 sheet.png`.
 
+### Recording frame rate
+
+Recordings default to 30 fps; pass `start RAW.mp4 --fps N` to choose 1–60. If recording fails with
+"Recording encoder fell more than 500 ms behind capture" or "fell behind by more than 16 buffered
+frames", retry with `--fps 15`. This usually happens on a busy machine or with a large viewport ×
+device pixel ratio (DPR). The encoder takes the latest captured frame on each output tick, so
+halving the output fps roughly halves encoding work. Dropping incoming screencast frames
+(`everyNthFrame`) barely helps the encoder because it still encodes at the output rate. A smaller
+viewport or DPR also reduces the work; lower fps keeps text readable but makes motion more stepped.
+
 ## Touch and mobile
 
 agent-browser is Chromium-only and never emulates touch. `set viewport` and `set device` change
