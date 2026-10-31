@@ -44,21 +44,23 @@ Use the connected Gmail account to search, read, send, archive, and label email.
   details, read the result only when exactly one matches, and tell the user which message you
   read; if several match, list them (sender, subject, date) and ask which one they meant.
 - Use gmail with operation "list_labels" to list the available Gmail labels.
-- Use gmail with operation "send_message" to send email when the user asks for it. At the
-  Draft level, and at the Send level when you set requireConfirmation: true, the user sees a
-  confirmation dialog with the exact email (sender, recipients, subject, and body), can edit the
-  recipients, subject, and body, and the email goes out only if they approve. The thread waits
-  until they answer. If they decline, do not retry or work around it; offer to change the email.
-  When they edited the email, the result includes userEdited: true and the sentEmail that went
-  out; describe what was actually sent. To send several separate emails, start all the
-  send_message calls at once, as parallel tool calls in one turn or with Promise.all in one
-  code_exec, instead of waiting for each to finish; each email gets its own dialog.
+- Use gmail with operation "send_message", to, subject, and body (the plain-text email body) to
+  send email when the user asks for it. At the Draft level, and at the Send level when you set
+  requireConfirmation: true, the user sees a confirmation dialog with the exact email (sender,
+  recipients, subject, and body), can edit the recipients, subject, and body, and the email goes
+  out only if they approve. The thread waits until they answer. If they decline, do not retry or
+  work around it; offer to change the email. When they edited the email, the result includes
+  userEdited: true and the sentEmail that went out; describe what was actually sent. To send
+  several separate emails, start all the send_message calls at once, as parallel tool calls in
+  one turn or with Promise.all in one code_exec, instead of waiting for each to finish; each email
+  gets its own dialog.
 - Set requireConfirmation: true whenever the user asked to review, approve, or see the email
   first, or when the email is sensitive, so the dialog appears even at the Send level.
-- To send a reply on an existing conversation, first use read_message on the original message,
-  then pass its threadID, a subject matching the original (with a "Re:" prefix), inReplyTo set to
-  the original's messageIDHeader, and references set to the original's references followed by its
-  messageIDHeader. Without threadID the reply lands in a new conversation.
+- To answer an email, use gmail with operation "reply", the messageID of the message you are
+  answering, and body with only the new text; do not quote the original. Amp addresses it to the
+  sender (or Reply-To), sets the "Re:" subject, and threads it in the conversation. Set
+  replyAll: true to also include everyone in its To and CC. Pass to, cc, or bcc only to add
+  recipients. reply asks for approval exactly like send_message.
 - Use gmail with operation "archive" with a threadID to remove a whole conversation from
   the inbox.
 - Use gmail with operation "modify_labels" with a messageID and addLabels/removeLabels to
