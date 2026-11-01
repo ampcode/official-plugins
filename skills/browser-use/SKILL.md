@@ -76,6 +76,12 @@ $AB snapshot -i
   user closes that tab a command fails with `tab_gone`: run `$AB tab new "$URL"` and continue.
   `[agent-browser] restore: missing; save: saved` on each command is startup metadata, not an
   error.
+- When the thread has an Amp Profile (sign-ins Amp saves for the user across orbs, not one of
+  Chrome's own profile directories), `amp orb desktop ensure` names it and this Chrome already
+  has its sign-ins. A profile the user names is an Amp Profile: before opening the session, find
+  it with `amp profile list` and run `amp profile use "<name>"`, which returns once Chrome has
+  restarted with it. If the list does not show it, ask the user to choose it in the Desktop tab's
+  profile menu.
 - Batch several commands in one shell call. Each command takes 50 ms to 1 s; the model turn
   between calls dominates wall time.
 - End the session before every turn ends (below). The daemon does not exit on its own.
