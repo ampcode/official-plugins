@@ -30,11 +30,12 @@ if (!command || command === '--help' || command === '-h') {
 
 function usage(exitCode = 2) {
 	console.error(`Usage:
-  action-video.mjs start RAW.mp4 [--no-cursor]
+  action-video.mjs start RAW.mp4 [--no-cursor] [--fps N]
   action-video.mjs <agent-browser command...>
   action-video.mjs stop OUTPUT.mp4
 
 Set ACTION_VIDEO_SESSION to select the agent-browser session.
+--fps sets the recording frame rate (integer 10-60; default: 30).
 --no-cursor records without agent-browser's cursor overlay, for pages that draw their own.`)
 	process.exit(exitCode)
 }
@@ -252,7 +253,16 @@ function compactVideo(state, outputPath, stoppedAt) {
 }
 
 if (command === 'start') {
+	const fpsIndex = commandArguments.indexOf('--fps')
+	const fpsValue = commandArguments[fpsIndex + 1] ?? ''
 	if (!commandArguments[0]) {
+		usage()
+	}
+	if (
+		fpsIndex !== -1 &&
+		(!/^\d+$/.test(fpsValue) || Number(fpsValue) < 10 || Number(fpsValue) > 60)
+	) {
+		console.error('--fps must be an integer from 10 to 60.')
 		usage()
 	}
 	const hover = runAgentBrowser(['eval', "matchMedia('(hover: hover)').matches"], { json: true })
@@ -265,7 +275,8 @@ Close it, reopen it with the desktop pointer wrapper from the using-agent-browse
 	const rawPath = resolve(commandArguments[0])
 	mkdirSync(dirname(rawPath), { recursive: true })
 	const cursor = commandArguments.includes('--no-cursor') ? [] : ['--cursor']
-	runAgentBrowser(['record', 'restart', rawPath, ...cursor])
+	const fps = fpsIndex === -1 ? [] : ['--fps', fpsValue]
+	runAgentBrowser(['record', 'restart', rawPath, ...cursor, ...fps])
 	writeState({ rawPath, startedAt: Date.now(), events: [] })
 } else if (command === 'stop') {
 	if (!commandArguments[0]) {
