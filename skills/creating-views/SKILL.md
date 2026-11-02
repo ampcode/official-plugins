@@ -2,7 +2,7 @@
 name: creating-views
 description: 'Renders charts, graphs, diagrams, and quick UI experiments inline in a reply as interactive HTML in fenced amp-view blocks, with no files, build, or dev server. Use for a chart or graph of data, such as a trend, a ranking, a distribution, or a comparison; for any diagram, such as an architecture, flowchart, sequence diagram, state machine, timeline, race condition, or file or folder tree, static or one the reader can click or step through; for a calculation the reader can change; and for small UI experiments: mocking up a component or screen, prototyping an interaction, sketching a layout, or comparing two or three design directions side by side. Use when asked to chart, plot, graph, visualize, diagram, explain a race or where time goes, show how a number is computed, build a dashboard, mock up, prototype, sketch, or try out a UI idea.'
 metadata:
-  sandbox-only: true
+  web-ui-only: true
 ---
 
 # Creating Views
@@ -212,7 +212,7 @@ Add interaction when it answers a question the reader would otherwise ask: exact
 ## Check before sending
 
 1. Reread the draft against the Never list and the rules above. For each number the title states, find where the view computes it.
-2. Run the bundled preview script only when the layout can break in ways the source does not show: hand-placed SVG or absolutely positioned elements, controls or other scripted interaction, many items or options, wide rows, or long labels. Skip it for a simple chart, list, or table built from kit classes. The script frames the document the way Amp does, screenshots it at 720px and 360px in light and dark themes, prints script errors, and prints a `check:` line for each rule a draft commonly breaks: hard-coded colors, heavy weights, bold or heading elements, frame-height sizing, inner scrolling, content wider than the frame, a view taller than 800px, a missing title, and the numbers the title states.
+2. Run the bundled preview script only when the layout can break in ways the source does not show: hand-placed SVG or absolutely positioned elements, controls or other scripted interaction, many items or options, wide rows, or long labels. Skip it for a simple chart, list, or table built from kit classes, and when `agent-browser` is not installed. The script frames the document the way Amp does, screenshots it at 720px and 360px in light and dark themes, prints script errors, and prints a `check:` line for each rule a draft commonly breaks: hard-coded colors, heavy weights, bold or heading elements, frame-height sizing, inner scrolling, content wider than the frame, a view taller than 800px, a missing title, and the numbers the title states.
 
    ```bash
    node <skill-dir>/scripts/preview.mjs /tmp/view.html
