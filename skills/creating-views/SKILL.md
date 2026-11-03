@@ -12,7 +12,9 @@ A view is one self-contained HTML page that the Amp web UI renders inline in you
 Publish the page as a visual artifact, then embed it in your reply with Markdown image syntax:
 
 1. Call the `artifact` tool with `action: "publish"`, `kind: "visual"`, `folder: "visuals"`, a short title, and the whole page as `content`. The content is HTML and nothing else: no Markdown and no code fence around it.
-2. Put the returned `url` in your reply as an image, on its own line: `![Deep mode growth](URL)`. The reader sees the page there, under a chip that opens it as an artifact they can share.
+2. Put the returned `url` in your reply as an image, on its own line: `![Deep mode growth](URL)`. The reader sees the page there, and can open it as an artifact they can share.
+
+To show the view inside a document artifact, such as a report, put the same image line in the document's Markdown.
 
 ````markdown
 Deep mode is now Amp's second most used mode.
