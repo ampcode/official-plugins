@@ -1,24 +1,30 @@
 ---
 name: creating-views
-description: 'Renders charts, graphs, diagrams, and quick UI experiments inline in a reply as interactive HTML in fenced amp-view blocks, with no files, build, or dev server. Use for a chart or graph of data, such as a trend, a ranking, a distribution, or a comparison; for any diagram, such as an architecture, flowchart, sequence diagram, state machine, timeline, race condition, or file or folder tree, static or one the reader can click or step through; for a calculation the reader can change; and for small UI experiments: mocking up a component or screen, prototyping an interaction, sketching a layout, or comparing two or three design directions side by side. Use when asked to chart, plot, graph, visualize, diagram, explain a race or where time goes, show how a number is computed, build a dashboard, mock up, prototype, sketch, or try out a UI idea.'
+description: 'Renders charts, graphs, diagrams, and quick UI experiments inline in a reply as an interactive HTML page: a visual artifact embedded in the reply, with no files, build, or dev server. Use for a chart or graph of data, such as a trend, a ranking, a distribution, or a comparison; for any diagram, such as an architecture, flowchart, sequence diagram, state machine, timeline, race condition, or file or folder tree, static or one the reader can click or step through; for a calculation the reader can change; and for small UI experiments: mocking up a component or screen, prototyping an interaction, sketching a layout, or comparing two or three design directions side by side. Use when asked to chart, plot, graph, visualize, diagram, explain a race or where time goes, show how a number is computed, build a dashboard, mock up, prototype, sketch, or try out a UI idea.'
 metadata:
   web-ui-only: true
 ---
 
 # Creating Views
 
-An `amp-view` block is a fenced code block with the `amp-view` language tag whose body is one self-contained HTML document. The Amp web UI renders it inline in your reply, in a sandboxed frame on the thread's own background that follows the reader's light or dark theme.
+A view is one self-contained HTML page that the Amp web UI renders inline in your reply, in a sandboxed frame on the thread's own background that follows the reader's light or dark theme.
+
+Publish the page as a visual artifact, then embed it in your reply with Markdown image syntax:
+
+1. Call the `artifact` tool with `action: "publish"`, `kind: "visual"`, `folder: "visuals"`, a short title, and the whole page as `content`. The content is HTML and nothing else: no Markdown and no code fence around it.
+2. Put the returned `url` in your reply as an image, on its own line: `![Deep mode growth](URL)`. The reader sees the page there, under a chip that opens it as an artifact they can share.
 
 ````markdown
 Deep mode is now Amp's second most used mode.
 
-```amp-view
-<div class="ui-header"><p class="ui-title">Deep mode tripled in the six weeks since launch</p>…</div>
-…
-```
+![Deep mode tripled in six weeks](https://ampcode.com/artifacts/visuals/deep-mode-growth-…)
 
 Most of the growth came from existing Smart users switching, not new users.
 ````
+
+To change a view, publish the same artifact again with `edits` or new `content` and embed it again. Each publish replaces the page, so every embed of it shows the latest revision; publish a new artifact when the reader should keep the earlier version.
+
+Without the `artifact` tool, write the page in a fenced code block with the `amp-view` language tag instead, which renders the same way.
 
 The reader sees the view in place. Do not announce it or restate it in your text; write only what the view does not say.
 
@@ -72,7 +78,7 @@ Looking right is the easy part. Views fail far more often because the chart does
 - Its height fits the document, so the whole view shows in the reply without scrolling inside it, and the reader can open it full screen. Aim for under 600px; past that, cut or split it into two views. Never size anything from the frame's height (`vh` units, `height: 100%` on `html` or `body`): the frame grows to fit the page, so such a page keeps growing.
 - There is no network: every request is blocked. Inline all CSS, JS, images (as data URLs), and data. Chart libraries and web fonts cannot load.
 - There are no popups, storage, or form submission. Clicks on `http(s)` links ask the reader first. Hover, clicks, and keys work inside the frame. Nothing can draw outside it.
-- The source stays in the conversation. Keep it under 100 KB; aggregate data before embedding it.
+- Keep the page under 100 KB; aggregate data before embedding it.
 - Wrap your script in a block (`{ … }`). Top-level `const top`, `name`, or `status` collide with browser globals and stop the script.
 
 ## Tokens
