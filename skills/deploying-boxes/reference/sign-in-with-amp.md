@@ -29,7 +29,7 @@ Then:
 
 ## Register Sign in with Amp
 
-Creating a Sign in with Amp client needs the `create-oauth-client-apps` feature flag and workspace admin in the workspace that will own the client. Users who sign in to the app do not need to belong to that workspace. If the user lacks the flag or admin, stop and tell them; use "Manual credentials" only with a client someone else created.
+Creating a Sign in with Amp client needs workspace admin in the workspace that will own the client. Users who sign in to the app do not need to belong to that workspace. If the user is not an admin of any workspace, stop and tell them; use "Manual credentials" only with a client someone else created.
 
 After the first deploy, run:
 
