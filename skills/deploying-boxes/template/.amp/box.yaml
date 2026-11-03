@@ -1,7 +1,12 @@
 # How this app runs on its Box deployment (`amp boxes deploy --on <namespace>/<box> --name <deployment>`).
-# Amp sets PORT, AMP_DEPLOYMENT_URL, AMP_DEPLOYMENT_DATA_DIRECTORY, and NODE_ENV. The SQLite database
-# lives in AMP_DEPLOYMENT_DATA_DIRECTORY, outside the checkout, so it survives deploys.
+# Amp sets PORT, AMP_DEPLOYMENT_URL, AMP_DEPLOYMENT_NAME, AMP_DEPLOYMENT_BOX,
+# AMP_DEPLOYMENT_DATA_DIRECTORY, and NODE_ENV. The SQLite database lives in
+# AMP_DEPLOYMENT_DATA_DIRECTORY, outside the release, so it survives deploys.
 build: pnpm install --frozen-lockfile && pnpm build
+# Ship only the built app. adapter-node bundles devDependencies into build/; list node_modules too
+# once the app adds runtime dependencies.
+source: false
+artifacts: [build, package.json]
 services:
   web:
     # SvelteKit needs ORIGIN for form posts. Keep the plain $VAR form: systemd may expand ${...}

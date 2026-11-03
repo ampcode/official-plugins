@@ -32,10 +32,12 @@ Boxes were called perma-orbs before they were renamed, with no compatibility ali
 
 ## Configure `.amp/box.yaml`
 
-Put the production build and services in `.amp/box.yaml` on the deployed branch:
+Put the production build and services in `.amp/box.yaml` on the deployed branch. For a new app, ship only what it runs: list everything the services need at runtime under `artifacts` and set `source: false`.
 
 ```yaml
 build: pnpm install --frozen-lockfile && pnpm build
+source: false
+artifacts: [build, package.json]
 services:
   web:
     command: node build/index.js
@@ -43,14 +45,19 @@ services:
 
 Replace these with the app's actual commands. Dependency-free apps may omit `build`.
 
-- `build` runs in the temporary clone, with the orb's environment plus `AMP_DEPLOYMENT_URL` and `CI=true`. It never sees deployment secrets, so read secrets at runtime, not at build time. A non-zero exit fails the deploy.
-- Without `artifacts`, the whole build directory ships, including `node_modules` and Git history. To ship less, list build outputs under `artifacts` (for example `target/release/app`); tracked files always ship. The packed release must be at most 1 GiB.
+- `build` runs in the temporary clone, with the orb's environment plus `AMP_DEPLOYMENT_URL`, `AMP_DEPLOYMENT_NAME`, `AMP_DEPLOYMENT_BOX`, and `CI=true`. It never sees deployment secrets, so read secrets at runtime, not at build time. A non-zero exit fails the deploy.
+- With `source: false`, the release holds only the `artifacts`: no source and no Git history. Include runtime dependencies the build does not bundle, such as `node_modules` for packages listed under `dependencies`, and static files the app serves. Every service `cwd` must be inside an artifact. Threads on the Box still read and change the app's data, logs, and services, but code changes happen in an orb followed by a deploy.
+- Without `source: false`, the release also holds the source and its Git history, so threads on the Box can change the running code: the whole build directory with `node_modules`, or, with `artifacts`, the tracked files plus the listed outputs. Keep an existing app's choice unless the user asks to change it. The packed release must be at most 1 GiB.
 - Native Node addons (`*.node`) must be built with the Node major version the Box runs, which matches the orb's default Node. A release built with another major is refused.
 - `services` must define at least one service. Each name is 1 to 32 lowercase letters, digits, and hyphens. Each service runs in a systemd unit that restarts when it exits and starts at boot. A service may set `cwd`, relative to the release, and extra `env` variables.
 - Services run as the deployment's own Linux account (`ampd-...`), not as `user`. They cannot use sudo, cannot see `/home/user` or `/run/amp`, and cannot read other deployments' files. The release is read-only to them; they can write only under `AMP_DEPLOYMENT_DATA_DIRECTORY` and `HOME`. `node`, `npm`, and `pnpm` in `/usr/local/bin` work, but the Box's `amp` binary does not, so an app that needs a tool must install it as a dependency during `build`.
-- Amp sets `PORT`, `AMP_DEPLOYMENT_URL`, `AMP_DEPLOYMENT_DATA_DIRECTORY`, and `NODE_ENV=production`. Services cannot override them.
+- Amp sets `PORT`, `AMP_DEPLOYMENT_URL`, `AMP_DEPLOYMENT_NAME`, `AMP_DEPLOYMENT_BOX` (`<namespace>/<box>`), `AMP_DEPLOYMENT_DATA_DIRECTORY`, and `NODE_ENV=production`. Services cannot override them.
 - Store databases and uploads under `AMP_DEPLOYMENT_DATA_DIRECTORY` (`/home/user/deployments/<deployment-id>/data`). It survives redeploys but not deletion of the Box.
 - Never put secrets in the YAML.
+
+### Several apps in one repository
+
+Each app is a folder with its own `.amp/box.yaml`; the repository root can be an app too. `build` runs in the app's folder, and service `cwd` and `artifacts` are relative to it. Run the first deploy of each app from inside its folder: `amp boxes deploy` deploys the nearest `.amp/box.yaml` and saves a target named after the folder, with the folder as `root`, in the root `.amp/box-deploy.json`. Later, `amp boxes deploy <target>` works from anywhere in the checkout, and plain `amp boxes deploy` inside the folder picks its target. The build sees only the app's folder and the files at the repository root, so list other folders it needs, such as shared workspace packages, under `include`, relative to the app's folder (`../../packages/ui`). Never write a dispatch script that picks the app from the deployment name.
 
 Run the app's checks, then commit and push. Pushing does not deploy, and a request to prepare or push a change is not a request to deploy it.
 
@@ -64,7 +71,8 @@ amp boxes deploy --on <namespace>/<box> --name <deployment>
 
 - Add `--create` only when the Box does not exist yet and the user agreed to create it, and add `--size <size>` when they chose a size other than `b1.small`; `amp boxes create <namespace>/<box> --size <size>` takes the same option. If `amp boxes create --help` does not list `--size`, run `amp update`. `--size` has no effect on a Box that already exists. When no spare machine is ready, which is usual for `b1.medium` and `b1.large`, `--create` and `amp boxes create` wait while a new one starts, which usually takes about 6 minutes; after 10 minutes the CLI gives up, and running the same command again keeps waiting. If it reports that Amp's Box capacity is full, the pilot is at its total machine limit, so tell the user. If it reports that the machine quota is reached, the owner is at the per-owner limit: deploy to an existing Box, or ask the user whether to delete a Box they no longer need, which destroys its data.
 - Add `--branch <branch>` to deploy a branch other than the remote's default. `--port <port>` picks a specific local port; otherwise Amp allocates one starting at 3001.
-- To add another app to the same Box, run the same command from that app's checkout with a different `--name`.
+- To add another app to the same Box, run the same command from that app's checkout or folder with a different `--name`.
+- A deployment keeps the repository and folder it was first deployed from. To move it, for example into a monorepo, deploy from the new checkout or folder with `--move`; it keeps its URL, port, data, secrets, and privacy. Never undeploy and recreate a deployment to move it, because undeploy deletes its secrets and a new deployment gets a new data directory.
 
 The command builds and uploads the release, has the Box unpack it, switches the deployment to it, restarts the services, waits for the port, and prints the deployment as JSON. A new Box starts its runner up to 30 seconds after creation, and the first deploy waits up to 3 minutes for it before publishing. Check `"status": "ready"` and `deployedCommitSHA`, then open its `url` and verify the real page or health endpoint. A listening port is not proof that the app works, and a successful push or exit code is not proof of a deployment. On redeploys, also check that existing data remains.
 
@@ -84,7 +92,7 @@ Omit `--deployment` to set a Box value that every deployment on the Box receives
 
 ## Private deployments
 
-A deployment URL is public: anyone on the internet can open it. Add `--private` to `amp boxes deploy` so that only the Box's owner can open it, or, on a workspace Box, its current members. Visitors sign in to Amp in their browser and then land on the page they asked for; a visitor signed in to an account without access sees a page that names that account and asks them to sign in as the owner or a workspace member. Later deploys keep the setting, and `--public` makes the URL public again. The change applies when the deploy starts, even if the deploy then fails.
+A deployment URL is public: anyone on the internet can open it. Add `--private` to `amp boxes deploy` so that only the Box's owner can open it, or, on a workspace Box, its current members. Visitors sign in to Amp in their browser and then land on the page they asked for; a visitor signed in to an account without access sees a page that names that account and asks them to sign in as the owner or a workspace member. Later deploys keep the setting, and `--public` makes the URL public again. The target in `.amp/box-deploy.json` records `"private": true`, so a new deployment of that target from a fresh checkout is private too. The change applies when the deploy starts, even if the deploy then fails.
 
 - Use `--private` for personal tools, internal dashboards, and other apps only the owner or the workspace should reach. The app needs no code for it.
 - A private URL does not tell the app who the visitor is. Add Sign in with Amp as well when the app needs the user's identity or per-user data.
