@@ -1,6 +1,6 @@
 ---
 name: deploying-boxes
-description: Deploys websites and tools as named deployments on an always-on Amp Box with `amp boxes deploy`, manages their secrets, sets a Box's daily run schedule and starts or stops it to save costs, shows its projected monthly cost, starts threads on a deployment's live release, and makes a deployment private to the Box's owner or workspace, and adds Sign in with Amp to an app, with a bundled SvelteKit starter. Use for first deploys, redeploys, adding another app to a Box, creating personal or workspace Boxes and choosing their size, running a Box only during certain hours, failed or stuck Box deploys, live production work on a Box, building an app with Amp login, or limiting who can open an app. Boxes were formerly called perma-orbs.
+description: Deploys websites and tools as named deployments on an always-on Amp Box with `amp boxes deploy`, manages their secrets, sets a Box's daily run schedule and starts or stops it to save costs, renames a Box, shows its projected monthly cost, starts threads on a deployment's live release, and makes a deployment private to the Box's owner or workspace, and adds Sign in with Amp to an app, with a bundled SvelteKit starter. Use for first deploys, redeploys, adding another app to a Box, creating personal or workspace Boxes and choosing their size, running a Box only during certain hours, renaming a Box, failed or stuck Box deploys, live production work on a Box, building an app with Amp login, or limiting who can open an app. Boxes were formerly called perma-orbs.
 metadata:
   feature: boxes
 ---
@@ -174,6 +174,12 @@ From an agent, call `list_runners` and pick the Box's runner (its ID is `box-<bo
 - The thread opens in the code that is running, with its Git history. Services pick up edits only when they restart. Uncommitted edits and commits not pushed to the deployed branch block the next deploy until reconciled as described under "Redeploy".
 - The thread runs as `user` and can read and write each deployment's data directory and `home` without sudo. A file created after the last deploy, such as a new SQLite database, may stay writable only by whoever created it, the app or the thread, until the next deploy; redeploy, or use sudo, when the other side needs to write it.
 - The thread does not get deployment secrets in its environment. They are in the deployment's `environmentFile`; never print them.
+
+## Rename a Box
+
+`amp boxes rename <namespace>/<box> <new-name>` renames a Box within its namespace. Only its owner, or for a workspace Box its creator or a workspace admin, can rename it. The Box keeps its deployments with their URLs, data, and secrets, its runner, schedule, and threads. The old name is free at once and does not redirect, and a Box cannot move to another namespace. The new name must not match another of the owner's Boxes or deployments, and a rename is refused while a deploy runs. If `amp boxes --help` does not list `rename`, run `amp update`.
+
+Run it from the app's checkout. It rewrites the targets in `.amp/box-deploy.json` that named the old Box and lists other files that still name it, such as `AMP_BOX` for the review widget; update those, then commit and push. Each app sees the new name in `AMP_DEPLOYMENT_BOX` after its next deploy.
 
 ## Remove deployments and Boxes
 
