@@ -72,7 +72,6 @@ Looking right is the easy part. Views fail far more often because the chart does
    - `sequence.html`: a sequence diagram with a synced ledger of who holds what after each step.
    - `race-timeline.html`: a timeline of two concurrent callers on one time axis, with the moment the race breaks marked and the fix behind a switch.
    - `tree.html`: a file tree as an indented outline that opens only the path to the files the title names, with WAI-ARIA tree keys.
-4. Check it as described in "Check before sending".
 
 ## The frame
 
@@ -216,15 +215,3 @@ Add interaction when it answers a question the reader would otherwise ask: exact
 - Bold or semibold text, more than four text sizes, all caps labels, eyebrow labels (except `.ui-section` labels and the kit's mono chart labels).
 - Information only visible on hover, dark tooltip boxes, entrance animations of the whole view, pulsing dots, `transition: all`, hover effects on every element.
 - Gradients, glows, emoji, icon tiles above headings, colored left borders, hard-coded hex colors for anything Amp-colored.
-
-## Check before sending
-
-1. Reread the draft against the Never list and the rules above. For each number the title states, find where the view computes it.
-2. Run the bundled preview script only when the layout can break in ways the source does not show: hand-placed SVG or absolutely positioned elements, controls or other scripted interaction, many items or options, wide rows, or long labels. Skip it for a simple chart, list, or table built from kit classes, and when `agent-browser` is not installed. The script frames the document the way Amp does, screenshots it at 720px and 360px in light and dark themes, prints script errors, and prints a `check:` line for each rule a draft commonly breaks: hard-coded colors, heavy weights, bold or heading elements, frame-height sizing, inner scrolling, content wider than the frame, a view taller than 800px, a missing title, and the numbers the title states.
-
-   ```bash
-   node <skill-dir>/scripts/preview.mjs /tmp/view.html
-   ```
-
-   Fix every error and every `check:` line, unless you are sure the exception applies (hex colors in a mockup of another product). Look at every screenshot. Fix overflow, clipped or overlapping text, and anything unreadable in either theme. Confirm the 360px light screenshot alone makes the point.
-3. Critique it against the standard: Is the point legible in one second? Does the encoding fit the claim? Is there at most one accent color? Any bold, any card, any legend that could go? Remove one more thing, then check again.
