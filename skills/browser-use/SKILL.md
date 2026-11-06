@@ -193,9 +193,11 @@ something the user did not anticipate and would likely want to weigh in on: a to
 above what the request implied, a subscription or recurring charge, a deletion or cancellation
 beyond the task, terms that bind the user, a change to account credentials or security settings,
 a browser certificate or safety warning, or an action that cannot be undone and was not part of
-the request. Say what you found and what you would do next. A CAPTCHA, one-time code, or
-two-factor prompt is also the user's step: do not attempt the CAPTCHA; hand the browser to the
-user (below) or ask for the code and fill it when they answer.
+the request. Say what you found and what you would do next. A CAPTCHA, one-time code,
+two-factor prompt, or passkey prompt is also the user's step: do not attempt the CAPTCHA; hand the
+browser to the user (below) or ask for the code and fill it when they answer. Chrome on the orb
+cannot finish a passkey prompt on its own; the `amp orb desktop ensure` output says how to spot one
+and what to tell the user.
 
 Protect against duplicates: a submit that times out may have succeeded. Before retrying, check
 the URL, an orders or history page, or a confirmation email; never submit the same order or
