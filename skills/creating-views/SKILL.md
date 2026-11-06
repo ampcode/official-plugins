@@ -79,6 +79,7 @@ Looking right is the easy part. Views fail far more often because the chart does
 - Its height fits the document, so the whole view shows in the reply without scrolling inside it, and the reader can open it full screen. Aim for under 600px; past that, cut or split it into two views. Never size anything from the frame's height (`vh` units, `height: 100%` on `html` or `body`): the frame grows to fit the page, so such a page keeps growing.
 - There is no network: every request is blocked. Inline all CSS, JS, images (as data URLs), and data. Chart libraries and web fonts cannot load.
 - There are no popups, storage, or form submission. Clicks on `http(s)` links ask the reader first. Hover, clicks, and keys work inside the frame. Nothing can draw outside it.
+- Print and download buttons work. `window.print()`, called from a click or key press, prints a copy of the page as it is then, on a light background; hide controls under `@media print`. The print dialog is the only way to save a PDF. For other files, use `ui.download`.
 - Keep the page under 100 KB; aggregate data before embedding it.
 - Wrap your script in a block (`{ … }`). Top-level `const top`, `name`, or `status` collide with browser globals and stop the script.
 
@@ -165,6 +166,7 @@ Icons: write `<i data-icon="name"></i>` (classes `sm` 14px and `xs` 12px; inline
 - `ui.sparkline(el, values, { color })` draws a 64×18 trend with an end dot.
 - `ui.tween(el, value, { format })` animates a number in place, for readouts that follow a control.
 - `ui.format(value, { compact, digits, unit, prefix, percent })` formats numbers with a real minus.
+- `ui.download(name, content, type)` saves a string, `Blob`, or bytes as a file, such as a CSV of the view's data, after the reader confirms. `type` defaults to `text/plain` for strings. A `download` link to a `blob:` or `data:` URL works the same way.
 
 ## Layout
 
