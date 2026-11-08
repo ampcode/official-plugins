@@ -60,7 +60,7 @@ Looking right is the easy part. Views fail far more often because the chart does
 2. Read the reference for the kind of view, in this skill's `reference/` directory:
    - `charts.md` for charts, distributions, calculations, comparison and decision matrices, tables, and dashboards.
    - `ui-explorations.md` for mockups, prototypes, design options, interactive experiments, and wireframes.
-   - `diagrams.md` for architecture diagrams, flowcharts, sequence diagrams, state machines, timelines, race timelines, trees, commit graphs, and step-through explainers.
+   - `diagrams.md` for architecture diagrams, flowcharts, sequence diagrams, state machines, timelines, race timelines, trees, commit graphs, and step-through explainers. In an architecture diagram, flowchart, sequence diagram, or state machine, draw each part as a box or lane and each call, message, or transition as an SVG line with an arrowhead, so the reader can trace the flow. Words or chips joined by → characters are a list, not a diagram.
 3. Start from the closest example in `examples/`. Each is a complete view that follows this guide; reuse its structure and code, and replace its placeholder subject and data with yours.
    - `indexed-lines.html`: a line chart whose title states a multiple, plotted against each series' own baseline.
    - `highlighted-bars.html`: a ranking with one highlighted bar, a gray tail row, and shares at the bar ends.
