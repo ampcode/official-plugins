@@ -21,17 +21,23 @@ The goal is behavior, not prose. A good instruction reliably produces the intend
 
 Name the situation, the behavior, and the boundary. Define a term before you use it. Use concrete nouns and verbs, short sentences, and one idea per sentence. The test: a new teammate with no context should be able to follow the text without asking a question. If they would be confused, the model will be too.
 
+Every phrase must point at an action. Words such as "real complexity", "meaningful duplication", "consequential", or "definition of done" sound precise but leave the model to guess what to do; replace them with the action or the threshold they stand for. Explain a term from another field in plain words, with an example, where it first appears.
+
 Weak: "Handle git operations carefully."
 
 Clear: "Ask before any git command that rewrites published history, such as push --force or amending a pushed commit. Run local, reversible commands without asking."
 
 ### Use the most specific word
 
-Name each thing with the most specific word that fits, and give different things different names. Words such as message, response, reply, answer, final, and summary already name parts of the agent's own turn: the user's message, the model's text, and its final answer. Do not use them for product objects or tool calls; write "Slack message", "Space post", or "comment reply" instead. When the model posts through a tool, say who reads that post.
+Name each thing with the most specific word that fits, and give different things different names. Words such as message, response, reply, answer, final, and summary already name parts of the agent's own turn: the user's message, the model's text, and its final answer. Do not use them for product objects or tool calls; write "Slack message", "Space post", or "comment reply" instead. When the model posts through a tool, say who reads that post. Use the name the product already has for a thing instead of coining a new one, such as "thread" rather than "job".
 
 Ambiguous: "Deliver every response with slack_write. A normal final answer does not reach Slack."
 
 Specific: "Post your answer to the Slack thread with slack_write; people in Slack see only that post. End your turn with a short note here as usual."
+
+### Find the load-bearing phrase
+
+A few words often do most of the work. "Irrefutable proof" makes a model verify exhaustively; "big pictures, simple words" gets a plain explainer. Look for the short phrase that triggers the behavior you want, test it, and cut the paragraph it replaces. Put the key words of one rule together in one sentence instead of one bullet each, so the model reads them as one group.
 
 ### Leave the reply and the end of the turn to the model
 
@@ -42,6 +48,8 @@ Empty turn: "When nothing needs saying, post nothing and stop."
 Short reply: "When nothing needs saying, end with one short sentence that says so."
 
 ### Remove before you add
+
+Do not write what the model would do anyway. Generic advice on debugging, abstraction, or writing style, and rules the model already follows, cost attention and can restrict it more than you meant. Prompt for the specific behavior it does not show on its own.
 
 The default reaction to a problem is to add text. Resist it. Instructions only grow, and every added line dilutes the others. Before writing anything new, read the text that already covers the situation and look for what can go: a rule the model already follows without it, two rules that say the same thing, a special case an existing general rule already covers, or a line the motivating behavior shows nobody reads. Cut it if removing it does not change behavior the text must keep. Often the fix is to sharpen or move an existing line, not to write another.
 
@@ -131,8 +139,8 @@ Read the file for the kind of text you are writing, in this skill's `reference/`
 
 ## Process
 
-1. Start from observed behavior. One case is an anecdote, two are a signal, three are a pattern. Write down the cases before writing any text.
+1. Start from observed behavior. One case is an anecdote, two are a signal, three are a pattern. Write down the cases, then a short behavior spec of what the model should do in each, before you read or write any instruction text, so the current wording does not define what correct means.
 2. Read the existing instructions that cover the situation. First look for what to remove or sharpen without breaking behavior the text must keep. Only then decide whether anything must be added, and where it belongs.
 3. Write the smallest change that produces the behavior on the observed cases.
 4. Review the change against the principles above: clear, specific words, nothing added that a removal would have fixed, general, positive, calibrated, one home, examples that earn their place, ordered for the reader, and no request for an empty reply or a stop after a tool call.
-5. Offer an eval; do not run it without explicit approval. The plan names the motivating positive case, one negative control (a case the change must not affect), the model, the thread count (default at most 12), and what it does not cover. Run it through the real agent with the real system prompt and tools, keep eval threads temporary, and report per-case pass rates for old and new text. "Reads better" is not a result.
+5. Offer an eval; do not run it without explicit approval. The plan names the motivating positive case, one negative control (a case the change must not affect), the model, the thread count (default at most 12), and what it does not cover. Run it through the real agent with the real system prompt and tools, in fresh threads, using prompts people actually sent where you have them. Keep eval threads temporary, and report per-case pass rates for old and new text on the same model. "Reads better" is not a result.
