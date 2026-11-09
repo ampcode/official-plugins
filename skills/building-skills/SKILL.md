@@ -103,6 +103,8 @@ Keep SKILL.md under 500 lines. Split large content into separate files.
 
 ## Writing Effective Instructions
 
+For what belongs in a skill and how to word it, load the `writing-prompts` skill and read its `reference/skills.md`.
+
 ### Do
 - Start with a clear one-line summary
 - List specific capabilities

@@ -1,6 +1,6 @@
 ---
 name: writing-prompts
-description: "Writes and revises text a model consumes: system prompts, tool and parameter descriptions, AGENTS.md and other agent guidance, skill descriptions, and prompt templates. Use when drafting, editing, or reviewing any of these. Load FIRST, before touching model instructions."
+description: "Writes and revises text a model consumes: system prompts, tool descriptions, schemas, and results, AGENTS.md and other agent guidance, skills, and prompts sent to another model, such as subagent briefs, new thread prompts, scheduled prompts, and event texts. Use when drafting, editing, or reviewing any of these. Load FIRST, before touching model instructions."
 ---
 
 # Writing Model Instructions
@@ -10,6 +10,8 @@ description: "Writes and revises text a model consumes: system prompts, tool and
 A model instruction is any text a model reads to decide how to behave: a system prompt, a tool name and description, a parameter description, the text a tool returns, an AGENTS.md or other guidance file, a skill description or body, or a prompt template. The model reads all of these together with the conversation, and its attention is limited. Every line competes with every other line. Text that does not change behavior still costs attention.
 
 Models read every text in the conversation as a possible instruction, and many follow it literally. That includes scheduled prompts, event notifications, automation texts, and messages from other agents, not only the system prompt and tool descriptions. A child agent that reports "nothing to do" can read to its parent as an order to do nothing.
+
+A model already knows how to do most things: how to use git, call a well-known API, or operate a common app, because it has read their documentation many times. What it lacks is the what: the facts and decisions specific to this situation that are in no training data and that the person writing the instruction finds too obvious to mention. Examples are which of several valid ways to do a task you want every time, which source is the truth, what counts as done, who must approve, and which rule an earlier mistake taught. Spend the words on that, and cut what the model would do the same way without being told.
 
 The goal is behavior, not prose. A good instruction reliably produces the intended behavior across the whole range of situations it covers, with the least text that achieves that. Clarity for the model comes first; everything else follows from it.
 
@@ -108,9 +110,10 @@ Write standard Markdown that a viewer wraps: each paragraph and each list item o
 The artifacts form levels. Each level holds one kind of instruction, and an instruction at the wrong level either costs attention on every turn or is missing when needed.
 
 - System prompt: general behavior and rules that apply to every task in that mode. It is always in context, so it is the most expensive place to add text.
-- Skill: a capability the model needs only occasionally and would get wrong without help, such as a tool with non-obvious rules, a multi-step workflow, or a domain format. It loads only when the task matches, so it can afford detail and examples.
+- Skill: a capability the model needs only occasionally and would get wrong without help, because the knowledge is not in its training data or because it does not consistently pick the one way you want among several valid ones. Examples are a tool with non-obvious rules, a multi-step workflow, or a domain format. It loads only when the task matches, so it can afford detail and examples.
 - AGENTS.md: facts and rules specific to one repository or one directory. The model cannot infer them from the code, and they do not apply anywhere else.
 - Tool description: when to call this tool, how to call it, and what comes back. Nothing about the broader task.
+- Prompt to another model: everything one task needs that the receiver cannot find on its own. It reaches only that receiver, once.
 
 To place an instruction, ask two questions. Does it apply to every task in the mode? If not, it is not a system prompt rule. Does it apply outside this repository? If not, it belongs in AGENTS.md. What remains is either a tool's own contract or an occasional capability, which is a skill.
 
@@ -118,47 +121,13 @@ Misplaced: a system prompt paragraph on how to write RRULE strings for schedules
 
 Misplaced: an AGENTS.md bullet saying "ask before destructive git commands". That applies to every repository, so it is a system prompt rule and is already there.
 
-## By artifact
+## Reference files
 
-### System prompts
+Read the file for the kind of text you are writing, in this skill's `reference/` directory. Each one applies the principles above to its kind of text and adds the rules and footguns specific to it.
 
-- A system prompt sets the role, the decision rules, and the boundaries. It is not a task recipe and not a reference manual.
-- Prefer general instructions over prescriptive step lists; the model's own plan is usually better than a hand-written one.
-- Every line must change useful behavior on most tasks. Background, motivation that does not generalize, restated default behavior, and occasional-use detail are cuts or moves to a skill.
-- Name a tool only when the mode has it. Gate tool-specific text on the tool's presence.
-- Put long-lived instructions first and per-request facts last so the stable part can be cached. A fact that changes between requests breaks the cache for everything after it, so cache dynamic data for a time window, sort it the same way every time, and keep the last good value when a fetch fails instead of dropping it or showing a wrong fallback.
-
-### Skills
-
-- The description says what the skill does and when to use it, in third person, with the key terms a model would match on. It is the only part the model sees before loading, so it decides whether the skill loads at all.
-- The body teaches the capability in full: what the concept is, when to act, how, what to set in which case, examples. Define every term before its first use.
-- A skill body may be long. It still must not restate system prompt rules.
-
-### AGENTS.md and other guidance files
-
-- Record what the model cannot infer from the code: commands, invariants, decision rules, non-obvious environment steps, and product constraints. General engineering advice is a cut.
-- Write bullets, not paragraphs. State what to do; state why only when it changes the decision.
-- Prefer durable rules over current implementation details.
-- Keep one concern per file and link to the source of truth instead of copying procedures.
-- Scope guidance to the directory it governs; a rule for one subtree goes in that subtree's file.
-
-### Tool descriptions
-
-- The first sentence says what the tool does and when to use it. Write it as you would explain the tool to a new teammate: make implicit context explicit, such as query formats, niche terms, and how this tool relates to sibling tools.
-- Add "Do not use for X" only for false positives that actually occur, and name the tool to use instead.
-- Name parameters unambiguously (`user_id`, not `user`). Describe each parameter's format with one example value.
-- The schema is an instruction too. Mark a parameter required when the model should send it in almost every call, and let it pass an empty value for the rare case; weaker models often skip optional parameters even when the description asks for them. Leave out parameters the call does not use, such as a label only the UI shows, and do not ask the model to make up IDs such as UUIDs.
-- A tool that several modes share names only the tools, skills, and commands that every one of those modes has.
-
-### Tool results and errors
-
-- Say concretely what happened: what was attempted, what actually happened, and where. On success, name the outcome, such as "Posted to #support in thread 1717000000.111111", not "Done", so the model sees the work is finished and does not repeat it. On failure, name what failed and the next step the model can take, not "unknown error".
-- Never return a generic message that can be false, such as "nothing has been posted yet" from a check that missed a post; the model then repeats work it already did.
-
-### Event texts and messages to other agents
-
-- Write them as facts about what happened, then say plainly what the receiver should do next, such as "The lint step failed. Follow the current task if there is one; otherwise say so in one short sentence."
-- Do not tell the receiver to summarize or restate the event; it restates instead of acting.
+- `reference/user-prompts.md`: a prompt one model writes for another, such as a subagent or Task brief, the first prompt of a new thread, a message to another thread, a scheduled or automation prompt, an event notification, or an eval prompt.
+- `reference/system-prompts-and-tools.md`: system prompts, AGENTS.md and other guidance files, tool and parameter descriptions and schemas, and the text tools return.
+- `reference/skills.md`: deciding whether something should be a skill, and writing its description, body, and reference files. The `building-skills` skill covers file layout, frontmatter, and where skills live.
 
 ## Process
 
@@ -167,29 +136,3 @@ Misplaced: an AGENTS.md bullet saying "ask before destructive git commands". Tha
 3. Write the smallest change that produces the behavior on the observed cases.
 4. Review the change against the principles above: clear, specific words, nothing added that a removal would have fixed, general, positive, calibrated, one home, examples that earn their place, ordered for the reader, and no request for an empty reply or a stop after a tool call.
 5. Offer an eval; do not run it without explicit approval. The plan names the motivating positive case, one negative control (a case the change must not affect), the model, the thread count (default at most 12), and what it does not cover. Run it through the real agent with the real system prompt and tools, keep eval threads temporary, and report per-case pass rates for old and new text. "Reads better" is not a result.
-
-## Examples
-
-Tool description, before:
-
-    Search tool. Use this to find things in the codebase. Very powerful. ALWAYS use it before editing.
-
-After:
-
-    Searches file contents with a regular expression and returns matching lines with paths and line numbers. Use for exact strings or symbols. For questions about behavior or flows that span files, use finder instead. Parameter `pattern`: a regular expression such as `handleAuth\(`.
-
-AGENTS.md entry, before:
-
-    We had an incident where the agent ran the test suite without the timeout and it looked like it hung, so please remember that tests can take a long time in this repo and be patient.
-
-After:
-
-    - Run `pnpm test` with a 60 second tool timeout; the suite takes about 3 minutes. Poll with the status tool instead of rerunning it.
-
-System prompt rule, before:
-
-    NEVER ask the user clarifying questions. Always make assumptions and proceed.
-
-After:
-
-    For small, well-defined tasks, pick sensible defaults and proceed; state the defaults you chose. Ask before acting only when a wrong guess would be expensive to reverse, such as a schema migration or a destructive command.
