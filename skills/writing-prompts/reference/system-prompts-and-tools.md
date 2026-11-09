@@ -27,7 +27,13 @@ These texts reach the model on every turn of every thread that uses them, so a m
 
 - The first sentence says what the tool does and when to use it. Write it as you would explain the tool to a new teammate: make implicit context explicit, such as query formats, niche terms, and how this tool relates to sibling tools.
 - Add "Do not use for X" only for false positives that actually occur, and name the tool to use instead.
-- Cover what the model needs to call it safely: side effects, whether a retry is safe, the common errors, and what the tool does not return. Leave out marketing and restated parameter lists.
+- Cover what the model needs to call it safely: side effects, whether a retry is safe, the common errors, and what the tool does not return. Keep it short and uniform; a tight paragraph beats pasted documentation. Leave out pressure words such as "THOROUGH", which make models overuse a tool.
+- For a tool with an `action` or `operation` argument, explain the object first, describe the argument that picks the action, and say in each parameter which actions use it and what omitting it means.
+- Make sibling tools point to each other with the reason to pick one, in both directions, and make sure they never contradict each other. Use the same parameter name for the same thing across tools.
+- Name values by what the reader gets, not the storage format: `kind: document | visual` works better than `format: markdown | html`.
+- Decide what an omitted optional argument means, make it the common case, and say it. Accept the forms models produce, such as an ID or a URL.
+- Never make the model compute line numbers, counts, or offsets.
+- Keep rules that apply across tools in the system prompt, not in each description; when one must appear in several tools, define it once in code and interpolate it.
 - Keep tools from overlapping. If a person could not say which of two tools fits a task, the model cannot either; merge them or split their jobs cleanly.
 - Prevent mistakes in the schema rather than in prose: use enums for fixed choices, require absolute paths, and let structured output enforce a format instead of describing it.
 - List required parameters first, and include a complete example call for each case that matters.
@@ -44,6 +50,9 @@ These texts reach the model on every turn of every thread that uses them, so a m
 - An error about arguments names each unknown argument, lists the missing required ones, and lists the valid arguments, such as "get_thread_status does not take thread_id. Missing required: thread. Its arguments are thread, relay_dialogs."
 - Return fields under the same names the tool takes as arguments, so the model can pass them back without renaming. Show readable names next to opaque IDs.
 - When you cut long output, say what was cut and how to get the rest, such as the next page or a narrower query.
+- Make every outcome explicit, such as "ran successfully with no output" instead of an empty result, and return the state the model should check, such as the new revision or URL, so it reports success from evidence.
+- Write errors as instructions: the cause and the call that would succeed, such as "found 3 matches; add surrounding lines to old_str or set replace_all". Never pass a raw validation library message through.
+- Return only what lasts as long as the thread. Results are resent on every request, so a link that expires breaks every later turn.
 - Results are read as instructions too. Write the next step as a fact about the situation, such as "The thread is still running; its report arrives here when it finishes", not as an order that can fire in the wrong context.
 
 ## Examples

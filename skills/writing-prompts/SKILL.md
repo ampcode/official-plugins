@@ -39,6 +39,8 @@ Specific: "Post your answer to the Slack thread with slack_write; people in Slac
 
 A few words often do most of the work. "Irrefutable proof" makes a model verify exhaustively; "big pictures, simple words" gets a plain explainer. Look for the short phrase that triggers the behavior you want, test it, and cut the paragraph it replaces. Put the key words of one rule together in one sentence instead of one bullet each, so the model reads them as one group.
 
+A phrase carries weight when it names a practice the model already knows, such as "red/green TDD", or when it turns an intention into an event the transcript either shows or does not, such as "watch the test fail" or "prove it with numbers". Personas ("You are an expert engineer"), capitalized emphasis, and generic quality words such as "verify your work" or "make it high quality" name no event and change nothing. Once a phrase works, keep it word for word; a paraphrase is a new phrase and needs its own test.
+
 ### Leave the reply and the end of the turn to the model
 
 Do not ask the model to end a turn without text, to only call tools, or to stop right after a tool call, as in "post and stop" or "after posting, end the turn". Models handle empty turns badly, which causes retries and stuck threads, and a stop tied to a tool call ends turns that still have work left. Say what to post and when, ask for a short reply when nothing else is needed, and let the model judge when the work is done. Do not ask the model to write in `<think>` or other hidden tags or to reveal its reasoning; providers flag such requests as attempts to extract reasoning.
@@ -107,13 +109,22 @@ One concrete example often replaces paragraphs of abstract instruction, and it i
 
 Models copy examples closely, so write each one exactly as the model should produce it. An example placed inside a code fence teaches the model to wrap its own output in that fence. Use the real tool and parameter names, and gate an example on its tool the same way as the rule it shows. Use neutral placeholders, never a real user's, customer's, or workspace's name or ID; models copy those into other people's work. To teach when and how to call a tool, a short mocked flow often works better than a rule: the user asks X, the agent calls tool Y with these arguments, then ends with Z.
 
+### Match the form of the instruction to the failure
+
+- The model knows the rule and skips it under pressure: state the rule plainly, and name the excuses it used, each with why it does not hold.
+- The output has the wrong shape: describe what the output is and its parts in order, instead of listing what to avoid.
+- The output leaves out a required part: give the template a slot for it.
+- The behavior depends on a condition: key the instruction to a condition the model can observe. An "unless it matters" clause reopens the rule for negotiation.
+
 ### Organize for the reader
 
-Order sections by what the model needs first: what the thing is, when to act, how to act, what to set in which case, then examples. Group related rules under one heading. Use headings or tags with consistent names so the model can find and reference a section. Put stable text before text that changes per request.
+Order sections by what the model needs first: what the thing is, when to act, how to act, what to set in which case, then examples. Group related rules under one heading. Use one word per idea throughout. Write lists, not tables. Use headings or tags with consistent names so the model can find and reference a section. Put stable text before text that changes per request.
 
 Write standard Markdown that a viewer wraps: each paragraph and each list item on one line, a blank line between paragraphs, and no line breaks inside a sentence. Hard-wrapping at a fixed column makes every edit reflow the paragraph and bury the real change in the diff.
 
 ## Where an instruction belongs
+
+Before writing any instruction, check whether code can enforce it: a script, schema, type, lint rule, test, or runtime check. Nothing fails when a model skips a sentence, so keep prose for judgment calls, and show that the check catches a real past mistake.
 
 The artifacts form levels. Each level holds one kind of instruction, and an instruction at the wrong level either costs attention on every turn or is missing when needed.
 

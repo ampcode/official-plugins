@@ -10,7 +10,7 @@ A skill earns its place when the model would get a recurring task wrong without 
 - There are several valid ways to do the task and you want one, but the model does not pick it consistently. The skill fixes the choice: this format, this tool, this order.
 - The task depends on rules nobody wrote down: thresholds, approvals, which source is the truth, what done means, what an earlier mistake taught.
 
-A model already knows how to use common tools and well-documented APIs. A skill that explains how to use git or write a SQL join adds tokens and changes nothing. Most skills can be a paragraph or less that holds the load-bearing phrases; only knowledge specific to one organization or system needs more. Test before you write: run the task a few times without the skill. If the model already does it the way you want, you need no skill. If it varies or breaks a rule, the skill states exactly the decisions it got wrong.
+A model already knows how to use common tools and well-documented APIs. A skill that explains how to use git or write a SQL join adds tokens and changes nothing. A skill that teaches a behavior, such as a writing style or how to report results, usually fits in a paragraph: one or two load-bearing phrases plus the specific ways the model still gets it wrong. Skills about tools, environments, and facts of one organization or system do not compress that way; they need their commands, paths, and facts. Test before you write: run the task a few times without the skill. If the model already does it the way you want, you need no skill. If it varies or breaks a rule, the skill states exactly the decisions it got wrong.
 
 ## Write the description
 
@@ -36,7 +36,8 @@ A model already knows how to use common tools and well-documented APIs. A skill 
 
 ## Test a skill
 
-- Test triggering and output separately. For triggering, run about 20 requests, half of them near misses that should not load the skill. For output, compare runs with the skill against runs without it or with the old version, and drop checks that pass either way.
+- Test triggering and output separately. For triggering, run about 20 requests, half of them near misses that should not load the skill; use requests substantial enough to need a skill, because simple ones rarely load any. For output, compare runs with the skill against runs without it or with the old version, and drop checks that pass either way.
+- Improve a skill from the runs that loaded it. Check which files the model read and in what order: a reference file nobody reads is unneeded or badly linked, and one read on every run belongs in SKILL.md. Cut parts that cost time without improving results, ship the helper runs keep rewriting, and quote the excuses agents gave for skipping a step; an excuse that repeats points at the sentence that allows it.
 - Re-test a skill when the model changes. A skill written for an older model can be too prescriptive for a newer one and make its output worse.
 
 ## Example
