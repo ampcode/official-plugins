@@ -1,6 +1,6 @@
 ---
 name: deploying-boxes
-description: Deploys websites and tools as named deployments on an always-on Amp Box with `amp boxes deploy`, manages their secrets, sets a Box's daily run schedule and starts or stops it to save costs, renames a Box, shows its projected monthly cost, starts threads on a deployment's live release, and makes a deployment private to the Box's owner or workspace, and adds Sign in with Amp to an app, with a bundled SvelteKit starter. Use for first deploys, redeploys, adding another app to a Box, creating personal or workspace Boxes and choosing their size, running a Box only during certain hours, renaming a Box, failed or stuck Box deploys, live production work on a Box, building an app with Amp login, or limiting who can open an app. Boxes were formerly called perma-orbs.
+description: Deploys websites and tools as named deployments on an always-on Amp Box with `amp boxes deploy`, manages their secrets, sets a Box's daily run schedule and starts or stops it to save costs, renames a Box, shows its projected monthly cost, starts threads on a deployment's live release, makes a deployment private to the Box's owner or workspace, adds Amp's review widget to an app's pages, and adds Sign in with Amp to an app, with a bundled SvelteKit starter. Use for first deploys, redeploys, adding another app to a Box, creating personal or workspace Boxes and choosing their size, running a Box only during certain hours, renaming a Box, failed or stuck Box deploys, live production work on a Box, building an app with Amp login, limiting who can open an app, or adding the review or feedback widget to a Box app. Boxes were formerly called perma-orbs.
 metadata:
   feature: boxes
 ---
@@ -99,6 +99,15 @@ A deployment URL is public: anyone on the internet can open it. Add `--private` 
 - Requests without an Amp browser session, such as webhooks, API clients, and other servers, cannot reach a private URL. Keep such an app public and authenticate requests in the app.
 - Check that `amp boxes deploy --help` lists `--private`; if it does not, run `amp update`.
 - Verify with `amp boxes deployments <namespace>/<box>`, which shows `"private": true`, and with `curl -sI <deployment-url>`, which returns 303 to `https://ampcode.com/boxes/<box-id>/open`. Only the user's browser can check the signed-in page, so ask the user to open the URL.
+
+## Review widget
+
+Amp's review widget is a button on an app's pages: a visitor selects part of the page and writes a comment, and the comment starts an Amp thread that works on it, either on the Box (for changes to live data) or in an orb (for code changes). Add `--widget` to `amp boxes deploy` and Amp adds the widget to every page of the deployment; the app needs no script tag or code for it. Later deploys keep the setting, the target in `.amp/box-deploy.json` records `"widget": true`, and `--no-widget` removes the widget. Only named deployments can have it.
+
+- On a private deployment the widget shows to everyone who can open the URL, since all of them have access to the Box.
+- On a public deployment it starts hidden, and Cmd+. on a keyboard or three quick taps on a touch screen show it. Sending a comment asks the visitor to sign in to Amp and works only for the Box's owner or, on a workspace Box, its members.
+- An app that already loads a project's feedback widget script (`<script src="https://ampcode.com/w/<client ID>.js">`) can keep it: on a deployment with `--widget`, that script leaves the page to the Box widget. Apps that load `/jellyware/widget.js` with `AMP_BOX` themselves keep working; `--widget` replaces that code, so remove it when turning the widget on.
+- Check that `amp boxes deploy --help` lists `--widget`; if it does not, run `amp update`.
 
 ## Sign in with Amp
 
