@@ -1,13 +1,13 @@
 ---
 name: deploying-boxes
-description: Deploys websites and tools as named deployments on an always-on Amp Box with `amp boxes deploy`, manages their secrets, sets a Box's daily run schedule and starts or stops it to save costs, renames a Box, shows its projected monthly cost, starts threads on a deployment's live release, makes a deployment private to the Box's owner or workspace, adds Amp's review widget to an app's pages, and adds Sign in with Amp to an app, with a bundled SvelteKit starter. Use for first deploys, redeploys, adding another app to a Box, creating personal or workspace Boxes and choosing their size, running a Box only during certain hours, renaming a Box, failed or stuck Box deploys, live production work on a Box, building an app with Amp login, limiting who can open an app, or adding the review or feedback widget to a Box app. Boxes were formerly called perma-orbs.
+description: Deploys websites and tools as named deployments on an always-on Amp Box with `amp boxes deploy`, manages their secrets, sets a Box's daily run schedule and starts or stops it to save costs, renames a Box, shows its projected monthly cost, starts threads on a deployment's live release, makes a deployment private to the Box's owner or workspace, adds Amp's review widget to an app's pages, serves an app on the owner's own domain, and adds Sign in with Amp to an app, with a bundled SvelteKit starter. Use for first deploys, redeploys, adding another app to a Box, creating personal or workspace Boxes and choosing their size, running a Box only during certain hours, renaming a Box, failed or stuck Box deploys, live production work on a Box, building an app with Amp login, limiting who can open an app, adding the review or feedback widget to a Box app, or giving a Box app a custom domain or moving a thread portal's custom hostname to a Box. Boxes were formerly called perma-orbs.
 metadata:
   feature: boxes
 ---
 
 # Deploying to Boxes
 
-A Box is an always-on Google Compute Engine machine owned by a user or a workspace. It runs one Amp runner and hosts several independently deployed apps, called deployments. Each deployment has its own repository, branch, port, secrets, data directory, and URL, `https://<deployment>--<namespace>.onamp.dev`. A router on the Box listens on port 8080 and sends each URL to its deployment's port.
+A Box is an always-on Google Compute Engine machine owned by a user or a workspace. It runs one Amp runner and hosts several independently deployed apps, called deployments. Each deployment has its own repository, branch, port, secrets, data directory, and URL, `https://<deployment>--<namespace>.onamp.dev` or a hostname on one of the owner's custom domains. A router on the Box listens on port 8080 and sends each URL to its deployment's port.
 
 A Box selector is `<namespace>/<box>`. The namespace picks the owner: the user's Amp username for a personal Box, or the name of a workspace the user belongs to for a workspace Box. `get_current_user_identity` returns the Amp username as `ampUsername`; never use a GitHub login instead. A user without an Amp username cannot create a personal Box until they have one: offer to choose one with the `manage_amp` settings key `username` (the user approves the name in a dialog, and it cannot be changed by an agent afterwards), or offer a workspace Box when they belong to a workspace that has Boxes. Choose the deployment name separately with `--name`. Deployment names share the owner's URL namespace, so a deployment name must not match any of the owner's Box names or a deployment on another of the owner's Boxes.
 
@@ -109,9 +109,25 @@ Amp's review widget is a button on an app's pages: a visitor selects part of the
 - An app that already loads a project's feedback widget script (`<script src="https://ampcode.com/w/<client ID>.js">`) can keep it: on a deployment with `--widget`, that script leaves the page to the Box widget. Apps that load `/jellyware/widget.js` with `AMP_BOX` themselves keep working; `--widget` replaces that code, so remove it when turning the widget on.
 - Check that `amp boxes deploy --help` lists `--widget`; if it does not, run `amp update`.
 
+## Custom domains
+
+A named deployment can serve at a hostname on its Box owner's own domain instead of its `onamp.dev` URL. Add `--domain <hostname>` to `amp boxes deploy`. The hostname must be the domain itself or one level below it, such as `example.com` or `app.example.com` for the domain `example.com`, and the domain must be Active on the Box owner's account: the user's for a personal Box, the workspace's for a workspace Box.
+
+1. Run `amp domains list --workspace` (or `--user` for a personal Box) and look for the domain with status Active. If it is missing, `amp domains add <domain> --workspace` adds it and prints the DNS records to create; the user creates them at their DNS provider, and `amp domains check <domain> --workspace` rechecks. Certificates can take a while, so tell the user and deploy once the domain is Active. If adding the domain is refused for the account's plan, tell the user.
+2. Deploy with `amp boxes deploy --domain <hostname>`. Later deploys keep the hostname, the target in `.amp/box-deploy.json` records `"domain"`, and `--no-domain` serves the app at its `onamp.dev` URL again.
+3. Verify: `amp boxes deployments <namespace>/<box>` shows `"domain"` and a `url` on that hostname, `curl -sI https://<hostname>/` reaches the app, and `curl -sI https://<deployment>--<namespace>.onamp.dev/` returns 308 to the hostname.
+
+Once the domain is set, the app has one origin. `AMP_DEPLOYMENT_URL` is the custom URL from the deploy that sets it, so an app that builds absolute links or callbacks from it needs no change. Private deployments, the review widget, and the app's pane in Amp work on the custom hostname. An app with Sign in with Amp needs a redirect URI on the new hostname on its OAuth client (see "Sign in with Amp").
+
+### Move a hostname from a thread portal
+
+A hostname a thread portal uses (`amp orb portal --hostname`) is refused until it is moved. Deploy the app once without `--domain`, verify it on its `onamp.dev` URL, then run `amp boxes deploy --domain <hostname> --take-over`. The hostname switches to the live app when the deploy starts, so people who have the link never reach an empty app; the thread portal stops answering on it. A deployment that has never been deployed cannot take a hostname, and a thread portal cannot take one back from a deployment. Before the move, replace the app's uses of the orb's portal URL, such as `$PUBLIC_URL`, with `AMP_DEPLOYMENT_URL`, and copy data the portal kept in the orb into the deployment with `amp boxes cp`.
+
+Check that `amp boxes deploy --help` lists `--domain`; if it does not, run `amp update`.
+
 ## Sign in with Amp
 
-Sign in with Amp is a separate OAuth client owned by an Amp workspace, not part of the deployment. Register a client whose redirect URI is under the deployment URL, store the client ID and secret as deployment secrets, and redeploy. A new deployment name or Box changes the URL, so update the redirect URIs to match. Any Amp account can sign in to such an app; to limit who can use it, make the deployment private or allow only listed users in the app, as the template does with `APP_ALLOWED_USER_IDS`.
+Sign in with Amp is a separate OAuth client owned by an Amp workspace, not part of the deployment. Register a client whose redirect URI is under the deployment URL, store the client ID and secret as deployment secrets, and redeploy. A new deployment name, Box, or custom domain changes the URL, so update the redirect URIs to match. Any Amp account can sign in to such an app; to limit who can use it, make the deployment private or allow only listed users in the app, as the template does with `APP_ALLOWED_USER_IDS`.
 
 Read `reference/sign-in-with-amp.md` before adding it. It covers the bundled `template/` (a tested SvelteKit starter), `scripts/configure-sign-in.sh`, which creates the client and stores its credentials without printing the secret, manual setup, and verification.
 
