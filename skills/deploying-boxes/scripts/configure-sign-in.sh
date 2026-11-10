@@ -6,6 +6,8 @@
 #   <workspace> is the Amp workspace that owns the OAuth client (its admins manage it).
 #   <deployment URL> defaults to https://<deployment>--<namespace>.onamp.dev/.
 #   The deployment must already exist: run the first `amp boxes deploy` before this script.
+#   Run it on the user's own machine. In an orb, Amp refuses `amp oauth-clients create` and
+#   `amp secrets set`; use manage_amp there, as reference/sign-in-with-amp.md describes.
 #
 # Sets deployment variables: AMP_OAUTH_CLIENT_ID (env), AMP_OAUTH_CLIENT_SECRET (secret),
 # APP_SESSION_SECRET (secret). Prints the client ID, the redirect URI, and the manage URL.

@@ -31,13 +31,27 @@ Then:
 
 Creating a Sign in with Amp client needs workspace admin in the workspace that will own the client. Users who sign in to the app do not need to belong to that workspace. If the user is not an admin of any workspace, stop and tell them; use "Manual credentials" only with a client someone else created.
 
-After the first deploy, run:
+The app needs three deployment variables: `AMP_OAUTH_CLIENT_ID` (env), `AMP_OAUTH_CLIENT_SECRET` (secret), and `APP_SESSION_SECRET` (secret, at least 32 random characters). The redirect URI is the deployment's `url` from `amp boxes deployments` plus `/auth/callback`, which is `https://<deployment>--<namespace>.onamp.dev/auth/callback` unless the deployment has a custom domain. Never print, log, or paste the client secret; Amp cannot show it again.
+
+### In an orb
+
+Amp refuses `amp oauth-clients create` and `amp secrets set` in an orb, so the script below fails there. After the first deploy, use `manage_amp`:
+
+1. Topic `oauth_clients`, operation `create`, with `workspace`, `name` (the deployment name works), `redirect_uris` (a list holding the redirect URI), `box` (`<namespace>/<box>`), and `deployment`. The user approves in a dialog. It creates a server-side client and stores `AMP_OAUTH_CLIENT_ID` and `AMP_OAUTH_CLIENT_SECRET` on the deployment; the result has the client ID but never the secret.
+2. Topic `secrets`, operation `set`, with `scope: box`, the same `box` and `deployment`, `name: APP_SESSION_SECRET`, and a random value you generate as `generated_value` (for example from `openssl rand -base64 48`).
+3. Topic `secrets`, operation `list`, and topic `environment_variables`, operation `list`, with the same scope fields, to check that the three names are there. Then redeploy with `amp boxes deploy`.
+
+If `create` reports that it created the client but could not store a value, do not create a second client; follow the instructions in its error. `manage_amp` is unavailable in a multiplayer thread; tell the user to run these steps from their own thread that is not multiplayer, or to use "Manual credentials".
+
+### On the user's own machine
+
+Run:
 
 ```sh
 bash "<skill-dir>/scripts/configure-sign-in.sh" <namespace>/<box> <deployment> <workspace>
 ```
 
-The script checks that the deployment exists, creates a `server` (confidential) OAuth client whose redirect URI is `https://<deployment>--<namespace>.onamp.dev/auth/callback`, and stores three deployment variables: `AMP_OAUTH_CLIENT_ID` (env), `AMP_OAUTH_CLIENT_SECRET` (secret), and a generated `APP_SESSION_SECRET` (secret). It prints only the client ID, redirect URI, and manage URL. For a deployment with a custom domain, pass its `url` from `amp boxes deployments` as a fourth argument. Never print, log, or paste the client secret; Amp cannot show it again. If the script fails after it created the client, do not create a second client; finish with "Manual credentials".
+The script checks that the deployment exists, creates the client, and stores the three variables, with a generated `APP_SESSION_SECRET`. It prints only the client ID, redirect URI, and manage URL. For a deployment with a custom domain, pass its `url` from `amp boxes deployments` as a fourth argument. If the script fails after it created the client, do not create a second client; finish with "Manual credentials".
 
 Check `amp secrets list --box <namespace>/<box> --deployment <deployment>` shows the three names, then redeploy with `amp boxes deploy` so the service receives them.
 
@@ -51,10 +65,12 @@ amp secrets set AMP_OAUTH_CLIENT_SECRET --box <namespace>/<box> --deployment <de
 head -c 48 /dev/urandom | base64 | tr -d '\n' | amp secrets set APP_SESSION_SECRET --box <namespace>/<box> --deployment <deployment> --secret --data-file -
 ```
 
+These commands run only on the user's own machine. In an orb, store the client ID with `manage_amp` topic `environment_variables`, operation `set`, and the secrets with topic `secrets`, operation `set`, each with `scope: box`, `box`, and `deployment`. For the client secret, omit `generated_value` so the user enters it in a masked dialog.
+
 ### Existing apps and changed URLs
 
 - An app not built from the template needs the same flow. Use `template/src/lib/server/oauth.ts` as the reference: issuer `https://auth.ampcode.com` with its `/oauth2/authorize`, `/oauth2/token`, and `/oauth2/jwks` endpoints, PKCE with S256, scopes `openid profile email offline_access`, and `resource=https://ampcode.com/api/v2`. Amp accepts the access token only when that resource was requested. Verify the ID token, keep tokens on the server, and refresh them.
-- The redirect URI must match the deployment URL exactly. A new deployment name, Box, or custom domain changes the URL; the `onamp.dev` URL of a deployment with a custom domain redirects to it, so register only the custom one. Update the client with `amp oauth-clients edit <id> --workspace <workspace> --redirect-uri <uri>`, which replaces the list, so repeat `--redirect-uri` for every URI to keep. `amp oauth-clients list --workspace <workspace>` shows names and IDs only, and fails without `--workspace`. To see a client's redirect URIs, use `manage_amp` with topic `oauth_clients` and operation `list` where it is available, or the workspace's applications page at `https://ampcode.com/workspaces/<workspace>/applications`.
+- The redirect URI must match the deployment URL exactly. A new deployment name, Box, or custom domain changes the URL; the `onamp.dev` URL of a deployment with a custom domain redirects to it, so register only the custom one. Update the client with `manage_amp` topic `oauth_clients`, operation `update`, with `workspace`, `client` (its ID or client ID), and `redirect_uris`; on the user's own machine, `amp oauth-clients edit <id> --workspace <workspace> --redirect-uri <uri>` does the same. Both replace the whole list, so include every URI to keep. `amp oauth-clients list --workspace <workspace>` shows names and IDs only, and fails without `--workspace`. To see a client's redirect URIs, use `manage_amp` with topic `oauth_clients` and operation `list`, or the workspace's applications page at `https://ampcode.com/workspaces/<workspace>/applications`.
 - For local development, copy `.env.example` to `.env` and add `http://localhost:3000/auth/callback` as an additional redirect URI on the same client. Keep the production URI first.
 - Undeploying or deleting a Box does not delete the OAuth client.
 

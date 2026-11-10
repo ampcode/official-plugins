@@ -82,13 +82,21 @@ Report the deployment URL, the Box, the deployed commit, and what you verified. 
 
 ## Secrets and environment variables
 
-Deployment secrets need an existing deployment. For an app that needs secrets before it can start, run the first deploy (it may fail), set the secrets, then deploy again:
+Deployment secrets need an existing deployment. For an app that needs secrets before it can start, run the first deploy (it may fail), set the secrets, then deploy again.
+
+In an orb, Amp refuses `amp secrets set` and other CLI commands that change the owner's account, so set values with `manage_amp`:
+
+- A secret: topic `secrets`, operation `set`, with `scope: box`, `box: <namespace>/<box>`, `deployment: <deployment>`, and `name`. For a value the user or a third party provides, omit `generated_value`; the user enters it in a masked dialog and it never enters the thread. For a value you generate, such as a session key, pass it as `generated_value`.
+- A non-secret value: topic `environment_variables`, operation `set`, with the same scope fields plus `value`.
+- `list` on either topic shows the names stored at that scope.
+
+On the user's own machine, the CLI does the same:
 
 ```sh
 amp secrets set <NAME> --box <namespace>/<box> --deployment <deployment> --secret --data-file <path>
 ```
 
-Omit `--deployment` to set a Box value that every deployment on the Box receives. A deployment on a workspace Box also receives the workspace's secrets. Deployment values override Box values, which override workspace values; sibling deployments do not share values. Changes take effect on the next deploy. `amp secrets list` and `amp secrets history` take the same flags. Pass values through a file or standard input, and never commit or print secret values.
+Omit the deployment (`deployment` or `--deployment`) to set a Box value that every deployment on the Box receives. A deployment on a workspace Box also receives the workspace's secrets. Deployment values override Box values, which override workspace values; sibling deployments do not share values, so set an app's values on its deployment. Changes take effect on the next deploy. `amp secrets list` and `amp secrets history` take the same flags. Pass CLI values through a file or standard input, and never commit or print secret values.
 
 ## Private deployments
 
@@ -129,7 +137,9 @@ Check that `amp boxes deploy --help` lists `--domain`; if it does not, run `amp 
 
 Sign in with Amp is a separate OAuth client owned by an Amp workspace, not part of the deployment. Register a client whose redirect URI is under the deployment URL, store the client ID and secret as deployment secrets, and redeploy. A new deployment name, Box, or custom domain changes the URL, so update the redirect URIs to match. Any Amp account can sign in to such an app; to limit who can use it, make the deployment private or allow only listed users in the app, as the template does with `APP_ALLOWED_USER_IDS`.
 
-Read `reference/sign-in-with-amp.md` before adding it. It covers the bundled `template/` (a tested SvelteKit starter), `scripts/configure-sign-in.sh`, which creates the client and stores its credentials without printing the secret, manual setup, and verification.
+In an orb, create the client with `manage_amp` topic `oauth_clients`, operation `create`. After the user approves in a dialog, it creates the client and stores its ID and secret on the deployment without returning the secret. Operation `update` changes its redirect URIs. `scripts/configure-sign-in.sh` does the same with the CLI and runs only on the user's own machine.
+
+Read `reference/sign-in-with-amp.md` before adding it. It covers the bundled `template/` (a tested SvelteKit starter), registering the client, manual setup, and verification.
 
 ## Redeploy
 
