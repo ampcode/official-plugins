@@ -54,11 +54,11 @@ clearer:
 
 ## Diagrams
 
-Draw every diagram as an `amp-view` block: load the `creating-views` skill and follow its
+Draw every diagram as an `amp-view` block: load the `creating-artifacts` skill and follow its
 diagram reference. Draw the decisive path, state, or transition in `--chart-1` and the rest in
 gray, so the eye lands on it first.
 
-When `creating-views` is not in your skill list, the client cannot render views (the CLI shows
+When `creating-artifacts` is not in your skill list, the client cannot render views (the CLI shows
 their HTML as code). Draw no diagram then; use the call tree, component tree, file tree,
 pseudocode, or structural `diff` from "Other useful views", which read clearly everywhere.
 

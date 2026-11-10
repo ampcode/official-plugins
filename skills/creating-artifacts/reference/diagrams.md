@@ -4,6 +4,7 @@ A diagram shows how parts relate: what calls what, what happens in which order, 
 
 ## Choose the medium
 
+- Draw a diagram when it shows a mechanism the reader would otherwise assemble from prose: where data flows, which components talk, what changes between two options, which states a request moves through. If a sentence says it faster, write the sentence.
 - Draw every diagram as a view, including a small static one of three boxes. A view reflows to the reader's width, colors the path that matters, and draws durations to scale; box-drawing text in a code block scrolls sideways on phones and does none of these.
 - A small diagram needs no interaction: a few nodes on one row that becomes a column on phones, with the path that matters in `--chart-1`.
 - Add interaction when the reader gains from clicking a part for detail or stepping through a sequence.
@@ -23,6 +24,12 @@ A diagram shows how parts relate: what calls what, what happens in which order, 
 - What changed between two versions of a structure: a before and after diagram.
 - How a piece of code works: a step-through explainer anchored to the source.
 
+## Draw the mechanism, not its name
+
+- A box labeled "cache" says less than the prose. Draw what the argument hinges on: the path a request takes through the cache, the two stores it sits between, and the edge that disappears when it is removed. Draw the boundary being crossed, the hop being added, and the data that moves; leave out parts the point does not depend on.
+- Match the size of the diagram to the decision. A one-hop question is three boxes. A migration that reroutes writes through a queue needs the queue, the writer, the reader, and the edge that orders them. Do not draw an inventory of the whole system.
+- When comparing options, draw the difference: both versions of the system side by side, with the edges each option adds or removes, as in "Before and after" below. A separate box per option, connected to nothing, restates the option list.
+
 ## Make the default state prove the title
 
 - The title states the rule the diagram explains ("A deploy reaches everyone only after a healthy canary"), not its subject ("Deploy pipeline").
@@ -36,7 +43,8 @@ A diagram shows how parts relate: what calls what, what happens in which order, 
 - Nodes: 12px name in `--foreground`, an optional 11px muted subtitle (the type or one fact), in a `var(--background)` box with a `var(--border)` ring and 6px corners. Size nodes from their labels and keep one size per row.
 - Align nodes to a grid, with equal gaps along the main flow. The main flow runs left to right on desktop and top to bottom on phones.
 - Edges: 1px `--muted-foreground` (1.5–2px for the highlighted path), orthogonal or straight, never curved spaghetti. One small arrowhead at the target, drawn with a `<marker>` that uses `markerUnits="userSpaceOnUse"` so it does not scale with the stroke.
-- Label every branch with its condition ("healthy", "error rate above 1%"), in 11px muted text with a halo: `paint-order: stroke; stroke: var(--background); stroke-width: 3px`.
+- Label every edge with what it carries or does ("writes", "invalidates", "polls every 30s") and every branch with its condition ("healthy", "error rate above 1%"), in 11px muted text with a halo: `paint-order: stroke; stroke: var(--background); stroke-width: 3px`. An unlabeled edge only says the parts are related somehow.
+- Put the meaning on the mark itself. Add a legend only when the same encoding, such as dashed or colored edges, repeats across the diagram.
 - Group by boundary with a hairline outline and a muted 11px label at its top left, not with tinted backgrounds.
 - When the question is what runs inside what (a machine, a process, a sandbox), nest the boxes, at most two levels deep, and draw connections that cross a boundary through its edge so the crossing is visible.
 - Use icons only where they identify a real thing (a database, a provider logo), never as decoration on every node.
@@ -107,9 +115,10 @@ A diagram shows how parts relate: what calls what, what happens in which order, 
 - Step with Prev and Next buttons and arrow keys; highlight the active part of the diagram and the active lines together.
 - Keep the code real; trim it with `…` rather than paraphrasing it.
 
-## Keyboard and focus
+## Keyboard, focus, and labels
 
 - Make each node or row reachable: either each one is a focusable `<g tabindex="0" role="button">`, or the SVG is focusable and arrow keys move a selection.
 - Arrows move to the next or previous part, Home and End jump to the ends, Enter or Space opens detail, and Esc closes it.
 - When a redraw replaces the focused element, focus its replacement.
 - Show focus with `outline: 2px solid var(--link)` on the node's box.
+- Give the diagram's `<svg>` `role="img"` and an `aria-label` that states the same claim as the title, so a reader who cannot see it gets the point. An interactive diagram keeps this label on its container and labels each focusable part with its name.

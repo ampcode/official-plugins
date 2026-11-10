@@ -71,7 +71,7 @@ Readers judge position most accurately, then length, then angle and area, then c
 
 ## Color for many values
 
-The main guide's Color section covers the default: grays plus one accent. When the data needs more:
+The Color section of `reference/views.md` covers the default: grays plus one accent. When the data needs more:
 
 - Categories that must be told apart: `--chart-1`, `--chart-2`, … in order, at most four. Group the rest as "Seven others" in `--chart-context`, or use small multiples. The palette is tuned so the first four stay distinguishable for colorblind readers.
 - Ordered values (a heatmap, intensity): one hue from faint to strong, from `color-mix(in oklab, var(--chart-1) 15%, var(--background))` up to `var(--chart-1)`.
@@ -100,7 +100,7 @@ When the kit has no chart for the form (dots, a cumulative share, a scatter, a l
 - Keep the data in one array and compute every number the title and labels state from it.
 - Write small scale functions (`x(v)`, `y(v)`) from the domain to pixels, with a margin object for labels.
 - Measure the SVG with `getBoundingClientRect().width` (`clientWidth` is 0 for inline SVG), build the markup in one `draw()`, and call it from a `ResizeObserver`.
-- Thin labels and shrink margins by width, so the 360px version keeps every label it needs.
+- Thin labels and shrink margins by width, so the 360px version keeps every label it needs. Leave room inside the SVG for the outermost labels, and give every shape an explicit `fill` (`fill="none"` on open paths), because SVG fills a shape black when none is set.
 - For a readout, find the nearest point to the pointer, update one line of text above or beside the plot, and step through points with arrow keys when the SVG has focus (`tabindex="0"`). The default readout shows the point the title quotes.
 
 ## Check the claim

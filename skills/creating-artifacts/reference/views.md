@@ -1,17 +1,10 @@
----
-name: creating-views
-description: 'Renders charts, graphs, diagrams, and quick UI experiments inline in a reply as an interactive HTML page: a visual artifact embedded in the reply, with no files, build, or dev server. Use for a chart or graph of data, such as a trend, a ranking, a distribution, or a comparison; for any diagram, such as an architecture, flowchart, sequence diagram, state machine, timeline, race condition, or file or folder tree, static or one the reader can click or step through; for a calculation the reader can change; and for small UI experiments: mocking up a component or screen, prototyping an interaction, sketching a layout, or comparing two or three design directions side by side. Use when asked to chart, plot, graph, visualize, diagram, explain a race or where time goes, show how a number is computed, build a dashboard, mock up, prototype, sketch, or try out a UI idea.'
-metadata:
-  web-ui-only: true
----
+# Views
 
-# Creating Views
-
-A view is one self-contained HTML page that the Amp web UI renders inline in your reply, in a sandboxed frame on the thread's own background that follows the reader's light or dark theme.
+A view, the page of a visual artifact, is one self-contained HTML page that the Amp web UI renders inline in your reply, in a sandboxed frame on the thread's own background that follows the reader's light or dark theme.
 
 Publish the page as a visual artifact, then embed it in your reply with Markdown image syntax:
 
-1. Call the `artifact` tool with `action: "publish"`, `kind: "visual"`, `folder: "visuals"`, a short title, and the whole page as `content`. The content is HTML and nothing else: no Markdown and no code fence around it.
+1. Call the `artifact` tool with `action: "publish"`, `kind: "visual"`, `folder: "visuals"`, its name as `title`, and the whole page as `content`. The content is HTML and nothing else: no Markdown and no code fence around it.
 2. Put the returned `url` in your reply as an image, on its own line: `![Deep mode growth](URL)`. The reader sees the page there, and can open it as an artifact they can share.
 
 To show the view inside a document artifact, such as a report, put the same image line in the document's Markdown.
@@ -24,23 +17,9 @@ Deep mode is now Amp's second most used mode.
 Most of the growth came from existing Smart users switching, not new users.
 ````
 
-To change a view, publish the same artifact again with `edits` or new `content` and embed it again. Each publish replaces the page, so every embed of it shows the latest revision; publish a new artifact when the reader should keep the earlier version.
+To change a view, publish the same artifact again with `edits` or new `content`; every embed of it shows the latest revision.
 
 Without the `artifact` tool, write the page in a fenced code block with the `amp-view` language tag instead, which renders the same way.
-
-The reader sees the view in place. Do not announce it or restate it in your text; write only what the view does not say.
-
-## When to use a view
-
-Use a view when seeing answers the question faster than reading:
-
-- Data: a trend over time, a ranking, a distribution, or a comparison across more than about six values.
-- Systems: any diagram, such as an architecture, flowchart, sequence, state machine, timeline, race between callers, tree, or commit graph, including small static ones.
-- Derivations: how a number is computed, with inputs the reader can change.
-- Design: a quick UI experiment, such as a component or screen mockup, an interaction prototype, a layout wireframe, or two or three design directions side by side.
-- Any request to chart, plot, graph, visualize, diagram, mock up, prototype, sketch, try out a UI idea, or build a dashboard.
-
-Use Markdown instead for a short list, a table of a few rows, or one or two numbers. A view adds nothing to a code change summary; show the diff instead.
 
 ## The standard
 
@@ -48,30 +27,11 @@ A view must look like it shipped with Amp: calm, quiet, and precise. Readers gla
 
 Looking right is the easy part. Views fail far more often because the chart does not show what the title claims, so every view must also prove its point:
 
-- Before writing code, write the one sentence the reader should take away. For a chart it becomes the title; for a mockup or diagram it decides which state to open on.
+- The takeaway sentence is the view's `.ui-title`. For a mockup or diagram it also decides which state to open on.
 - Compute every number in the title from the data embedded in the view. Never quote a number the view does not contain, and never let a title rest on a default or placeholder value; in a calculator, generate the title from the current state.
 - Choose the encoding the claim needs. A claim about a multiple plots the multiple, a claim about a share draws the share, and "N% within X" draws a cumulative share. `reference/charts.md` covers this.
 - Make the default state show the point at 360px without any interaction. Open a stepper on the step that proves the title, color the path that matters before anyone clicks, and open a mockup on the state that decides the design. Screenshots, phones, and skimming readers only ever see the default state.
 - Say in a muted subtitle or caption what was measured, over what scope, and how the measure could mislead (a partial week, a known bias in the source, an assumption).
-
-## How to build one
-
-1. Write the takeaway sentence.
-2. Read the reference for the kind of view, in this skill's `reference/` directory:
-   - `charts.md` for charts, distributions, calculations, comparison and decision matrices, tables, and dashboards.
-   - `ui-explorations.md` for mockups, prototypes, design options, interactive experiments, and wireframes.
-   - `diagrams.md` for architecture diagrams, flowcharts, sequence diagrams, state machines, timelines, race timelines, trees, commit graphs, and step-through explainers. In an architecture diagram, flowchart, sequence diagram, or state machine, draw each part as a box or lane and each call, message, or transition as an SVG line with an arrowhead, so the reader can trace the flow. Words or chips joined by → characters are a list, not a diagram.
-3. Start from the closest example in `examples/`. Each is a complete view that follows this guide; reuse its structure and code, and replace its placeholder subject and data with yours.
-   - `indexed-lines.html`: a line chart whose title states a multiple, plotted against each series' own baseline.
-   - `highlighted-bars.html`: a ranking with one highlighted bar, a gray tail row, and shares at the bar ends.
-   - `cumulative-share.html`: a hand-drawn distribution (cumulative share on a log axis) with a pointer and keyboard readout.
-   - `calculation.html`: a derivation ledger, one term per row, with inputs to change, a computed title, and the marginal cost.
-   - `decision-matrix.html`: a weighted decision with sliders, a title computed from state, and the smallest change that flips the pick.
-   - `design-options.html`: a UI exploration with today's behavior as a baseline, three directions, a stress condition, and working actions.
-   - `flowchart.html`: a flowchart or state diagram that colors the path the title is about and reflows from a row to a column on phones.
-   - `sequence.html`: a sequence diagram with a synced ledger of who holds what after each step.
-   - `race-timeline.html`: a timeline of two concurrent callers on one time axis, with the moment the race breaks marked and the fix behind a switch.
-   - `tree.html`: a file tree as an indented outline that opens only the path to the files the title names, with WAI-ARIA tree keys.
 
 ## The frame
 
