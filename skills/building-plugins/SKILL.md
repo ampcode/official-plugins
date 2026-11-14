@@ -25,7 +25,11 @@ Amp before plugin changes are active.
 Amp plugins are TypeScript/JavaScript extension files. They are not agent modes,
 built-in tools, or MCP servers; when asked what plugins are installed, enumerate
 actual plugins rather than listing those. To enumerate:
-- Run `amp plugins list` for project-local plugins (`.amp/plugins/`).
+- Run `amp plugins list` for project-local plugins (`.amp/plugins/`). It loads
+  each plugin in its own process, outside any thread, so a plugin that calls
+  `amp.createWebhook` while loading shows as an error there, even in an orb.
+  That error does not mean the plugin is broken in the thread; reload it in the
+  thread with `load_plugin` to check.
 - List `~/.config/amp/plugins/` for user-local plugins.
 - Run `amp plugins repositories` for the global User/Workspace scopes, then list
   the root plugin files and plugin directories in each repository it names.

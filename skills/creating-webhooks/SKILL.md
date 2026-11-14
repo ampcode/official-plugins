@@ -8,8 +8,9 @@ metadata:
 # Creating Webhooks
 
 Use `amp.createWebhook` to add a durable HTTP webhook to an Amp plugin running in an
-Amp-managed Orb. Project threads owned by the same user share a registration for each plugin and
-key. Threads without a project keep separate registrations.
+Orb thread, including Orbs from a self-hosted Orb provider. Project threads owned by the same user
+share a registration for each plugin and key. Threads without a project keep separate
+registrations.
 
 ## Workflow
 
@@ -54,5 +55,9 @@ const { url } = await amp.createWebhook({
 - Treat the webhook URL as a bearer credential. Never commit it, include it in chat, or write it to
   ordinary logs or notifications. If it must be persisted locally, use a gitignored file with
   owner-only permissions.
-- `amp.createWebhook` works only inside an Amp-managed Orb plugin runtime. Do not build local CLI
-  plugins around it.
+- `amp.createWebhook` works only when the plugin runs in an Orb thread, including Orbs from a
+  self-hosted Orb provider. Do not build local CLI plugins around it.
+- `amp plugins list` and local Amp CLI sessions reject `amp.createWebhook`, even inside an Orb.
+  Verify registration by reloading the plugin in the Orb thread with `load_plugin`, not with
+  `amp plugins list`. If the plugin also runs locally, catch that rejection so its other features
+  still load.
