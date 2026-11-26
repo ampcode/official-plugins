@@ -2,7 +2,7 @@
 name: building-sideviews
 description: "Builds, changes, fixes, and removes sideviews: small programs in the user's or workspace's plugins repository that arrange the threads in the Amp sidebar into sections and add filter controls and stats. Use when asked for a sideview (also called a custom sidebar), a focus mode, to group, sort, filter, or prioritize the thread list in the sidebar, to add a toggle, picker, or count above the threads, or to edit, regenerate, or fix a sideview under sideviews/ in a plugins repository. Not for labels, pinning, snoozing, or archiving threads."
 metadata:
-  feature: objective-filter
+  feature: sideviews
 ---
 
 # Building Sideviews
@@ -44,7 +44,7 @@ The listener's `state` is an object of the choices the user made with controls. 
 
 `sidebar.setState({ name: value })` records a choice. The program and every view then get the new state in their listeners.
 
-`await sidebar.jev(threads, { Name: 'condition', ... })` asks Jev which condition each thread meets. It resolves to an object from thread id to the name of the first condition, in the order written, that the thread meets, or null when it meets none. `await sidebar.jev(threads, 'condition')` asks one yes-or-no question and resolves to an object from thread id to true or false. Jev reads each thread's title, last message, labels, status, nested threads, subscriptions, schedule, and pull requests. Amp caches the answers, so asking again on every listener call costs nothing and is the way to use it: the first call for a thread takes a few seconds, and later calls return at once. A thread Jev could not check is missing from the object; treat it as meeting no condition.
+`await sidebar.jev(threads, { Name: 'condition', ... })` asks Jev which condition each thread meets. It resolves to an object from thread id to the name of the first condition, in the order written, that the thread meets, or null when it meets none. `await sidebar.jev(threads, 'condition')` asks one yes-or-no question and resolves to an object from thread id to true or false. Jev reads each thread's title, labels, nested threads, subscriptions, schedule, and pull requests. When a condition in the question depends on how far along a thread is, such as finished, unresolved, failing, or waiting on someone, Jev also reads the thread's last message and status, for every condition in that question. Amp caches the answers, so asking again on every listener call costs nothing and is the way to use it: the first call for a thread takes a few seconds, and later calls return at once. A thread Jev could not check is missing from the object; treat it as meeting no condition.
 
 `sidebar.layout(blocks)`, in the program only, shows the blocks in order. Call it at the end of the listener, on every call. A block is one of:
 
@@ -56,7 +56,8 @@ A thread shows once, in the first section that lists it. A thread in no section 
 ### What to ask Jev
 
 - Use the thread's own data for everything it answers exactly: waiting, working, unread, labels, project, kind, automations, nested threads, and time. Jev knows no dates and no unread state.
-- Ask Jev what a thread is about, what kind of work it is, and any other judgment the data cannot make. Write each condition as a full phrase that someone who sees only one thread's title, last message, labels, and status can decide, such as "Threads about billing, invoices, or payments".
+- Ask Jev what a thread is about, what kind of work it is, and any other judgment the data cannot make. Write each condition as a full phrase that someone who sees only one thread's title and labels can decide, such as "Threads about billing, invoices, or payments".
+- Add a condition about how far along a thread is, such as "still unresolved" or "finished and shipped", only when the user asks for one. It makes Jev read last messages, which is slower and makes the topic conditions in the same question less exact, because a last message mentions commits, tests, and fixes whatever its thread is about. For waiting and working, use the thread's `state` instead.
 - Ask one question with all the conditions the program needs, at most 12, and call it with every thread, not a filtered subset, so one set of answers serves every section and control. Ask a second question only when the first cannot hold it, such as a yes-or-no condition that cuts across the topics. A program asks at most 4 different questions.
 - Write every condition as a constant in the program. Never build one from a thread's data, from state, or from what the user types; a search field matches titles and labels itself.
 - When the user names topics, ask about exactly those. When they say "by topic" or "what I work on most" without naming any, choose up to 8 from their threads (workflow step 4) and write them into the program as constants.
