@@ -25,16 +25,18 @@ Key invariants:
 - Project pre-clone and pre-setup scripts are stored in project settings, outside the repository.
   Pre-clone runs from `/home/user/workspace` before any repository exists; use it only for clone
   prerequisites. Pre-setup runs immediately before `.agents/setup` whenever setup runs. Read both
-  with `amp projects get <project>`, or update them with `amp projects update <project>
-  --pre-clone-script-file <path>` and `--pre-setup-script-file <path>`. Changing either script
+  with `amp projects get <project>`. Update them with `manage_amp` topic `projects`, operation
+  `update`, and the script text in `pre_clone_script` or `pre_setup_script`; for a workspace
+  project, the user confirms the change in a dialog. Changing either script
   changes the snapshot identity, so the next new orb reruns setup with the new script; do not tell
   the user to clear the snapshot.
 - An exact project snapshot skips setup. A stale snapshot preserves installed packages and caches,
   but Amp updates the repository and runs setup again before starting work. Setup must therefore
   be non-interactive, idempotent, and fast on a warm filesystem.
 - If an exact snapshot itself is broken, inspect it with `amp projects snapshots list <project>`.
-  Delete one size with `amp projects snapshots delete <project> --resource <size>`, or omit
-  `--resource` to delete every snapshot for the project. Do not delete snapshots only to apply a
+  Delete one size with `manage_amp` topic `projects`, operation `delete-snapshots`, and
+  `environment_resource` set to that size, or omit `environment_resource` to delete every snapshot
+  for the project. Do not delete snapshots only to apply a
   normal setup script change.
 - Amp stops `.agents/setup` after 20 minutes and continues startup without it. A separate executor
   connection warning appears after 5 minutes even if setup is still running. Treat 20 minutes as a
@@ -63,18 +65,19 @@ files or avoid repository changes, follow the project-setting path below and ski
 - Find the project ref with `amp projects list`; pass it as `namespace/name` without a leading `@`.
   If a project command fails, fix the ref and retry. Never fall back to writing repository files.
 - If setup must install something before Amp can clone the repository, put only that prerequisite
-  in a pre-clone script and store it with
-  `amp projects update <project> --pre-clone-script-file <temporary-file>`.
+  in a pre-clone script and store it with `manage_amp` topic `projects`, operation `update`, and
+  the script text in `pre_clone_script`.
 - Write the complete, idempotent setup script to a temporary file outside the repository. Put
   setup work directly in this script. If the project needs `.agents/resume` or
   `.amp/services.yaml`, have the script create those files in the orb at runtime and append their
   paths to `.git/info/exclude` so they stay out of `git status` and later commits.
 - Keep tokens, hostnames, and other configuration values out of the script. Read them from
-  project environment variables or secrets (`amp secrets --help`).
+  project environment variables or secrets, which `manage_amp` topics `environment_variables` and
+  `secrets` set with `scope: project`.
 - Run `bash -n` on the temporary script, then run it twice from the repository root and verify the
   warm run.
-- Store it with
-  `amp projects update <project> --pre-setup-script-file <temporary-file>`.
+- Store it with `manage_amp` topic `projects`, operation `update`, and the script text in
+  `pre_setup_script`.
 - Confirm it with `amp projects get <project>`, then remove the temporary file.
 - Report that setup is active for future orbs and no repository push is needed.
 - Do not create, modify, or commit repository files.
