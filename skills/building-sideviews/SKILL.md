@@ -32,6 +32,15 @@ The file's `<title>` names the sideview. One chip above the thread list names th
 
 To remove a sideview, delete its directory, commit, and push.
 
+### In a thread without a shell
+
+A Puck chat, such as the editor in the Sideviews dialog, has no shell and no clone. There, `manage_amp` with topic `sideviews` replaces steps 1, 2, 6, 7, and 8:
+
+- `list` names the user's sideviews, and `get` with `{ key }` returns a sideview's `sideview.html`. Add `scope: 'workspace'` to read a workspace's.
+- `put` with `{ key, program }` saves the whole file as the user's personal sideview, turns it on, and reloads their sidebar within seconds. It refuses a file Amp could not serve and says why.
+
+Call put after each change the user should see. A put is the publish: nothing is left to commit or push. The check script cannot run there, so before each put read the program again against "The program" and "Gotchas" below. `manage_amp` cannot write a workspace's sideview; save the user's own copy under the same key and say so.
+
 To keep a sideview current, such as new topics each week, offer a schedule for this thread that repeats step 3 onward.
 
 ## The program
@@ -48,7 +57,7 @@ The listener's `state` is an object of the choices the user made with controls. 
 
 `sidebar.layout(blocks)`, in the program only, shows the blocks in order. Call it at the end of the listener, on every call. A block is one of:
 
-- `{ type: 'section', title, threads, collapsed, showStatus, showQuestions, view }`. `title` is the header text, at most 80 characters; `''` lists the threads without a header. `threads` is the array of thread ids in display order: keep the order the listener gave unless the user asks for another. `collapsed: true` starts the section closed. `showStatus: false` hides the threads' status lines, and `showQuestions: false` hides their waiting questions. `view` is the id of a template to show at the top of the section's threads, or omitted.
+- `{ type: 'section', title, threads, collapsed, showStatus, showQuestions, titles, view }`. `title` is the header text, at most 80 characters; `''` lists the threads without a header. `threads` is the array of thread ids in display order: keep the order the listener gave unless the user asks for another. `collapsed: true` starts the section closed. `showStatus: false` hides the threads' status lines, and `showQuestions: false` hides their waiting questions. `titles` is an object from thread id to the text that thread's row shows in place of its title, one line of at most 120 characters, such as `{ [t.id]: '🔴 ' + t.title }`; a thread without an entry keeps its title, and the thread itself is not renamed. Set it only when the user asks to mark, shorten, or rename rows. `view` is the id of a template to show at the top of the section's threads, or omitted.
 - `{ type: 'view', view }`. `view` is the id of a template to show at this place.
 
 A thread shows once, in the first section that lists it. A thread in no section is hidden, so end with a section for the rest unless the user asks to hide them. Amp does not draw a section with no threads. A layout holds at most 40 blocks.
@@ -70,7 +79,7 @@ A view is one control, a few related controls, or a stat. Each template holds th
 - A stat is a count or other number computed from the threads in a view's listener and shown as `ui-label` text.
 - Put thread values into a view with `textContent`, never `innerHTML`. They are data, not markup.
 - Show only the controls and stats the user asked for, each labeled in a few words. No view explains a control, repeats the request, or counts the shown threads unless asked.
-- The frame is about 220 px wide. Keep a view under 60 px tall and let a long row of options wrap. Use only these: class `ui-row` for a wrapping row with a gap, `<button class="ui-btn sm">` with `aria-pressed="true"` on the chosen one (it draws no border or fill until it is hovered or pressed, so add class `outline` to a button that must show as a box, such as an empty cell or a button that stands alone), `<select>`, `<input type="search">`, `<input type="range" class="ui-range">`, and class `ui-label` for small muted text. Add no icons, images, emoji, or colors.
+- The frame is about 220 px wide. Keep a view under 60 px tall and let a long row of options wrap; Amp shows at most 600 px of a view's height and scrolls the rest. Use only these: class `ui-row` for a wrapping row with a gap, `<button class="ui-btn sm">` with `aria-pressed="true"` on the chosen one (it draws no border or fill until it is hovered or pressed, so add class `outline` to a button that must show as a box, such as an empty cell or a button that stands alone), `<select>`, `<input type="search">`, `<input type="range" class="ui-range">`, and class `ui-label` for small muted text. Add no icons, images, emoji, or colors.
 
 ### Time
 
