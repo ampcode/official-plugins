@@ -274,9 +274,11 @@ Writing to a global skills repository:
 - Each skill is a top-level `<skill-name>/` directory with `SKILL.md` directly
   inside it; the directory name must match the frontmatter `name`. Text files
   bundled under the skill directory (`scripts/`, `reference/`) are served too.
-  Binary files are not: a skill containing one is not loaded. A skill that
-  needs MCP tools can use inline `mcpServers` frontmatter or a sibling
-  `mcp.json`.
+  Binary files are not: Amp loads the skill without them and lists them as
+  skipped in skills settings, and a skill whose `SKILL.md` is binary is not
+  loaded. Keep build output such as `__pycache__/` out of the commit, for
+  example with a `.gitignore`. A skill that needs MCP tools can use inline
+  `mcpServers` frontmatter or a sibling `mcp.json`.
 - Default an unqualified request to the User Skills scope; use a Workspace scope
   only when the user asks for it and its repository entry is writable. Workspace
   pushes affect all teammates and require workspace admin permission.
